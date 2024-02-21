@@ -95,7 +95,7 @@ const SignUp = () => {
         const newEmail = e.target.value;
         setHasEmailChanged(true);
         setEmail(newEmail);
-        const regexEmail = /^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/;
+        const regexEmail = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/;
         const isEmailValid = regexEmail.test(newEmail) && newEmail.length <= 255;
         setEmailInvalid(!isEmailValid);
     };

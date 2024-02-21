@@ -8,6 +8,7 @@ const CATEGORIES = require('../../models/categories');
 const { v4: uuidv4 } = require('uuid');
 const uuid = uuidv4();
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 const moment = require('moment');
 require('dotenv').config();
@@ -16,7 +17,6 @@ require('dotenv').config();
 
 //multer
 var multer = require('multer');
-const { FALSE } = require('node-sass');
 const session = require('express-session');
 const IMAGES = require('../../models/images');
 var storage = multer.diskStorage({
@@ -354,6 +354,77 @@ async function editProductPost(req, res) {
 
 
 
+async function addUser(req, res) {
+    const hashedPass = await bcrypt.hash(req.body.password, 10);
+    const newUser = new USERS({
+        name: req.body.name,
+        password: hashedPass,
+        email: req.body.email,
+        role: req.body.role
+    })
+
+    USERS.addNewUser(newUser, (err, user) => {
+        if (err) {
+            res.json({ success: false });
+            console.log(err);
+        }
+        console.log(req.body)
+        res.json({ success: true })
+    })
+
+}
+
+async function deleteUser(req, res) {
+    console.log(req.body);
+    USERS.deleteByUserId(req.body.user_id, (err, user) => {
+        if (err) {
+            res.json({ success: false });
+            console.log(err);
+        }
+        console.log(req.body)
+        res.json({ success: true })
+    })
+
+}
+
+async function editUser(req, res) {
+    console.log(req.body);
+
+    try {
+        const userData = await USERS.findById(req.body.id);
+        console.log(`userData: ${userData}`);
+        let currentPassword = '';
+
+        if (req.body.password === '') {
+            currentPassword = userData.password;
+            console.log(`currentPassword: ${currentPassword}`);
+
+        } else {
+            const hashedPass = await bcrypt.hash(req.body.password, 10);
+            currentPassword = hashedPass;
+        }
+
+        const newUser = {
+            id: req.body.id,
+            name: req.body.name,
+            password: currentPassword,
+            role: req.body.role
+        };
+
+        USERS.editByUserId(newUser, (err, user) => {
+            if (err) {
+                res.json({ success: false });
+                console.log(err);
+                return;
+            }
+            console.log(req.body);
+            res.json({ success: true });
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, error: error.message });
+    }
+}
 
 async function deleteProduct(req, res) {
     console.log(req.body);
@@ -1093,7 +1164,7 @@ function updateOrderIsRated(req, res) {
 }
 
 module.exports = {
-    home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, deleteProduct, productDetail,
+    home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUser, deleteProduct, productDetail,
     cart, cartServer, addCart, deleteCart, updateCart, checkout, dataOrder, createPaymentVNPAY, order, orderDetails, orderManagement,
     updateOrder, orderSuccess, orderReject, orderShipping, orderShipped, reviews, reviewsManagement,
     reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder

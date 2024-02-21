@@ -699,6 +699,8 @@ SET IDENTITY_INSERT [dbo].[REVIEWS] OFF
 GO
 SET IDENTITY_INSERT [dbo].[USERS] ON 
 GO
+INSERT [dbo].[USERS] ([id], [name], [password], [email], [role], [provider], [phone], [registration_token], [confirmation_status]) VALUES (1999, N'Hồ Hiển', N'$$2b$10$noEIdA/M6ZRDnjY1J7Eykul1iKO24VQj74aU5OEfLoaKgrhNvF5D6', N'imadoki.fa@gmail.com', N'admin', NULL, NULL, N'$2b$10$8qeAF6swA1b0WNwcFn1hFeUgwMBBTDFUhBZX5ji9lVkifYgXQcrRO', N'1')
+GO
 INSERT [dbo].[USERS] ([id], [name], [password], [email], [role], [provider], [phone], [registration_token], [confirmation_status]) VALUES (2015, N'Nhật Tân', N'$2b$10$UYyf8ct8wR/X23O7EFfiYeZgTYTzwtFcMA9KGANlnbwmwyR3883fy', N'admin@gmail.com', N'admin', NULL, NULL, NULL, N'1')
 GO
 INSERT [dbo].[USERS] ([id], [name], [password], [email], [role], [provider], [phone], [registration_token], [confirmation_status]) VALUES (3002, N'test1', N'$2b$10$6KIa/jjaannA7Xvs4knBF.j20HvQAWzutDs0OoX.XnP9gAlp1ATyi', N'test1@gmail.com', N'user', NULL, NULL, NULL, NULL)

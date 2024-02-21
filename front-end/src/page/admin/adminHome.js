@@ -10,6 +10,7 @@ import OrderManagement from './orderManagement/orderManagement';
 import Cookies from 'js-cookie';
 import jwtDecode from 'jwt-decode';
 import { v4 as uuidv4 } from 'uuid';
+import UserManagement from './userManagement/userManagement';
 
 
 const AdminHome = () => {
@@ -85,6 +86,7 @@ const AdminHome = () => {
                 </Menu>
 
             </Space>
+            {current === 'um' && <UserManagement />}
             {current === 'pm' && <ProductManagement />}
             {current === 'om' && <OrderManagement />}
         </div>
