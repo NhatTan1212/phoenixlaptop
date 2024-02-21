@@ -247,9 +247,13 @@ function Header() {
                             <div className=' text-white flex items-center text-[17px] relative'>
                                 <div
                                     className='wrap-link py-[24px] px-[16px]'
-                                    onClick={(e) => {
-                                        setIsShowFloatLayer(!isShowFloatLayer)
-                                    }}>
+                                    onMouseEnter={() => {
+                                        setIsShowFloatLayer(!isShowFloatLayer);
+                                    }}
+                                    onMouseLeave={() => {
+                                        setIsShowFloatLayer(!isShowFloatLayer);
+                                    }}
+                                >
                                     <span className='icon icon-user'>
                                         <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>
                                     </span>
@@ -257,6 +261,12 @@ function Header() {
                                     <div className={isShowFloatLayer ? ' absolute left-[16px] top-[75px] z-10 bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.5)] w-[auto] rounded-[10px]' : 'hidden'}>
                                         <ul className=''>
                                             <li className='flex '>
+                                                <Link to={'/management'} className='w-full text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
+                                                    Vào trang Admin
+                                                    <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
+                                                </Link>
+                                            </li>
+                                            <li>
                                                 <Link className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
                                                     Quản lý thông tin cá nhân
                                                     <FontAwesomeIcon icon={faAngleRight} className='pl-5' />

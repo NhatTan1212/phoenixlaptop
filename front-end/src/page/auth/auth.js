@@ -24,7 +24,7 @@ const Auth = () => {
     const [isSignUpFail, setIsSignUpFail] = useState(false);
 
     const handleSignIn = () => {
-        const regexEmail = /^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/;
+        const regexEmail = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/;
         // console.log(regexEmail.test(email))
         if (!regexEmail.test(email)) {
             setEmailInvalid(true);

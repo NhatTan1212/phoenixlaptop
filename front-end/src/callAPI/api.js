@@ -1,6 +1,15 @@
 // api.js
 import Instance from '../axiosInstance';
 
+const GetUsers = () => {
+    return Instance.get('/users')
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api GetUsers: ' + err);
+            return Promise.reject(err);
+        });
+};
+
 const GetProducts = () => {
     return Instance.get('/home')
         .then((res) => res.data)
@@ -52,6 +61,45 @@ const GetProductsByQuery = (query) => {
         .catch(error => {
             // Handle errors here
             console.error('Loi call api GetProductByQuery:', error);
+        });
+}
+
+const AddNewUser = (formData) => {
+    console.log(formData)
+
+    return Instance.post('/newuser', formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api AddNewUser:', error);
+        });
+}
+
+const DeleteUser = (requestData) => {
+    return Instance.post('/deleteuser', requestData, {
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api DeleteUser:', error);
+        });
+}
+
+const EditUser = (formData) => {
+    console.log(formData)
+    return Instance.post('/edituser', formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api EditProduct:', error);
         });
 }
 
@@ -128,6 +176,6 @@ const DeleteOrder = (requestData) => {
 }
 
 export {
-    GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, GetCategories, GetImages,
+    GetUsers, GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, EditUser, AddNewUser, DeleteUser, GetCategories, GetImages,
     EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder
 };
