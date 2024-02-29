@@ -40,6 +40,9 @@ const uploadMuti = multer({
 
 routerHome.get('/', controllerHome.home)
 routerHome.get('/users', controllerHome.users)
+routerHome.post('/delivery-address', controllerHome.deliveryAddress)
+routerHome.post('/add-delivery-address', controllerHome.addDeliveryAddress)
+routerHome.post('/delete-delivery-address', controllerHome.deleteDeliveryAddress)
 routerHome.get('/management', controllerHome.management)
 routerHome.get('/home', controllerHome.home)
 routerHome.get('/list-image', controllerHome.listImage)

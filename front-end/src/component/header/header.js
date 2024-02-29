@@ -10,12 +10,12 @@ import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import Instance from '../../axiosInstance';
-
+import jwtDecode from 'jwt-decode';
 
 const { Search } = Input;
 function Header() {
     const { param } = useParams(); // Lấy tham số từ URL
-
+    const token = Cookies.get('token');
     const context = useContext(Context)
     const isCartChange = context.isCartChange
     const setIsCartChange = context.setIsCartChange
@@ -30,7 +30,7 @@ function Header() {
     const tokenCookieName = 'token';
     const userName = localStorage.getItem('user_name');
     const role = localStorage.getItem('role');
-
+    const [isAdmin, setIsAdmin] = useState(false)
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     const isAdminHomePage = location.pathname === '/management'
@@ -52,7 +52,20 @@ function Header() {
         </Link>
     );
 
-
+    useEffect(() => {
+        if (token) {
+            const decodedToken = jwtDecode(token);
+            if (decodedToken.role == 'admin') {
+                setIsAdmin(true)
+                console.log('ĐÂY LÀ ADMIN');
+            } else {
+                console.log('ĐÂY LÀ USER');
+                setIsAdmin(false)
+            }
+        } else {
+            setIsAdmin(false)
+        }
+    }, [isAdmin])
     useEffect(() => {
         // getBankAccountNumber()
         checkLoginStatus();
@@ -182,11 +195,6 @@ function Header() {
     // console.log(token)
     return (
         <div
-            onClick={(e) => {
-                if (isShowFloatLayer) {
-                    setIsShowFloatLayer(false);
-                }
-            }}
             className='header'
         >
             {console.log("isCartChange", isCartChange)}
@@ -260,12 +268,13 @@ function Header() {
                                     <span className='text pl-[5px]'>  {userName}</span>
                                     <div className={isShowFloatLayer ? ' absolute left-[16px] top-[75px] z-10 bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.5)] w-[auto] rounded-[10px]' : 'hidden'}>
                                         <ul className=''>
-                                            <li className='flex '>
-                                                <Link to={'/management'} className='w-full text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
-                                                    Vào trang Admin
-                                                    <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
-                                                </Link>
-                                            </li>
+                                            {isAdmin &&
+                                                <li className='flex '>
+                                                    <Link to={'/management'} className='w-full text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
+                                                        Vào trang Admin
+                                                        <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
+                                                    </Link>
+                                                </li>}
                                             <li>
                                                 <Link className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
                                                     Quản lý thông tin cá nhân

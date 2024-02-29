@@ -54,6 +54,9 @@ function Order() {
                     paymentMethod = 'Thanh toán khi nhận hàng'
                 } else if (record.paymentMethods === 'Bank') {
                     paymentMethod = 'Thanh toán qua tài khoản ngân hàng'
+                } else {
+                    paymentMethod = 'ATM ngân hàng nội địa (VNPAY)'
+
                 }
                 return (<div>
                     {paymentMethod}

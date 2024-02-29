@@ -19,7 +19,8 @@ const TableOrderDetail = ({ columns, dataSource, order }) => {
                 <div className='flex justify-between'>
                     <span className='pl-5'>Hình thức thanh toán:</span>
                     <span className='text-[#000] pr-[30px]'>
-                        {order ? order.total ? order.paymentMethods === 'COD' ? 'Thanh toán tiền mặt khi nhận hàng'
+                        {order ? order.total ? order.paymentMethods === 'COD' ? 'Thanh toán tiền mặt khi nhận hàng' : order.paymentMethods === 'VNPAY' ?
+                            'Thanh toán qua ATM-Tài khoản ngân hàng nội địa (VNPAY)'
                             : 'Thanh toán qua chuyển khoản qua tài khoản ngân hàng' : '' : ''}
                     </span>
                 </div>

@@ -126,6 +126,24 @@ Products.selectLast = async (result) => {
         })
 }
 
+Products.updateDecreaseQuantityById = async (id, count, result) => {
+    const pool = await connect;
+    const sqlStringUpdateDecreaseQuantityById = `
+    update PRODUCTS SET quantity = quantity-@count where id=@id and quantity-@count>=0
+    `;
+    await pool.request()
+        .input('id', sql.Int, id)
+        .input('count', sql.Int, count)
+        .query(sqlStringUpdateDecreaseQuantityById, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                // console.log('id: ', data.recordset)
+                result(null, data.recordset);
+            }
+        })
+}
+
 
 Products.find = async (result) => {
     const pool = await connect;

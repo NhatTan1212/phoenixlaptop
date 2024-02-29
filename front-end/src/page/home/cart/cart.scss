@@ -83,3 +83,9 @@
 .model-payment-status .ant-modal-body{
     text-align: center;
 }
+
+.btn-antd-disabled:hover{
+    border-color: #b8b8b8 !important;
+    color: #b8b8b8 !important;
+    background-color: #eee !important;
+}   

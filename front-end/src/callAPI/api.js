@@ -10,6 +10,45 @@ const GetUsers = () => {
         });
 };
 
+const GetDeliveryAddress = (requestData) => {
+    return Instance.post('/delivery-address', requestData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api GetDeliveryAddress: ' + err);
+            return Promise.reject(err);
+        });
+};
+
+const AddNewDeliveryAddress = (requestData) => {
+    return Instance.post('/add-delivery-address', requestData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api AddNewDeliveryAddress: ' + err);
+            return Promise.reject(err);
+        });
+};
+
+const DeleteDeliveryAdress = (requestData) => {
+    return Instance.post('/delete-delivery-address', requestData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api DeleteDeliveryAddress: ' + err);
+            return Promise.reject(err);
+        });
+};
+
 const GetProducts = () => {
     return Instance.get('/home')
         .then((res) => res.data)
@@ -176,6 +215,6 @@ const DeleteOrder = (requestData) => {
 }
 
 export {
-    GetUsers, GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, EditUser, AddNewUser, DeleteUser, GetCategories, GetImages,
-    EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder
+    GetUsers, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, EditUser, AddNewUser, DeleteUser, GetCategories, GetImages,
+    EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress
 };

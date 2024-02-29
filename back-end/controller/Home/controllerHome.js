@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const uuid = uuidv4();
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const mailer = require('../../utils/mailer.js');
 
 const moment = require('moment');
 require('dotenv').config();
@@ -19,6 +20,7 @@ require('dotenv').config();
 var multer = require('multer');
 const session = require('express-session');
 const IMAGES = require('../../models/images');
+const DELIVERY_ADDRESS = require('../../models/diliveryAddress');
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'public/upload')
@@ -72,6 +74,61 @@ function home(req, res) {
             res.json(product)
         }
     });
+}
+
+function deliveryAddress(req, res) {
+    console.log(req.body);
+    let token = req.body.token
+    console.log('token =', token)
+    let verify = jwt.verify(token, 'secretId')
+    const user_id = verify.id
+    console.log(user_id);
+    DELIVERY_ADDRESS.findByUserId(user_id, (err, data) => {
+        if (err) {
+            console.log(err);
+            return res.json({ success: false, err: err })
+        } else {
+            // console.log(data);
+            return res.json({ success: true, delivery_address: data })
+        }
+    })
+}
+
+async function addDeliveryAddress(req, res) {
+    let token = req.body.token
+    let verify = jwt.verify(token, 'secretId')
+    const user_id = verify.id
+    const newAddress = new DELIVERY_ADDRESS({
+        user_id: user_id,
+        province: req.body.province,
+        district: req.body.district,
+        ward: req.body.ward,
+        detail_address: req.body.detail_address
+    })
+
+    DELIVERY_ADDRESS.create(newAddress, (err, address) => {
+        if (err) {
+            res.json({ success: false });
+            console.log(err);
+        }
+        // console.log(req.body)
+        res.json({ success: true })
+    })
+
+}
+
+const deleteDeliveryAddress = (req, res) => {
+    let token = req.body.token;
+    let user_id = jwt.verify(token, 'secretId').id
+    let address_id = req.body.address_id
+    DELIVERY_ADDRESS.deleteById(user_id, address_id, (err, data) => {
+        if (err) {
+            res.json({ success: false });
+            console.log('line 126: ControllerHome - Lỗi delete DeliveryAddress', err);
+        }
+        // console.log(req.body)
+        res.json({ success: true })
+    })
 }
 
 function laptopGaming(req, res) {
@@ -470,17 +527,17 @@ async function productDetail(req, res) {
         const images = await IMAGES.findByProductId(productId);
 
         const reviews = await REVIEWS.findByProductId(productId);
-        const users = await getUsersFromReviews(reviews);
+        // const users = await getUsersFromReviews(reviews);
         // console.log(users)
-        const nameUsersRated = users.map(user => user[0].name);
+        // const nameUsersRated = users.map(user => user[0].name);
         // console.log(nameUsersRated)
 
         const responseData = {
             data: product[0],
             category: category[0].name,
             images: images,
-            reviews: reviews,
-            nameUsersRated: nameUsersRated,
+            // reviews: reviews,
+            // nameUsersRated: nameUsersRated,
             slug: category[0].slug
         };
 
@@ -737,10 +794,43 @@ function checkout(req, res) {
     // res.render('checkout')
 }
 
-
+const mailerOrderSuccessfully = (email, data, productList) => {
+    mailer.sendMail(
+        email,
+        "[PhoenixLaptop] Thông tin đơn đặt hàng",
+        `
+        <div style="background-color: #f0f9eb; border: 1px solid #b7eb8f; color: #4caf50; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+        <h1 style="font-size: 24px;">Bạn đã đặt hàng thành công</h1>
+        <h2 style="font-size: 20px;">Thông tin giao hàng:</h2>
+        <p><strong>Tên người nhận:</strong> ${data.name}</p>
+        <p><strong>Số điện thoại:</strong> ${data.phone}</p>
+        <p><strong>Địa chỉ nhận hàng:</strong> ${data.userAddress}</p>
+      
+        <h2 style="font-size: 20px;">Danh sách sản phẩm đã đặt:</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <th style="background-color: #4caf50; color: white; border: 1px solid #ddd; padding: 8px;">STT</th>
+            <th style="background-color: #4caf50; color: white; border: 1px solid #ddd; padding: 8px;">Hình ảnh</th>
+            <th style="background-color: #4caf50; color: white; border: 1px solid #ddd; padding: 8px;">Tên sản phẩm</th>
+            <th style="background-color: #4caf50; color: white; border: 1px solid #ddd; padding: 8px;">Đơn giá</th>
+            <th style="background-color: #4caf50; color: white; border: 1px solid #ddd; padding: 8px;">Số lượng</th>
+          </tr>
+          ${productList}
+        </table>
+      
+        <h2 style="font-size: 20px;">Thanh toán:</h2>
+        <p><strong>Tổng tiền:</strong> ${data.total} VNĐ</p>
+        <p><strong>Hình thức thanh toán:</strong> ${data.paymentMethod}</p>
+      </div>
+      
+        `
+    );
+}
 function dataOrder(req, res) {
     const token = req.body.token;
     const tokenGID = req.body.tokenGID;
+    let uid = null
+    let gid = null
 
     // Tạo một đối tượng order để sử dụng chung
     const newOrder = new ORDERS({
@@ -759,44 +849,158 @@ function dataOrder(req, res) {
         is_approved: 0,
         is_being_shipped: 0,
         is_transported: 0,
-        is_success: 0
+        is_success: 0,
+        vnp_TransactionNo: null,
+        vnp_PayDate: null,
+        vnp_OrderInfo: null,
+        vnp_CardType: null,
+        vnp_BankCode: null,
     });
 
     if (token !== undefined) {
         const verify = jwt.verify(token, 'secretId');
         newOrder.user_id = verify.id;
+        uid = verify.id
     } else if (tokenGID !== undefined) {
         newOrder.guest_id = tokenGID;
+        gid = tokenGID
     }
+    let productList = '';
 
-    console.log(newOrder)
+    // Tạo danh sách sản phẩm
+    req.body.listProduct.forEach((product, index) => {
+        productList += `
+<tr style="border-bottom: 1px solid #e5e5e5">
+  <td>${index + 1}</td>
+  <td style="text-align: center"><img style="height: 120px" src="${product.avatar}"></td>
+  <td>${product.prod_name}</td>
+  <td>${product.price}</td>
+  <td>${product.count}</td>
+</tr>
+`;
+    });
 
-    ORDERS.create(newOrder, (err, order) => {
-        if (err) {
-            return res.json({ success: false, error: err });
-        }
-        console.log(order)
+    if (req.body.paymentMethod === "VNPAY") {
+        let getPayDate = req.body.vnp_PayDate
+        console.log(getPayDate);
+        const formattedPayDate = getPayDate.slice(0, 4) + "-" + getPayDate.slice(4, 6) + "-" + getPayDate.slice(6, 8) + " " + getPayDate.slice(8, 10) + ":" + getPayDate.slice(10, 12) + ":" + getPayDate.slice(12, 14);
 
-        const completedRequests = req.body.listProduct.length;
-        let requestsCompleted = 0;
+        console.log(formattedPayDate);
+        newOrder.vnp_TransactionNo = req.body.vnp_TransactionNo
+        newOrder.vnp_PayDate = formattedPayDate
+        newOrder.vnp_OrderInfo = req.body.vnp_OrderInfo
+        newOrder.vnp_CardType = req.body.vnp_CardType
+        newOrder.vnp_BankCode = req.body.vnp_BankCode
+        ORDERS.findByVnpTransactionNo(newOrder.vnp_TransactionNo, (err, data) => {
+            if (err) {
+                console.log(err);
+                res.join({ success: false, err: err })
+            } else {
+                if (!data || data.length === 0 || data === '') {
+                    console.log('Đang tạo mới đơn hàng');
+                    ORDERS.create(newOrder, (err, order) => {
+                        if (err) {
+                            return res.json({ success: false, error: err });
+                        }
+                        console.log(order)
 
-        req.body.listProduct.forEach(product => {
-            const orderDetails = new ORDER_DETAILS({
-                product_id: product.product_id,
-                order_id: order.id,
-                quantity: product.count,
-                price: product.price
-            });
+                        const completedRequests = req.body.listProduct.length;
+                        let requestsCompleted = 0;
 
-            ORDER_DETAILS.create(orderDetails, (err) => {
-                requestsCompleted++;
+                        req.body.listProduct.forEach(product => {
+                            const orderDetails = new ORDER_DETAILS({
+                                product_id: product.product_id,
+                                order_id: order.id,
+                                quantity: product.count,
+                                price: product.price
+                            });
 
-                if (requestsCompleted === completedRequests) {
-                    res.json({ success: true, redirectUrl: '../order' });
+                            ORDER_DETAILS.create(orderDetails, (err) => {
+                                if (err) {
+                                    console.log('Lỗi tại controllerHome:line 857 (ORDER_DETAILS.create) - ' + err);
+                                    return json({ success: false, err: err })
+                                }
+                            });
+                            Products.updateDecreaseQuantityById(product.product_id, product.count, (err, data) => {
+                                if (err) {
+                                    console.log('Lỗi tại controllerHome:line 861 (updateDecreaseQuantityById) - ' + err);
+                                    return json({ success: false, err: err })
+                                }
+                            })
+                            CART.deleteCart(uid, gid, product.product_id, (err, data) => {
+                                if (err) {
+                                    console.log('Lỗi tại controllerHome:line 919 (deleteCart) - ' + err);
+                                    return json({ success: false, err: err })
+                                } else {
+                                    requestsCompleted++;
+                                    let email = req.body.email
+                                    console.log('line 924: controllerHome.js - requestsCompleted and completedRequests', requestsCompleted, completedRequests);
+                                    if (requestsCompleted === completedRequests) {
+                                        mailerOrderSuccessfully(email, req.body, productList)
+                                        res.json({ success: true, redirectUrl: '../order', order_id: order.id });
+                                    }
+                                }
+                            })
+                        });
+                    });
+                } else {
+                    console.log(data);
+                    console.log('Đã có đơn hàng này trong cơ sở dữ liệu');
+                    res.json({ success: true })
+                    return
                 }
+            }
+        })
+    } else {
+        ORDERS.create(newOrder, (err, order) => {
+            if (err) {
+                return res.json({ success: false, error: err });
+            }
+            console.log('line 888: controllerHome.js - idOrderLast: ', order)
+
+            const completedRequests = req.body.listProduct.length;
+            let requestsCompleted = 0;
+
+            req.body.listProduct.forEach(product => {
+                const orderDetails = new ORDER_DETAILS({
+                    product_id: product.product_id,
+                    order_id: order,
+                    quantity: product.count,
+                    price: product.price
+                });
+
+                ORDER_DETAILS.create(orderDetails, (err) => {
+                    if (err) {
+                        console.log('Lỗi tại controllerHome:line 857 (ORDER_DETAILS.create) - ' + err);
+                        return json({ success: false, err: err })
+                    }
+                });
+                Products.updateDecreaseQuantityById(product.product_id, product.count, (err, data) => {
+                    if (err) {
+                        console.log('Lỗi tại controllerHome:line 861 (updateDecreaseQuantityById) - ' + err);
+                        return json({ success: false, err: err })
+                    }
+                })
+                CART.deleteCart(uid, gid, product.product_id, (err, data) => {
+                    if (err) {
+                        console.log('Lỗi tại controllerHome:line 919 (deleteCart) - ' + err);
+                        return res.json({ success: false, err: err })
+                    } else {
+                        requestsCompleted++;
+                        let email = req.body.email
+                        console.log('line 924: controllerHome.js - requestsCompleted and completedRequests', requestsCompleted, completedRequests);
+                        if (requestsCompleted === completedRequests) {
+                            mailerOrderSuccessfully(email, req.body, productList)
+                            res.json({ success: true, redirectUrl: '../order', order_id: order });
+                        }
+                    }
+                })
             });
         });
-    });
+
+    }
+
+
 }
 
 function sortObject(obj) {
@@ -1167,5 +1371,5 @@ module.exports = {
     home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUser, deleteProduct, productDetail,
     cart, cartServer, addCart, deleteCart, updateCart, checkout, dataOrder, createPaymentVNPAY, order, orderDetails, orderManagement,
     updateOrder, orderSuccess, orderReject, orderShipping, orderShipped, reviews, reviewsManagement,
-    reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder
+    reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder, deliveryAddress, addDeliveryAddress, deleteDeliveryAddress
 }

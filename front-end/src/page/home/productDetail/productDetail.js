@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../../store/Context';
-import { useParams, Link } from 'react-router-dom';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import {
     Breadcrumb, Layout, Menu, theme, Col, Row, Image, Button, InputNumber,
-    Space, message
+    Space, message, Tag
 } from 'antd';
 import axios from 'axios';
 import './productDetail.scss'
@@ -13,6 +13,7 @@ import { Descriptions } from 'antd';
 import Instance from '../../../axiosInstance';
 import ModalProductManager from '../../../component/management/ModalProductManager';
 import { GetBrands, GetCategories } from '../../../callAPI/api';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 const items1 = ['1', '2', '3'].map((key) => ({
@@ -24,7 +25,7 @@ const ProductDetail = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
-
+    const navigate = useNavigate()
     const context = useContext(Context)
     const isCartChange = context.isCartChange
     const setIsCartChange = context.setIsCartChange
@@ -39,6 +40,7 @@ const ProductDetail = () => {
     const [categories, setCategories] = useState([]);
     const [brandDefault, setBrandDefault] = useState('')
     const [categoryDefault, setCategoryDefault] = useState('')
+    const [isGetProductDetailSuccessfully, setIsGetProductDetailSuccessfully] = useState(false)
     const success = (text) => {
         messageApi.open({
             type: 'success',
@@ -55,6 +57,8 @@ const ProductDetail = () => {
         getBrands();
         getCategories();
     }, []);
+    // useEffect(() => {
+    // }, [isGetProductDetailSuccessfully]);
     const getProductDetail = () => {
         Instance.get(`/product-detail/${id}`)
             .then(response => {
@@ -62,7 +66,9 @@ const ProductDetail = () => {
                 setProductDetail(response.data);
                 console.log(response.data)
                 setImages(response.data.images)
+                setIsGetProductDetailSuccessfully(true)
                 // console.log(response.data.images)
+                // setProductQuantity(productDetail.data.quantity)
             })
             .catch(error => {
                 // Handle errors here
@@ -201,7 +207,7 @@ const ProductDetail = () => {
                             padding: '0 24px',
                             minHeight: 280,
                         }}>
-                        {productDetail.data && (
+                        {isGetProductDetailSuccessfully && (
                             // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
                             <h1 className='text-[24px] font-bold'>
                                 {productDetail.data.prod_name}
@@ -209,7 +215,7 @@ const ProductDetail = () => {
                         )}
                         <Row className='mt-[30px]'>
                             <Col span={8} className='px-[15px]'>
-                                {productDetail.images && productDetail.images.length > 0 && (
+                                {(isGetProductDetailSuccessfully && productDetail.images && productDetail.images.length > 0) && (
                                     // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
                                     <Image src={productDetail.images[0].url}></Image>
                                 )}
@@ -220,7 +226,7 @@ const ProductDetail = () => {
                                     }}
                                 >
                                     <div className='flex justify-around'>
-                                        {productDetail.images && (
+                                        {(isGetProductDetailSuccessfully && productDetail.images) && (
                                             images.map((img) => (
                                                 <Image
                                                     // className='border-0 border-red-500'
@@ -236,61 +242,90 @@ const ProductDetail = () => {
                                 </Image.PreviewGroup>
                             </Col>
                             <Col span={8} className='px-[15px] flex flex-col mt-[30px]'>
-                                <span className='text-[16px]'>Giá chính hãng:
-                                    <span
-                                        className='line-through text-[22px] pl-[20px]'>
-                                        {productDetail.data && (
-                                            // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
-                                            formatPriceWithCommas(productDetail.data.cost)
+                                {(isGetProductDetailSuccessfully && productDetail.data.quantity) ?
+                                    <>
+                                        <span className='text-[16px]'>Giá chính hãng:
+                                            <span
+                                                className='line-through text-[22px] pl-[20px]'>
+                                                {isGetProductDetailSuccessfully && (
+                                                    // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
+                                                    formatPriceWithCommas(productDetail.data.cost)
 
-                                        )}đ
-                                    </span>
-                                </span>
-                                <span className=' text-[16px]'>Giá khuyến mãi:
-                                    <span
-                                        className='font-bold text-[#c8191f] text-[38px] 
+                                                )}đ
+                                            </span>
+                                        </span>
+                                        <span className=' text-[16px]'>Giá khuyến mãi:
+                                            <span
+                                                className='font-bold text-[#c8191f] text-[38px] 
                                         pl-[20px]'>
-                                        {productDetail.data && (
-                                            // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
-                                            formatPriceWithCommas(productDetail.data.price)
-                                        )}đ
+                                                {isGetProductDetailSuccessfully && (
+                                                    // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
+                                                    formatPriceWithCommas(productDetail.data.price)
+                                                )}đ
 
-                                    </span>
-                                </span>
-                                <span className='text-[16px]'>Số lượng hiện có:
-                                    <span
-                                        className='text-[16px] pl-[10px]'>
-                                        {productDetail.data && (
-                                            // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
-                                            formatPriceWithCommas(productDetail.data.quantity)
+                                            </span>
+                                        </span>
+                                        <span className='text-[16px]'>Số lượng hiện có:
+                                            <span
+                                                className='text-[16px] pl-[10px]'>
+                                                {isGetProductDetailSuccessfully && (
+                                                    // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
+                                                    formatPriceWithCommas(productDetail.data.quantity)
 
-                                        )}
-                                    </span>
-                                </span>
-                                <Space>
-                                    {productDetail.data && (
-                                        <InputNumber
-                                            min={1}
-                                            max={productDetail.data.quantity}
-                                            value={buyQuantity}
-                                            onChange={setBuyQuantity} />
-                                    )}
-                                </Space>
-                                <button
-                                    className='bg-[#c8191f] text-[18px] text-white 
+                                                )}
+                                            </span>
+                                        </span>
+                                        <Space>
+                                            {
+                                                isGetProductDetailSuccessfully && (
+                                                    <InputNumber
+                                                        min={1}
+                                                        max={productDetail.data.quantity}
+                                                        value={buyQuantity}
+                                                        onChange={setBuyQuantity} />
+                                                )
+
+                                            }
+                                        </Space>
+                                        <button
+                                            className='bg-[#c8191f] text-[18px] text-white 
                                     flex justify-center font-bold hover:text-white 
                                     hover:shadow-[0_0_6px_0_#333] mt-[10px]
                                     leading-[60px] uppercase'
-                                    onClick={() => { handleAddCart() }}>
-                                    Thêm vào giỏ hàng
-                                </button>
-                                <p className='uppercase text-[18px] text-center
+                                            onClick={() => { handleAddCart() }}>
+                                            Thêm vào giỏ hàng
+                                        </button>
+                                        <p className='uppercase text-[18px] text-center
                                 font-bold my-[18px]'>Gọi ngay
-                                    <a
-                                        className='text-[#c8191f]'
-                                        href="tel:0359 973 209"> 0359 973 209 </a>
-                                    để giữ hàng
-                                </p>
+                                            <a
+                                                className='text-[#c8191f]'
+                                                href="tel:0359 973 209"> 0359 973 209 </a>
+                                            để giữ hàng
+                                        </p>
+                                    </> :
+                                    <>
+                                        <Tag icon={<ExclamationCircleOutlined />} color="warning"
+                                            className='ant__tag--warning-pd flex m-0 bg-black '>
+                                            Sản phẩm đã hết hàng
+                                        </Tag>
+                                        <button
+                                            className='bg-[#c8191f] text-[20px] text-white 
+                                    flex justify-center font-bold hover:text-white 
+                                    hover:shadow-[0_0_6px_0_#333] mt-[10px] rounded-[3px]
+                                    leading-[60px] '
+                                            onClick={() => { navigate(`../../laptop/category=${productDetail.slug}`) }}>
+                                            Khám phá các laptop khác
+                                        </button>
+                                        <p className='uppercase text-[18px] text-center
+                                font-bold my-[18px]'>Gọi ngay
+                                            <a
+                                                className='text-[#c8191f]'
+                                                href="tel:0359 973 209"> 0359 973 209 </a>
+                                            để được tư vấn mua hàng
+                                        </p>
+                                    </>
+                                }
+
                             </Col>
                             <Col span={8} className='px-[15px]'>
                                 <div className='flex justify-between'>
@@ -302,7 +337,7 @@ const ProductDetail = () => {
                                         onClick={() => { viewDetailsProduct() }}>Xem chi tiết</h3>
                                 </div>
                                 <table className='tb-detail'>
-                                    {productDetail.data && (
+                                    {isGetProductDetailSuccessfully && (
                                         <tbody>
                                             <tr className=''>
                                                 <td className='whitespace-nowrap'>Tên sản phẩm</td>
@@ -339,7 +374,8 @@ const ProductDetail = () => {
                                                 <td>{productDetail.data.operation_system}</td>
                                             </tr>
                                         </tbody>
-                                    )}
+                                    )
+                                    }
 
                                 </table>
                             </Col>

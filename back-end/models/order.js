@@ -22,15 +22,24 @@ const ORDERS = function (order) {
     this.being_shipped_at = order.being_shipped_at;
     this.transported_at = order.transported_at;
     this.successful_at = order.successful_at;
+    this.vnp_BankCode = order.vnp_BankCode;
+    this.vnp_CardType = order.vnp_CardType;
+    this.vnp_OrderInfo = order.vnp_OrderInfo;
+    this.vnp_PayDate = order.vnp_PayDate;
+    this.vnp_TransactionNo = order.vnp_TransactionNo;
+
+
 };
 
 ORDERS.create = async (order, result) => {
     const pool = await connect;
     const sqlStringAddOrder = `
     INSERT INTO ORDERS (paymentMethods, guest_id, avatar, note, total, user_id, name, email, user_address, phone, trading_code, 
-                        is_payment, is_approved, is_being_shipped, is_transported, is_success, created_at, updated_at)
+                        is_payment, is_approved, is_being_shipped, is_transported, is_success, vnp_BankCode, vnp_CardType, vnp_OrderInfo, 
+                        vnp_PayDate, vnp_TransactionNo, created_at, updated_at)
     VALUES (@paymentMethods,@guest_id, @avatar, @note, @total, @user_id, @name, @email, @user_address, @phone, @trading_code, 
-                        @is_payment, @is_approved, @is_being_shipped, @is_transported, @is_success, GETDATE(), GETDATE());
+                        @is_payment, @is_approved, @is_being_shipped, @is_transported, @is_success, @vnp_BankCode, @vnp_CardType, @vnp_OrderInfo, 
+                        @vnp_PayDate, @vnp_TransactionNo, GETDATE(), GETDATE());
     `;
     await pool.request()
         .input('paymentMethods', sql.VARCHAR(255), order.paymentMethods)
@@ -49,6 +58,11 @@ ORDERS.create = async (order, result) => {
         .input('is_being_shipped', sql.Int, order.is_being_shipped)
         .input('is_transported', sql.Int, order.is_transported)
         .input('is_success', sql.Int, order.is_success)
+        .input('vnp_BankCode', sql.VARCHAR(50), order.vnp_BankCode)
+        .input('vnp_CardType', sql.VARCHAR(50), order.vnp_CardType)
+        .input('vnp_OrderInfo', sql.VARCHAR(50), order.vnp_OrderInfo)
+        .input('vnp_PayDate', sql.VARCHAR(50), order.vnp_PayDate)
+        .input('vnp_TransactionNo', sql.VARCHAR(50), order.vnp_TransactionNo)
         .query(sqlStringAddOrder, (err, data) => {
             if (err) {
                 console.log(err)
@@ -65,8 +79,32 @@ ORDERS.create = async (order, result) => {
                     result(err, null);
                 } else {
                     const lastId = data.recordset[0].id;
-                    console.log(lastId)
-                    result(null, { id: lastId });
+                    console.log('line82: order.js - LastId: ', lastId)
+                    if (order.vnp_PayDate) {
+                        new Promise(async (resolve, reject) => {
+                            try {
+                                console.log('order.vnp_PayDate = ', order.vnp_PayDate);
+                                const sqlStringAddProduct = `
+                                UPDATE ORDERS
+                                SET is_payment = 1,
+                                paid_at = '${order.vnp_PayDate}'
+                                WHERE id = @id;
+                                `;
+
+                                const data = await pool.request()
+                                    .input('id', sql.Int, lastId)
+                                    .query(sqlStringAddProduct);
+
+                                resolve(data.recordset);
+                            } catch (err) {
+                                console.log(err);
+                                reject(err);
+                            }
+                        })
+                        result(null, { id: lastId });
+                    } else {
+                        result(null, lastId)
+                    }
                 }
             });
         })
@@ -103,6 +141,21 @@ ORDERS.findById = async (user_id, guest_id, result) => {
                 console.log(err)
             } else {
                 // console.log(data)
+                result(null, data.recordset);
+            }
+        })
+}
+ORDERS.findByVnpTransactionNo = async (vnp_TransactionNo, result) => {
+    const pool = await connect;
+    const sqlStringAddProduct = `
+        select * FROM ORDERS where vnp_TransactionNo = @vnp_TransactionNo
+    `;
+    await pool.request()
+        .input('vnp_TransactionNo', sql.VARCHAR(50), vnp_TransactionNo)
+        .query(sqlStringAddProduct, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
                 result(null, data.recordset);
             }
         })
