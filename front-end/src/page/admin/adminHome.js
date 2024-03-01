@@ -12,6 +12,7 @@ import jwtDecode from 'jwt-decode';
 import { v4 as uuidv4 } from 'uuid';
 import UserManagement from './userManagement/userManagement';
 import CategoryManagement from './categoryManagement/categoryManagement';
+import Dashboard from './Dashboard/dashBoard';
 
 const AdminHome = () => {
     const [current, setCurrent] = useState('db');
@@ -92,6 +93,7 @@ const AdminHome = () => {
                 </Menu>
 
             </Space>
+            {current === 'db' && <Dashboard />}
             {current === 'um' && <UserManagement />}
             {current === 'cm' && <CategoryManagement />}
             {current === 'bm' && <CategoryManagement />}
