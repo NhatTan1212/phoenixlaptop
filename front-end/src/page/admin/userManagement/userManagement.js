@@ -44,13 +44,11 @@ const UserManagement = () => {
         {
             title: 'Email',
             dataIndex: 'email',
-
         },
 
         {
             title: 'Vai trò',
             dataIndex: 'role',
-            width: '10%',
             filters: filtersRoles,
             onFilter: (value, record) => {
                 return record.role === value;
@@ -60,6 +58,7 @@ const UserManagement = () => {
         {
             title: 'Action',
             dataIndex: 'action',
+            width: '10%',
             render: (text, record) => {
                 return (<div className='flex flex-col h-auto'>
                     <button className=' bg-[#c8191f] text-white text-center

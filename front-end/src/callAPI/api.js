@@ -85,6 +85,35 @@ const GetBrands = () => {
         });
 };
 
+const AddNewBrand = (requestData) => {
+    return Instance.post('/brands/addnew', requestData)
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api AddNewBrand: ' + err);
+            return Promise.reject(err);
+        });
+};
+
+
+
+const DeleteBrand = (requestData) => {
+    return Instance.post('/brands/delete', requestData)
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api DeleteBrand: ' + err);
+            return Promise.reject(err);
+        });
+};
+
+const EditBrand = (requestData) => {
+    return Instance.post('/brands/edit', requestData)
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api EditBrand: ' + err);
+            return Promise.reject(err);
+        });
+};
+
 const GetCategories = () => {
     return Instance.get('/categories-list')
         .then((res) => res.data)
@@ -285,6 +314,6 @@ const DeleteOrder = (requestData) => {
 }
 
 export {
-    GetUsers, GetUsersById, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, EditUser, EditUserInfoById, ChangeUserPasswordById, AddNewUser, DeleteUser, GetCategories, GetImages,
+    GetUsers, GetUsersById, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, AddNewBrand, DeleteBrand, EditBrand, GetLaptopGaming, GetProductsByQuery, EditUser, EditUserInfoById, ChangeUserPasswordById, AddNewUser, DeleteUser, GetCategories, GetImages,
     EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress, AddNewCategory, EditCategory, DeleteCategory
 };
