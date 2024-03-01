@@ -4,17 +4,19 @@ const CATEGORIES = function (category) {
     this.category_id = category.category_id;
     this.name = category.name;
     this.description = category.description;
+    this.slug = category.slug;
 };
 
 CATEGORIES.create = async (category, result) => {
     const pool = await connect;
     const sqlStringAddOrder = `
-    INSERT INTO CATEGORIES (name, description)
-    VALUES (@name, @description)
+    INSERT INTO CATEGORIES (name, description,slug)
+    VALUES (@name, @description,@slug)
     `;
     await pool.request()
         .input('name', sql.NVARCHAR(100), category.name)
         .input('description', sql.NVARCHAR(255), category.description)
+        .input('slug', sql.NVARCHAR(255), category.slug)
         .query(sqlStringAddOrder, (err, data) => {
             if (err) {
                 result(err, null);

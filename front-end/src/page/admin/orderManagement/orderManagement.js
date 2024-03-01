@@ -551,7 +551,7 @@ const OrderManagement = () => {
                         onChange={(e) => { handleChangeInputSearch(e) }}
                         onPressEnter={(e) => { console.log('hi') }}
                         style={{ width: '20%' }}></Input.Search>
-                    <Button className='btn-add-prd bg-[#c8191f] text-white 
+                    {/* <Button className='btn-add-prd bg-[#c8191f] text-white 
                     h-auto'>
                         <span className='font-bold text-[18px] mr-2'>
                             +
@@ -559,7 +559,7 @@ const OrderManagement = () => {
                         <span>
                             Thêm đơn hàng
                         </span>
-                    </Button>
+                    </Button> */}
                 </div>
                 <div className='flex flex-col bg-white p-4
                 mt-[20px]'>
