@@ -15,7 +15,43 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
-    const [role, setRole] = useState('');
+    const [role, setRole] = useState('admin');
+    const [hasNameChanged, setHasNameChanged] = useState(false);
+    const [hasEmailChanged, setHasEmailChanged] = useState(false);
+    const [hasPasswordChanged, setHasPasswordChanged] = useState(false);
+    const [emailInvalid, setEmailInvalid] = useState(false);
+    const [passwordInValid, setPasswordInvalid] = useState(false);
+    const [newUserFailed, setNewUserFailed] = useState(false);
+    const [nameIsNull, setNameIsNull] = useState(false);
+    const [passwordIsNull, setPasswordIsNull] = useState(false);
+    const [emailIsNull, setEmailIsNull] = useState(false);
+
+    const onChangeName = (e) => {
+        setName(e.target.value);
+        setHasNameChanged(true)
+        setNameIsNull(false);
+    }
+
+    const onChangePassword = (e) => {
+        setPassword(e.target.value)
+        const newPassword = e.target.value;
+        setHasPasswordChanged(true);
+        setPassword(newPassword);
+        const regexPassword = /^.{6,}$/;
+        const isPasswordValid = regexPassword.test(newPassword);
+        setPasswordInvalid(!isPasswordValid);
+        setPasswordIsNull(false);
+    };
+
+    const onChangeEmail = (e) => {
+        const newEmail = e.target.value;
+        setHasEmailChanged(true);
+        setEmail(newEmail);
+        const regexEmail = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/;
+        const isEmailValid = regexEmail.test(newEmail) && newEmail.length <= 255;
+        setEmailInvalid(!isEmailValid);
+        setEmailIsNull(false);
+    };
 
     const onFinish = (values) => {
 
@@ -28,13 +64,35 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
             role: role
         }
 
+        let hasError = false;
+        if (!name) {
+            setNameIsNull(true);
+            hasError = true;
+        }
+        if (!email) {
+            setEmailIsNull(true);
+            hasError = true;
+        }
+        if (!password) {
+            setPasswordIsNull(true);
+            hasError = true;
+        }
+
+        if (hasError) {
+            setNewUserFailed(true);
+            context.Message("warning", "Vui lòng điền đầy đủ thông tin");
+            return;
+        }
 
         AddNewUser(formData).then(response => {
-            console.log(response);
+            console.log(response.status)
+            if (!response.success && response.message === "Email đã tồn tại") {
+                context.Message("error", "Email đã tồn tại.")
+                return;
+            }
             if (response.success) {
                 setIsActioning(false);
                 context.Message("success", "Thêm tài khoản thành công.")
-
             }
         })
     };
@@ -50,38 +108,38 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
                 >
 
                     <Row className='mt-[15px]'>
-                        <Col span={12}
-                            className='text-start px-[15px] pl-0'>
+                        <Col span={24} className='text-start px-[15px] pl-0'>
+
                             <h3><span className='text-red-500'>* </span>Tên tài khoản:</h3>
                             <Input
                                 className='mb-2 mt-0'
                                 name='name'
-
-                                onChange={(e) => {
-                                    setName(e.target.value)
-                                }}
+                                onChange={(e) => { onChangeName(e) }}
                                 value={name}
                             />
-                            <h3><span className='text-red-500'>* </span>Password:</h3>
+
+                            <div className='wrap-err-mess'>
+                                {(hasNameChanged && name === '') || (newUserFailed && nameIsNull)
+                                    ? <p className='err-mess'>Tên tài khoản không được để trống</p> : null}
+                            </div>
+
+                            <h3><span className='text-red-500'>* </span>Mật khẩu:</h3>
                             <Input.Password
                                 className='mb-2 mt-0 input-password-edituserdetails'
                                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                                 name='password'
                                 value={password}
                                 onChange={(e) => {
-                                    setPassword(e.target.value)
-                                }}
-                            />
-                            {/* <Input
-                                className='mb-2 mt-0'
-                                name='password'
-                                value={password}
-                                onChange={(e) => {
-                                    setPassword(e.target.value)
-                                }}>
-                            </Input> */}
-                        </Col>
-                        <Col span={12} className='text-start px-[15px] pr-0'>
+                                    onChangePassword(e)
+                                }}></Input.Password>
+
+                            <div className='wrap-err-mess'>
+                                {(hasPasswordChanged && password === '') || (newUserFailed && passwordIsNull)
+                                    ? <p className='err-mess'>Mật khẩu không được để trống</p> : passwordInValid
+                                        ? <p className='err-mess'>Mật khẩu phải có ít nhất 6 ký tự</p> : password.length > 255
+                                            ? <p className='err-mess'>Mật khẩu không được vượt quá 255 ký tự</p> : null
+                                }
+                            </div>
 
                             <h3><span className='text-red-500'>* </span>Email:</h3>
                             <Input
@@ -90,32 +148,28 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value)
+                                    onChangeEmail(e)
                                 }}></Input>
-
+                            <div className='wrap-err-mess'>
+                                {(hasEmailChanged && email == '') || (newUserFailed && emailIsNull)
+                                    ? <p className='err-mess'>Email không được để trống</p> : emailInvalid
+                                        ? <p className='err-mess'>Email không đúng định dạng</p> : null
+                                }
+                            </div>
 
                             <h3><span className='text-red-500'>* </span>Vai trò:</h3>
                             <Select
                                 className='mb-2 mt-0'
                                 name='role'
-                                value={role}
+                                defaultValue="admin"
                                 onChange={(e) => {
                                     setRole(e)
                                 }}
-                                style={{
-                                    width: '100%',
-                                }}
-
-                                options={
-                                    [{
-                                        value: 'admin',
-                                        label: 'admin'
-                                    },
-                                    {
-                                        value: 'user',
-                                        label: 'user'
-                                    }]
-
-                                }
+                                style={{ width: '100%' }}
+                                options={[
+                                    { value: 'admin', label: 'admin' },
+                                    { value: 'user', label: 'user' }
+                                ]}
                             />
                         </Col>
 

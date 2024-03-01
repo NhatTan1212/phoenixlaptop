@@ -46,6 +46,7 @@ const OrderManagement = () => {
             title: 'Mã đơn hàng',
             dataIndex: 'id',
             key: 'id',
+            width: '10%',
             sorter: (record1, record2) => { return record1.id - record2.id }
         },
         {

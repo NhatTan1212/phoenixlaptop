@@ -18,6 +18,7 @@ import OrderDetail from './page/home/order/orderDetail';
 import OrderManagement from './page/admin/orderManagement/orderManagement';
 import AllProduct from './page/home/AllProduct/AllProduct';
 import RedirectAllProduct from './component/redirectAllProduct';
+import ProfileManager from './page/home/profile/profileManager';
 
 
 
@@ -48,6 +49,7 @@ function AppRoutes() {
                 <Route path="/cart" element={<><Cart /></>} />
                 <Route path="/order" element={<><Order /></>} />
                 <Route path="/order-detail/:id" element={<><OrderDetail /></>} />
+                <Route path="/profile/:id" element={<><ProfileManager /></>} />
                 {/*---Management---*/}
                 <Route path="/management" element={<><AdminHome /></>} />
             </Routes>

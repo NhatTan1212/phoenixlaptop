@@ -9,20 +9,18 @@ const CATEGORIES = function (category) {
 CATEGORIES.create = async (category, result) => {
     const pool = await connect;
     const sqlStringAddOrder = `
-    INSERT INTO CATEGORIES (category_id, name, description)
-    VALUES (@category_id, @name, @description)
+    INSERT INTO CATEGORIES (name, description)
+    VALUES (@name, @description)
     `;
     await pool.request()
-        .input('category_id', sql.Int, category.category_id)
         .input('name', sql.NVARCHAR(100), category.name)
         .input('description', sql.NVARCHAR(255), category.description)
         .query(sqlStringAddOrder, (err, data) => {
             if (err) {
-                console.log(err)
-            } else {
-                // console.log(data)
+                result(err, null);
+                return;
             }
-            result(null, { id: data.insertId, ...data });
+            result(null, data);
         })
 };
 
@@ -76,6 +74,30 @@ CATEGORIES.deleteById = async (category_id, result) => {
                 // console.log(data)
             }
             result(null, data.recordset);
+            sql.close();
+        })
+}
+
+CATEGORIES.updateByID = async (new_category, result) => {
+    const pool = await connect;
+    const sqlStringUpdateCategory = `
+        UPDATE CATEGORIES
+        SET
+            name = @name,
+            description = @description,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE category_id = @category_id
+        `
+    await pool.request()
+        .input('category_id', sql.INT, new_category.category_id)
+        .input('name', sql.NVARCHAR(100), new_category.name)
+        .input('description', sql.NVARCHAR(255), new_category.description)
+        .query(sqlStringUpdateCategory, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                result(null, { "message": "success", "data": data });
+            }
             sql.close();
         })
 }

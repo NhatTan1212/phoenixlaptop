@@ -1,73 +1,54 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { HomeOutlined, LaptopOutlined, InboxOutlined, PlusOutlined, } from '@ant-design/icons';
+import { HomeOutlined, LaptopOutlined, } from '@ant-design/icons';
 import {
     Breadcrumb, Input, Button, Table, Modal
 } from 'antd';
-import '../userManagement/userManagement.scss'
-import { GetUsers, DeleteUser } from '../../../callAPI/api';
-import ModalUserManager from '../../../component/management/ModalUserManager';
+import { GetCategories, DeleteCategory } from '../../../callAPI/api';
 import Cookies from 'js-cookie';
 import Context from '../../../store/Context';
+import ModalCategoryManager from '../../../component/management/ModalCategoryManager';
 
-const UserManagement = () => {
+const CategoryManagement = () => {
     let token = Cookies.get('token')
     const context = useContext(Context)
-    const [users, setUsers] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
     const [isOpenedModalAddNew, setIsOpenedModalAddNew] = useState(false);
-    const [editingUser, setEditingUser] = useState(null);
+    const [editingCategory, setEditingCategory] = useState(null);
     const [searchText, setSearchText] = useState('');
-    const [filteredUsers, setFilteredUsers] = useState(users);
+    const [filteredCategories, setFilteredCategories] = useState(categories);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [userIdToDelete, setUserIdToDelete] = useState(null);
-    const [isListUsersChanged, setIsListUsersChanged] = useState(false);
-    const [role, setRole] = useState('user')
-
-    const filtersRoles = [
-        { text: 'Admin', value: 'admin' },
-        { text: 'User', value: 'user' }
-    ];
+    const [categoryIdToDelete, setCategoryIdToDelete] = useState(null);
+    const [isListCategoriesChanged, setIsListCategoriesChanged] = useState(false);
 
     const columns = [
         {
             title: 'ID',
-            dataIndex: 'id',
+            dataIndex: 'category_id',
             width: '10%',
             sorter: (record1, record2) => { return record1.id - record2.id }
         },
         {
-            title: 'Name',
+            title: 'Tên danh mục',
             dataIndex: 'name',
             width: '25%',
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
-
-        },
-
-        {
-            title: 'Vai trò',
-            dataIndex: 'role',
-            width: '10%',
-            filters: filtersRoles,
-            onFilter: (value, record) => {
-                return record.role === value;
-
-            }
+            title: 'Mô tả',
+            dataIndex: 'description',
         },
         {
             title: 'Action',
             dataIndex: 'action',
+            width: '10%',
             render: (text, record) => {
                 return (<div className='flex flex-col h-auto'>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
                     p-1 px-2'
                         onClick={(e) => {
-                            console.log(record)
-                            viewDetailsUser(record)
+                            viewDetailsCategory(record)
                         }}>
                         Xem chi tiết
                     </button>
@@ -75,8 +56,7 @@ const UserManagement = () => {
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
                     p-1 px-2 mt-2'
                         onClick={(e) => {
-                            // console.log(record)
-                            updateUser(record)
+                            updateCategory(record)
                         }}>
                         Chỉnh sửa
                     </button>
@@ -84,10 +64,8 @@ const UserManagement = () => {
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
                     p-1 px-2 mt-2'
                         onClick={(e) => {
-                            setUserIdToDelete(record.id)
+                            setCategoryIdToDelete(record.category_id)
                             setShowDeleteConfirmation(true)
-                            setRole(record.role)
-                            console.log(record.role)
                         }}>
                         Xóa
                     </button>
@@ -97,46 +75,55 @@ const UserManagement = () => {
     ];
 
     useEffect(() => {
-        // Hàm này chạy khi component được mount
-        getUsers();
-
-    }, [isEditing, searchText, isListUsersChanged]);
+        getCategories();
+    }, [isEditing, searchText, isListCategoriesChanged]);
 
     useEffect(() => {
-        filterUsers();
-    }, [searchText, users]);
+        filterCategories();
+    }, [searchText, categories]);
 
-    const getUsers = () => {
-        GetUsers().then((data) => {
-            setUsers(data.search)
+    const getCategories = () => {
+        GetCategories().then((data) => {
+            setCategories(data)
         })
     };
 
-    const updateUser = (user) => {
+    const filterCategories = () => {
+        const filteredCategories = categories.filter((category) => {
+            const categoryId = category.category_id + '';
+            const categoryName = category.name.toLowerCase();
+            const categoryDescription = category.description.toLowerCase();
+            return categoryName.includes(searchText.toLowerCase()) ||
+                categoryId.includes(searchText) ||
+                categoryDescription.includes(searchText.toLowerCase());
+        });
+        setFilteredCategories(filteredCategories);
+    }
+
+    const updateCategory = (category) => {
         setIsEditing(true)
-        setEditingUser(user)
+        setEditingCategory(category)
     }
 
-    const viewDetailsUser = (user) => {
+    const viewDetailsCategory = (category) => {
         setIsViewing(true)
-        setEditingUser(user)
+        setEditingCategory(category)
     }
 
-    const addNewUsers = () => {
+    const addNewCategory = () => {
         setIsOpenedModalAddNew(true)
     }
 
-    const handleDeleteUser = (userId) => {
-
+    const handleDeleteCategory = (categoryId) => {
         const requestData = {
             token: token,
-            user_id: userId,
+            category_id: categoryId,
         };
 
-        DeleteUser(requestData).then(response => {
+        DeleteCategory(requestData).then(response => {
             if (response.success) {
-                setIsListUsersChanged(!isListUsersChanged)
-                context.Message("success", "Xóa tài khoản thành công.")
+                setIsListCategoriesChanged(!isListCategoriesChanged)
+                context.Message("success", "Xóa danh mục thành công.")
 
             }
         })
@@ -147,51 +134,33 @@ const UserManagement = () => {
 
     }
 
-    const filterUsers = () => {
-        const filteredUsers = users.filter((user) => {
-            const userName = user.name.toLowerCase();
-            const userId = user.id + '';
-            let userEmail = ''
-            if (user.email)
-                userEmail = user.email.toLowerCase()
-            return userName.includes(searchText.toLowerCase()) ||
-                userId.includes(searchText) ||
-                userEmail.includes(searchText.toLowerCase());
-        });
-        setFilteredUsers(filteredUsers);
-    }
-
 
     return (
         <div className='flex-1'>
             <Modal
-                title={role === 'user' ? "Xác nhận xóa tài khoản" : 'Thông báo'}
+                title={"Xác nhận xóa danh mục"}
                 width={500}
                 open={showDeleteConfirmation}
                 footer={
-                    role === 'user' ? (
-                        <div>
-                            <Button
-                                onClick={() => setShowDeleteConfirmation(false)}>
-                                Cancel
-                            </Button>
-                            <Button
-                                className='bg-[#e5101d] text-white' id='confirm-delete-user'
-                                onClick={() => {
-                                    handleDeleteUser(userIdToDelete);
-                                    setShowDeleteConfirmation(false);
-                                }}>
-                                OK
-                            </Button>
-                        </div>
-                    ) : null
+                    <div>
+                        <Button
+                            onClick={() => setShowDeleteConfirmation(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            className='bg-[#e5101d] text-white' id='confirm-delete-category'
+                            onClick={() => {
+                                handleDeleteCategory(categoryIdToDelete);
+                                setShowDeleteConfirmation(false);
+                            }}>
+                            OK
+                        </Button>
+                    </div>
                 }
                 onCancel={() => setShowDeleteConfirmation(false)}
                 className='model-cart'
             >
-                <p>{role === 'user' ?
-                    'Bạn có chắc chắn muốn xóa tài khoản khỏi hệ thống?' :
-                    'Bạn không thể xóa tài khoản Admin'}</p>
+                <p>Bạn có chắc chắn muốn xóa danh mục khỏi hệ thống?</p>
             </Modal>
 
             <div className='bg-[#f0f0f0] p-3'>
@@ -205,7 +174,7 @@ const UserManagement = () => {
                         },
                         {
                             title: <span className='flex items-center'>
-                                <LaptopOutlined className='mr-2' /> Users Management
+                                <LaptopOutlined className='mr-2' /> Category Management
                             </span>,
                         },
                     ]}
@@ -215,67 +184,67 @@ const UserManagement = () => {
                     <Input.Search
                         allowClear
                         className='searchPM'
-                        placeholder='Nhập tài khoản, từ khóa cần tìm kiếm,...'
+                        placeholder='Nhập danh mục, từ khóa cần tìm kiếm,...'
                         onChange={(e) => { handleChangeInputSearch(e) }}
                         style={{ width: '20%' }}></Input.Search>
                     <Button
                         className='btn-add-prd bg-[#c8191f] text-white 
                     h-auto'
-                        onClick={() => { addNewUsers() }}
+                        onClick={() => { addNewCategory() }}
                     >
                         <span className='font-bold text-[18px] mr-2'>
                             +
                         </span>
                         <span>
-                            Thêm tài khoản
+                            Thêm danh mục
                         </span>
                     </Button>
                 </div>
                 <div className='flex flex-col bg-white p-4
                 mt-[20px]'>
-                    <h3>Quản lý tài khoản</h3>
+                    <h3>Quản lý danh mục</h3>
                     <Table
-                        className='table-users-management'
+                        className='table-category-management'
                         columns={columns}
-                        dataSource={filteredUsers.map((users) => ({
-                            ...users,
-                            key: users.id
+                        dataSource={filteredCategories.map((categories) => ({
+                            ...categories,
+                            key: categories.id
                         }))}>
                     </Table>
                 </div>
             </div>
             {isEditing &&
-                <ModalUserManager
-                    title={'Chỉnh sửa tài khoản - ' + editingUser.name}
+                <ModalCategoryManager
+                    title={'Chỉnh sửa danh mục - ' + editingCategory.name}
                     isActioning={isEditing}
                     width={500}
-                    actioningUser={editingUser}
-                    setAcctioningUser={setEditingUser}
+                    actioningCategory={editingCategory}
+                    setAcctioningCategory={setEditingCategory}
                     setIsActioning={setIsEditing}
                     searchText={searchText}
-                ></ModalUserManager>
+                ></ModalCategoryManager>
             }
             {isViewing &&
-                <ModalUserManager
-                    title={'Xem chi tiết tài khoản - ' + editingUser.name}
+                <ModalCategoryManager
+                    title={'Xem chi tiết danh mục - ' + editingCategory.name}
                     width={500}
                     isActioning={isViewing}
-                    actioningUser={editingUser}
-                    setAcctioningUser={setEditingUser}
+                    actioningCategory={editingCategory}
+                    setAcctioningCategory={setEditingCategory}
                     setIsActioning={setIsViewing}
-                ></ModalUserManager>
+                ></ModalCategoryManager>
             }
             {isOpenedModalAddNew &&
-                <ModalUserManager
-                    title={'Thêm tài khoản mới'}
+                <ModalCategoryManager
+                    title={'Thêm danh mục mới'}
                     isActioning={isOpenedModalAddNew}
                     width={500}
                     setIsActioning={setIsOpenedModalAddNew}
-                ></ModalUserManager>
+                ></ModalCategoryManager>
             }
 
         </div>
 
     );
 };
-export default UserManagement;
+export default CategoryManagement;

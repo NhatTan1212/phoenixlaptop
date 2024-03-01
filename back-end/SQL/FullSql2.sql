@@ -2,12 +2,6 @@ USE [master]
 GO
 /****** Object:  Database [QUANLYBANLAPTOP]    Script Date: 20/02/2024 19:22:26 ******/
 CREATE DATABASE [QUANLYBANLAPTOP]
- CONTAINMENT = NONE
- ON  PRIMARY 
-( NAME = N'QUANLYBANLAPTOP', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL16.NHATTAN\MSSQL\DATA\QUANLYBANLAPTOP.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
- LOG ON 
-( NAME = N'QUANLYBANLAPTOP_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL16.NHATTAN\MSSQL\DATA\QUANLYBANLAPTOP_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
- WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
 GO
 ALTER DATABASE [QUANLYBANLAPTOP] SET COMPATIBILITY_LEVEL = 160
 GO
@@ -134,7 +128,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[CATEGORIES](
-	[category_id] [int] NOT NULL,
+	[category_id] [int] IDENTITY(1,1) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 	[description] [nvarchar](255) NULL,
 	[created_at] [datetime] NULL,
@@ -411,15 +405,15 @@ INSERT [dbo].[CARTS] ([user_id], [product_id], [prod_name], [description], [avat
 GO
 SET IDENTITY_INSERT [dbo].[CARTS] OFF
 GO
-INSERT [dbo].[CATEGORIES] ([category_id], [name], [description], [created_at], [updated_at], [slug]) VALUES (1, N'Laptop Gaming', N'Laptop Gaming', CAST(N'2023-06-08T14:52:47.057' AS DateTime), CAST(N'2023-06-08T14:52:47.057' AS DateTime), N'laptop-gaming')
+INSERT [dbo].[CATEGORIES] ([name], [description], [created_at], [updated_at], [slug]) VALUES (N'Laptop Gaming', N'Laptop Gaming', CAST(N'2023-06-08T14:52:47.057' AS DateTime), CAST(N'2023-06-08T14:52:47.057' AS DateTime), N'laptop-gaming')
 GO
-INSERT [dbo].[CATEGORIES] ([category_id], [name], [description], [created_at], [updated_at], [slug]) VALUES (2, N'Laptop Văn Phòng', N'Laptop Văn Phòng', CAST(N'2023-08-22T08:20:28.473' AS DateTime), CAST(N'2023-08-22T08:20:28.473' AS DateTime), N'laptop-vanphong')
+INSERT [dbo].[CATEGORIES] ([name], [description], [created_at], [updated_at], [slug]) VALUES (N'Laptop Văn Phòng', N'Laptop Văn Phòng', CAST(N'2023-08-22T08:20:28.473' AS DateTime), CAST(N'2023-08-22T08:20:28.473' AS DateTime), N'laptop-vanphong')
 GO
-INSERT [dbo].[CATEGORIES] ([category_id], [name], [description], [created_at], [updated_at], [slug]) VALUES (3, N'Laptop Cao Cấp - Sang Trọng', N'Laptop Cao Cấp - Sang Trọng', CAST(N'2023-08-22T08:20:50.647' AS DateTime), CAST(N'2023-08-22T08:20:50.647' AS DateTime), N'laptop-caocap-sangtrong')
+INSERT [dbo].[CATEGORIES] ([name], [description], [created_at], [updated_at], [slug]) VALUES (N'Laptop Cao Cấp - Sang Trọng', N'Laptop Cao Cấp - Sang Trọng', CAST(N'2023-08-22T08:20:50.647' AS DateTime), CAST(N'2023-08-22T08:20:50.647' AS DateTime), N'laptop-caocap-sangtrong')
 GO
-INSERT [dbo].[CATEGORIES] ([category_id], [name], [description], [created_at], [updated_at], [slug]) VALUES (4, N'Laptop Đồ Họa - Kỹ Thuật', NULL, CAST(N'2023-08-22T08:21:44.203' AS DateTime), CAST(N'2023-08-22T08:21:44.203' AS DateTime), N'laptop-dohoa-kythuat')
+INSERT [dbo].[CATEGORIES] ([name], [description], [created_at], [updated_at], [slug]) VALUES (N'Laptop Đồ Họa - Kỹ Thuật', N'Laptop Đồ Họa - Kỹ Thuật', CAST(N'2023-08-22T08:21:44.203' AS DateTime), CAST(N'2023-08-22T08:21:44.203' AS DateTime), N'laptop-dohoa-kythuat')
 GO
-INSERT [dbo].[CATEGORIES] ([category_id], [name], [description], [created_at], [updated_at], [slug]) VALUES (5, N'Laptop Mỏng Nhẹ - Thời Trang', NULL, CAST(N'2023-08-22T08:23:41.190' AS DateTime), CAST(N'2023-08-22T08:23:41.190' AS DateTime), N'laptop-mongnhe-thoitrang')
+INSERT [dbo].[CATEGORIES] ([name], [description], [created_at], [updated_at], [slug]) VALUES (N'Laptop Mỏng Nhẹ - Thời Trang', N'Laptop Mỏng Nhẹ - Thời Trang', CAST(N'2023-08-22T08:23:41.190' AS DateTime), CAST(N'2023-08-22T08:23:41.190' AS DateTime), N'laptop-mongnhe-thoitrang')
 GO
 SET IDENTITY_INSERT [dbo].[IMAGES] ON 
 GO

@@ -11,19 +11,19 @@ function sendResetLinkEmail(req, res) {
     // console.log(req.body)
     if (!req.body.email) {
         // console.log("hi2")
-        res.redirect("http://localhost:3000/password/reset")
+        res.redirect("http://localhost:3000/Phoenix-technology#/password/reset")
     } else {
         // console.log("hi")
         USERS.findByEmail(req.body.email, (err, user) => {
             if (!user) {
                 res.json({ status: false, message: 'Email này chưa được đăng ký tài khoản!' })
             } else {
-                // console.log()
-                bcrypt.hash(user[0].email, 10).then((hashedEmail) => {
-                    mailer.sendMail(user[0].email, "Reset password website bán laptop",
+                console.log(user)
+                bcrypt.hash(user.email, 10).then((hashedEmail) => {
+                    mailer.sendMail(user.email, "Reset password website bán laptop",
                         `
                     <p>Nhấn vào link bên dưới để reset password:</p>
-                    <a href="http://localhost:3000/password/update/${user[0].email}?token=${hashedEmail}"> Reset Password </a>
+                    <a href="http://localhost:3000/Phoenix-technology#/password/update/${user.email}?token=${hashedEmail}"> Reset Password </a>
                     `)
                     // console.log(`http://localhost:8000/password/reset/${user[0].email}?token=${hashedEmail}`);
                 })
@@ -45,7 +45,7 @@ function reset(req, res) {
     const { email, token, password } = req.body;
     console.log(email, token, password);
     if (!email || !token || !password) {
-        res.redirect('http://localhost:3000/password/reset');
+        res.redirect('http://localhost:3000/Phoenix-technology#/password/reset');
     } else {
         bcrypt.compare(email, token, (err, result) => {
             console.log('compare', result);
@@ -60,7 +60,7 @@ function reset(req, res) {
                     })
                 })
             } else {
-                res.redirect('http://localhost:3000/password/reset');
+                res.redirect('http://localhost:3000/Phoenix-technology#/password/reset');
             }
         })
     }

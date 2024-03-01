@@ -11,7 +11,7 @@ import Cookies from 'js-cookie';
 import jwtDecode from 'jwt-decode';
 import { v4 as uuidv4 } from 'uuid';
 import UserManagement from './userManagement/userManagement';
-
+import CategoryManagement from './categoryManagement/categoryManagement';
 
 const AdminHome = () => {
     const [current, setCurrent] = useState('db');
@@ -87,6 +87,7 @@ const AdminHome = () => {
 
             </Space>
             {current === 'um' && <UserManagement />}
+            {current === 'cm' && <CategoryManagement />}
             {current === 'pm' && <ProductManagement />}
             {current === 'om' && <OrderManagement />}
         </div>

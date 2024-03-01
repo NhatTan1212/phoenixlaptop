@@ -10,6 +10,15 @@ const GetUsers = () => {
         });
 };
 
+const GetUsersById = (id) => {
+    return Instance.get(`/profile/${id}`)
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log('Loi call api GetUsers: ' + err);
+            return Promise.reject(err);
+        });
+};
+
 const GetDeliveryAddress = (requestData) => {
     return Instance.post('/delivery-address', requestData, {
         headers: {
@@ -138,7 +147,68 @@ const EditUser = (formData) => {
     })
         .then(response => response.data)
         .catch(error => {
-            console.error('Loi call api EditProduct:', error);
+            console.error('Loi call api EditUser:', error);
+        });
+}
+
+const EditUserInfoById = (formData) => {
+    return Instance.post('/edituserinfo', formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api EditUser:', error);
+        });
+}
+
+const ChangeUserPasswordById = (formData) => {
+    return Instance.post('/changeuserpassword', formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api EditUser:', error);
+        });
+}
+
+const AddNewCategory = (formData) => {
+    return Instance.post('/newcategory', formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api AddNewCategory:', error);
+        });
+}
+
+const DeleteCategory = (requestData) => {
+    return Instance.post('/deletecategory', requestData, {
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api DeleteCategory:', error);
+        });
+}
+
+const EditCategory = (formData) => {
+    console.log(formData)
+    return Instance.post('/editcategory', formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api EditCategory:', error);
         });
 }
 
@@ -215,6 +285,6 @@ const DeleteOrder = (requestData) => {
 }
 
 export {
-    GetUsers, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, EditUser, AddNewUser, DeleteUser, GetCategories, GetImages,
-    EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress
+    GetUsers, GetUsersById, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, GetLaptopGaming, GetProductsByQuery, EditUser, EditUserInfoById, ChangeUserPasswordById, AddNewUser, DeleteUser, GetCategories, GetImages,
+    EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress, AddNewCategory, EditCategory, DeleteCategory
 };

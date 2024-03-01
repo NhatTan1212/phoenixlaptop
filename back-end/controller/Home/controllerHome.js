@@ -216,6 +216,20 @@ function users(req, res) {
     });
 }
 
+function userById(req, res) {
+    const userId = USERS.findById(req.params.id);
+    userId.then(user => {
+        const newUser = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            role: user.role
+        }
+        res.json(newUser)
+    })
+}
+
 function listImage(req, res) {
     IMAGES.find((err, img) => {
         if (!err) {
@@ -409,26 +423,36 @@ async function editProductPost(req, res) {
     // });
 }
 
-
-
 async function addUser(req, res) {
-    const hashedPass = await bcrypt.hash(req.body.password, 10);
-    const newUser = new USERS({
-        name: req.body.name,
-        password: hashedPass,
-        email: req.body.email,
-        role: req.body.role
-    })
+    try {
+        const hashedPass = await bcrypt.hash(req.body.password, 10);
+        const newUser = new USERS({
+            name: req.body.name,
+            password: hashedPass,
+            email: req.body.email,
+            role: req.body.role
+        });
 
-    USERS.addNewUser(newUser, (err, user) => {
-        if (err) {
-            res.json({ success: false });
-            console.log(err);
-        }
-        console.log(req.body)
-        res.json({ success: true })
-    })
+        USERS.findByEmail(newUser.email, (err, user) => {
+            if (err) {
+                return res.json({ success: false, message: "Đã xảy ra lỗi khi kiểm tra email" });
+            }
 
+            if (user) {
+                return res.json({ success: false, message: "Email đã tồn tại" });
+            }
+
+            USERS.addNewUser(newUser, (err, savedUser) => {
+                if (err) {
+                    return res.json({ success: false, message: "Đã xảy ra lỗi khi thêm người dùng mới" });
+                }
+                return res.json({ success: true, message: "Người dùng đã được thêm thành công" });
+            });
+        });
+    } catch (error) {
+        console.error(error);
+        return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
+    }
 }
 
 async function deleteUser(req, res) {
@@ -444,7 +468,7 @@ async function deleteUser(req, res) {
 
 }
 
-async function editUser(req, res) {
+async function editUserManagement(req, res) {
     console.log(req.body);
 
     try {
@@ -477,6 +501,61 @@ async function editUser(req, res) {
             console.log(req.body);
             res.json({ success: true });
         });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, error: error.message });
+    }
+}
+
+async function editUserInfo(req, res) {
+    console.log(req.body);
+
+    try {
+        const newUser = {
+            id: req.body.id,
+            name: req.body.name,
+            phone: req.body.phone
+        };
+
+        USERS.editUserInfoByUserId(newUser, (err, user) => {
+            if (err) {
+                res.json({ success: false });
+                console.log(err);
+                return;
+            }
+            console.log(req.body);
+            res.json({ success: true });
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, error: error.message });
+    }
+}
+
+async function editUserInfo(req, res) {
+    try {
+        const userData = await USERS.findById(req.body.id);
+
+
+        bcrypt.compare(req.body.oldPassword, userData.password, async (err, data) => {
+            if (err) {
+                res.json({ success: false, message: err })
+            } else if (!err && data) {
+                const hashedNewPassword = await bcrypt.hash(req.body.newPassword, 10);
+
+                USERS.resetPasswordById(req.body.id, hashedNewPassword, (err, data) => {
+                    if (err) {
+                        res.json({ success: false, message: 'Có lỗi xảy ra, vui lòng thử lại sau.' })
+                        return;
+                    } else {
+                        res.json({ success: true, message: 'Thay đổi mật khẩu thành công.' });
+                    }
+                })
+            } else {
+                res.json({ success: false, message: 'Mật khẩu cũ không đúng.' })
+            }
+        })
+
     } catch (error) {
         console.log(error);
         res.json({ success: false, error: error.message });
@@ -526,7 +605,7 @@ async function productDetail(req, res) {
 
         const images = await IMAGES.findByProductId(productId);
 
-        const reviews = await REVIEWS.findByProductId(productId);
+        // const reviews = await REVIEWS.findByProductId(productId);
         // const users = await getUsersFromReviews(reviews);
         // console.log(users)
         // const nameUsersRated = users.map(user => user[0].name);
@@ -1367,9 +1446,73 @@ function updateOrderIsRated(req, res) {
     // res.render('editProduct')
 }
 
+async function addCategory(req, res) {
+    try {
+        const newCategory = new CATEGORIES({
+            name: req.body.name,
+            description: req.body.description,
+        });
+
+        CATEGORIES.create(newCategory, (err, category) => {
+            if (err) {
+                res.json({ success: false, message: "Đã xảy ra lỗi khi thêm danh mục" })
+                return
+            } else {
+                res.json({ success: true, message: "Thêm danh mục thành công" })
+            }
+        })
+    } catch (error) {
+        console.error(error);
+        return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
+    }
+}
+
+
+async function editCategory(req, res) {
+    try {
+        const newCategory = new CATEGORIES({
+            category_id: req.body.category_id,
+            name: req.body.name,
+            description: req.body.description,
+        });
+
+        CATEGORIES.findById(req.body.category_id)
+            .then(() => {
+                CATEGORIES.updateByID(newCategory, (err, category) => {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        res.json({ success: true, message: "Chỉnh sửa danh mục thành công" })
+                    }
+                })
+            })
+
+    } catch (error) {
+        console.error(error);
+        return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
+    }
+}
+
+async function deleteCategory(req, res) {
+    try {
+
+        CATEGORIES.deleteById(req.body.category_id, (err, category) => {
+            if (err) {
+                console.log(err)
+            } else {
+                res.json({ success: true, message: "Xóa danh mục thành công" })
+            }
+        })
+
+    } catch (error) {
+        console.error(error);
+        return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
+    }
+}
+
 module.exports = {
-    home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUser, deleteProduct, productDetail,
+    home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUserManagement, editUserInfo, deleteProduct, productDetail,
     cart, cartServer, addCart, deleteCart, updateCart, checkout, dataOrder, createPaymentVNPAY, order, orderDetails, orderManagement,
     updateOrder, orderSuccess, orderReject, orderShipping, orderShipped, reviews, reviewsManagement,
-    reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder, deliveryAddress, addDeliveryAddress, deleteDeliveryAddress
+    reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder, deliveryAddress, addDeliveryAddress, deleteDeliveryAddress, userById, addCategory, editCategory, deleteCategory
 }
