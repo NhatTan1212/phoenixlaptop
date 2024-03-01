@@ -55,11 +55,10 @@ const OrderManagement = () => {
             key: 'avatar',
             render: (_, record) => (
                 <div className='avatar w-[108px]'>
-                    < img
+                    <img
                         src={record.avatar}
                         className='w-full h-auto border-[1px] border-[#e1dada]'
-                    ></img >
-
+                    />
                 </div>
             )
         },

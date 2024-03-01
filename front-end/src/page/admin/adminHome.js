@@ -12,6 +12,7 @@ import jwtDecode from 'jwt-decode';
 import { v4 as uuidv4 } from 'uuid';
 import UserManagement from './userManagement/userManagement';
 import CategoryManagement from './categoryManagement/categoryManagement';
+import BrandManagement from './brandManagement/brandManagement';
 
 const AdminHome = () => {
     const [current, setCurrent] = useState('db');
@@ -53,37 +54,37 @@ const AdminHome = () => {
                     items={[
                         {
                             label:
-                                <div to={'/management'}>Dashboards</div>,
+                                <div>Dashboards</div>,
                             key: "db",
                             icon: <DashboardOutlined></DashboardOutlined>
                         },
                         {
                             label:
-                                <div to={'/management/user'}>User Management</div>,
+                                <div>User Management</div>,
                             key: "um",
                             icon: <UserOutlined></UserOutlined>
                         },
                         {
                             label:
-                                <div to={'/management/category'}>Category Management</div>,
+                                <div>Category Management</div>,
                             key: "cm",
                             icon: <BarsOutlined></BarsOutlined>
                         },
                         {
                             label:
-                                <div to={'/management/brand'}>Brand Management</div>,
+                                <div>Brand Management</div>,
                             key: "bm",
                             icon: <BoldOutlined></BoldOutlined>
                         },
                         {
                             label:
-                                <div to={'/management/product'}>Product Management</div>,
+                                <div>Product Management</div>,
                             key: "pm",
                             icon: <LaptopOutlined></LaptopOutlined>
                         },
                         {
                             label:
-                                <div to={'/management/order'}>Order Management</div>,
+                                <div>Order Management</div>,
                             key: "om",
                             icon: <ShoppingOutlined></ShoppingOutlined>
                         }
@@ -94,7 +95,7 @@ const AdminHome = () => {
             </Space>
             {current === 'um' && <UserManagement />}
             {current === 'cm' && <CategoryManagement />}
-            {current === 'bm' && <CategoryManagement />}
+            {current === 'bm' && <BrandManagement />}
             {current === 'pm' && <ProductManagement />}
             {current === 'om' && <OrderManagement />}
         </div>

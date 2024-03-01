@@ -198,6 +198,42 @@ Products.findById = async (id) => {
     });
 };
 
+Products.findByBrandId = async (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+                SELECT * FROM PRODUCTS WHERE brand_id = @id
+            `;
+            const result = await pool.request()
+                .input('id', sql.Int, id)
+                .query(sqlStringAddProduct);
+
+            resolve(result.recordset);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+Products.findByCategoryIdPromise = async (category_id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+                SELECT * FROM PRODUCTS WHERE category_id = @category_id
+            `;
+            const result = await pool.request()
+                .input('category_id', sql.Int, category_id)
+                .query(sqlStringAddProduct);
+
+            resolve(result.recordset);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 Products.findByQuery = async (slugBrand, slugCategory, sort) => {
     return new Promise(async (resolve, reject) => {
         try {

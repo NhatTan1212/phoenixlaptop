@@ -5,32 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const uuid = uuidv4();
 const jwt = require('jsonwebtoken')
 
-
-
-//multer
-var multer = require('multer');
-
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/upload')
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname)
-    }
-});
-var upload = multer({
-    storage: storage,
-    fileFilter: function (req, file, cb) {
-        console.log(file);
-        if (file.mimetype == "image/bmp" || file.mimetype == "image/png" || file.mimetype == "image/jpeg" || file.mimetype == "image/jpg" || file.mimetype == "image/gif") {
-            cb(null, true)
-        } else {
-            return cb(new Error('Only image are allowed!'))
-        }
-    }
-}).single("avatar");
-
-
 function categoriesList(req, res) {
     CATEGORIES.find((err, categories) => {
         if (!err) {
@@ -96,44 +70,56 @@ function brandsList(req, res) {
     // res.render("categoriesList")
 }
 
-function brandsAddNew(req, res) {
-    // USERS.findById
-    // console.log(req.body)
-    BRANDS.find((err, brands) => {
+function brandAddNew(req, res) {
+    const newBrand = new BRANDS({
+        name: req.body.name,
+        description: req.body.description,
+        slug: req.body.slug,
+        image: 'http://localhost:8000/upload/' + req.files.avatar[0].filename,
+    });
+
+    BRANDS.addNewBrand(newBrand, (err, data) => {
         if (err) {
-            res.json({ "kq": 0, "errMsg": err });
+            res.json({ success: false, message: err });
         }
         else {
-            // console.log(brands[0].id)
-            // res.render("editcategories", { data: brands[0] })
-            // res.json({data:brands.length})
-            if (brands.length == 0) {
-                // let brand_id = 1;
-                const brand = new BRANDS({
-                    brand_id: 1,
-                    name: req.body.name,
-                    description: req.body.description
-                });
+            res.json({ success: true, message: 'Thêm thương hiệu thành công.' });
+        }
+    })
+}
 
-
-                // console.log(order)
-                BRANDS.create(brand, (err, brand) => {
-
-                    if (!err) {
-
-                        res.json({ success: true, redirectUrl: '../brands-management' });
-
-                    }
-
-                })
-            }
+function brandEdit(req, res) {
+    console.log(req.body);
+    let file = ''
+    console.log(req.files);
+    if (req.files != null && req.files.avatar != null && req.files.avatar.length > 0) {
+        file = 'http://localhost:8000/upload/' + req.files.avatar[0].filename
+    } else {
+        file = req.body.avatar
+    }
+    BRANDS.editBrandById(req.body, file, (err, brands) => {
+        if (err) {
+            res.json({ success: false, message: err });
+        }
+        else {
+            res.json({ success: true, message: 'Chỉnh sửa thương hiệu thành công.' });
         }
     })
 
+}
 
+function brandDelete(req, res) {
+    BRANDS.deleteById(req.body.brand_id, (err, brands) => {
+        if (err) {
+            res.json({ success: false, message: err });
+        }
+        else {
+            res.json({ success: true, message: 'Xóa thương hiệu thành công.' });
+        }
+    })
 }
 
 module.exports = {
     categoriesList, categoriesAddNew,
-    brandsAddNew, brandsList
+    brandAddNew, brandsList, brandEdit, brandDelete
 }
