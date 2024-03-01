@@ -40,6 +40,7 @@ const uploadMuti = multer({
 
 routerHome.get('/', controllerHome.home)
 routerHome.get('/users', controllerHome.users)
+routerHome.get('/profile/:id', controllerHome.userById)
 routerHome.post('/delivery-address', controllerHome.deliveryAddress)
 routerHome.post('/add-delivery-address', controllerHome.addDeliveryAddress)
 routerHome.post('/delete-delivery-address', controllerHome.deleteDeliveryAddress)
@@ -49,7 +50,9 @@ routerHome.get('/list-image', controllerHome.listImage)
 routerHome.get('/laptop-gaming', controllerHome.laptopGaming)
 routerHome.get('/laptops/:query', controllerHome.getLaptopsByQuery);
 routerHome.post('/newuser', authMiddleware.isAuthAdmin, controllerHome.addUser)
-routerHome.post('/edituser', authMiddleware.isAuthAdmin, controllerHome.editUser)
+routerHome.post('/edituser', authMiddleware.isAuthAdmin, controllerHome.editUserManagement)
+routerHome.post('/edituserinfo', controllerHome.editUserInfo)
+routerHome.post('/changeuserpassword', controllerHome.editUserInfo)
 routerHome.post('/deleteuser', authMiddleware.isAuthAdmin, controllerHome.deleteUser)
 routerHome.get('/editproduct/:id', authMiddleware.isAuthAdmin, controllerHome.editProduct)
 routerHome.post('/editproduct', uploadMuti, authMiddleware.isAuthAdmin, controllerHome.editProductPost)
@@ -78,5 +81,8 @@ routerHome.get('/reviews-management', authMiddleware.isAuthAdmin, controllerHome
 routerHome.get('/reviews-management-by-product/:id', authMiddleware.isAuthAdmin, controllerHome.reviewsManagementByProduct)
 routerHome.get('/deletereview/:id', authMiddleware.isAuthAdmin, controllerHome.deleteReviews)
 routerHome.put('/update-order-is-rated/:id', authMiddleware.isAuth, controllerHome.updateOrderIsRated)
+routerHome.post('/newcategory', authMiddleware.isAuthAdmin, controllerHome.addCategory)
+routerHome.post('/editcategory', authMiddleware.isAuthAdmin, controllerHome.editCategory)
+routerHome.post('/deletecategory', authMiddleware.isAuthAdmin, controllerHome.deleteCategory)
 
 module.exports.routerHome = routerHome

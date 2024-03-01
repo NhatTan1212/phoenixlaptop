@@ -138,8 +138,8 @@ function Order() {
     return (
 
         <div className='bg-[#f0f0f0] py-3'>
-            <div className='w-10/12  mx-[auto] '>
-                <div className='bg-[#ffffff] mx-[263px] flex'>
+            <div className='w-10/12  mx-[auto]'>
+                <div className='bg-[#ffffff] ml-[263px] flex'>
                     <Table
                         className='flex-1'
                         columns={columns}

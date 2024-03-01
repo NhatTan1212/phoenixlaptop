@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../store/Context';
 import '../header/header.scss';
-import { Link, NavLink, useLocation, useParams } from 'react-router-dom';
+import { Link, NavLink, useLocation, useParams, useHistory } from 'react-router-dom';
 import logo from '../../images/logo-phoenix.png'
 import { AutoComplete, Input } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -31,6 +31,7 @@ function Header() {
     const userName = localStorage.getItem('user_name');
     const role = localStorage.getItem('role');
     const [isAdmin, setIsAdmin] = useState(false)
+    const [userId, setUserId] = useState('')
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     const isAdminHomePage = location.pathname === '/management'
@@ -82,6 +83,10 @@ function Header() {
         const token = Cookies.get(tokenCookieName);
         if (token) {
             setIsLogin(true);
+            const decodedToken = jwtDecode(token);
+            if (decodedToken && decodedToken.id) {
+                setUserId(decodedToken.id);
+            }
         } else {
             setIsLogin(false);
         }
@@ -165,6 +170,10 @@ function Header() {
         }
     }
 
+    const handleProfile = () => {
+        setIsShowFloatLayer(false);
+    }
+
     // const getBankAccountNumber = () => {
     //     var data = JSON.stringify({
     //         "bin": "970415",
@@ -197,7 +206,6 @@ function Header() {
         <div
             className='header'
         >
-            {console.log("isCartChange", isCartChange)}
             <div className={`topnav ${isAdminHomePage ? 'w-full' : 'w-10/12'}`}>
                 <div className='topnav-left'>
 
@@ -256,10 +264,10 @@ function Header() {
                                 <div
                                     className='wrap-link py-[24px] px-[16px]'
                                     onMouseEnter={() => {
-                                        setIsShowFloatLayer(!isShowFloatLayer);
+                                        setIsShowFloatLayer(true);
                                     }}
                                     onMouseLeave={() => {
-                                        setIsShowFloatLayer(!isShowFloatLayer);
+                                        setIsShowFloatLayer(false);
                                     }}
                                 >
                                     <span className='icon icon-user'>
@@ -270,19 +278,34 @@ function Header() {
                                         <ul className=''>
                                             {isAdmin &&
                                                 <li className='flex '>
-                                                    <Link to={'/management'} className='w-full text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
+                                                    <Link
+                                                        onClick={() => {
+                                                            setIsShowFloatLayer(false);
+                                                        }}
+                                                        to={'/management'}
+                                                        className='w-full text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
                                                         Vào trang Admin
                                                         <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
                                                     </Link>
                                                 </li>}
                                             <li>
-                                                <Link className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
+                                                <Link
+                                                    to={`profile/${userId}`}
+                                                    onClick={() => {
+                                                        handleProfile();
+                                                    }}
+                                                    className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
                                                     Quản lý thông tin cá nhân
                                                     <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
                                                 </Link>
                                             </li>
                                             <li>
-                                                <Link to={'/order'} className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
+                                                <Link
+                                                    onClick={() => {
+                                                        setIsShowFloatLayer(false);
+                                                    }}
+                                                    to={'/order'}
+                                                    className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px]'>
                                                     Quản lý đơn hàng
                                                     <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
                                                 </Link>

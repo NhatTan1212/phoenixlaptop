@@ -77,7 +77,6 @@ const EditUserDetails = ({ setIsActioning, setActioningUser, actioningUser }) =>
                                 />
 
                                 <h3><span className='text-red-500'>* </span>Vai trò:</h3>
-                                {console.log(actioningUser)}
                                 <Select
                                     className='mb-2 mt-0'
                                     name='role'

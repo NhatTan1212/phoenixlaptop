@@ -110,7 +110,7 @@ async function confirmRegister(req, res) {
                         if (err) console.log(err)
                         else {
                             // res.json({ message: "Bạn đã tạo tài khoản thành công" })
-                            res.redirect('http://localhost:3000/auth?success=true')
+                            res.redirect('http://localhost:3000/Phoenix-technology#/auth?success=true')
 
                         }
                     })
@@ -155,16 +155,16 @@ passport.use(new LocalStrategy({
 },
     function verify(email, pass, cb) {
         USERS.findByEmail(email, async (err, data) => {
-            let dataUser = data[0];
-            // console.log(dataUser)
+            let dataUser = data;
             if (err) { return cb(err); }
-            if (!dataUser) { return cb(null, false, { message: 'Incorrect email or password.' }); }
+            if (!dataUser) {
+                return cb(null, false, { message: 'Incorrect email or password.' });
+            }
             bcrypt.compare(pass, dataUser.password, (err, data) => {
                 if (err) { return cb(err); }
                 if (!data) {
                     return cb(null, false, { message: 'Incorrect email or password.' });
                 }
-                console.log(dataUser)
                 if (dataUser.confirmation_status == 1) {
                     return cb(null, dataUser);
                 }

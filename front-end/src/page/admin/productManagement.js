@@ -35,6 +35,7 @@ const ProductManagement = () => {
         {
             title: 'ID',
             dataIndex: 'id',
+            width: '10%',
             sorter: (record1, record2) => { return record1.id - record2.id }
         },
         {
@@ -104,6 +105,7 @@ const ProductManagement = () => {
         {
             title: 'Action',
             dataIndex: 'action',
+            width: '10%',
             render: (text, record) => {
                 return (<div className='flex flex-col h-auto'>
                     <button className=' bg-[#c8191f] text-white text-center

@@ -54,7 +54,6 @@ USERS.findById = async (id) => {
                 .input('id', sql.Int, id)
                 .query(sqlStringFindById);
 
-            console.log(`Result:`, result.recordset);
             resolve(result.recordset[0]);
         } catch (error) {
             console.log(error);
@@ -81,7 +80,7 @@ USERS.findByEmail = async (email, result) => {
             // }
             else {
                 // console.log(data)
-                result(null, data.recordset);
+                result(null, data.recordset[0]);
             }
         })
 }
@@ -131,6 +130,26 @@ USERS.resetPassword = async (email, password, result) => {
                 result(null, { email: email });
             }
         })
+};
+
+USERS.resetPasswordById = async (id, password, result) => {
+    const pool = await connect;
+    const sqlStringAdduser = `
+        UPDATE USERS SET password = @password WHERE id = @id
+    `;
+    await pool.request()
+        .input('id', sql.Int, id)
+        .input('password', sql.VARCHAR(255), password)
+        .query(sqlStringAdduser, (err, data) => {
+            if (err) {
+                console.log(err)
+            }
+            else {
+                result(null, "success");
+            }
+            sql.close();
+        })
+
 };
 
 USERS.addNewUser = async (newUser, result) => {
@@ -248,6 +267,26 @@ USERS.editByUserId = async (editUser, result) => {
         .input('password', sql.VARCHAR(255), editUser.password)
         .input('role', sql.NVARCHAR(50), editUser.role)
         .input('id', sql.Int, editUser.id)
+        .query(sqlStringAddUser, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                // console.log(data)
+            }
+            result(null, data.recordset);
+            sql.close();
+        })
+}
+
+USERS.editUserInfoByUserId = async (editUserInfo, result) => {
+    const pool = await connect;
+    const sqlStringAddUser = `
+        UPDATE USERS SET name = @name, phone = @phone WHERE id = @id
+    `;
+    await pool.request()
+        .input('name', sql.NVARCHAR(100), editUserInfo.name)
+        .input('phone', sql.VARCHAR(15), editUserInfo.phone)
+        .input('id', sql.Int, editUserInfo.id)
         .query(sqlStringAddUser, (err, data) => {
             if (err) {
                 console.log(err)
