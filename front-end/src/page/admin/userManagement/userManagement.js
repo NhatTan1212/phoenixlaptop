@@ -100,7 +100,7 @@ const UserManagement = () => {
         // Hàm này chạy khi component được mount
         getUsers();
 
-    }, [isEditing, searchText, isListUsersChanged]);
+    }, [isEditing, searchText, isListUsersChanged, isOpenedModalAddNew]);
 
     useEffect(() => {
         filterUsers();

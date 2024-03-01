@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
     UserOutlined, BarsOutlined, LaptopOutlined, ShoppingOutlined,
-    DashboardOutlined
+    DashboardOutlined, BoldOutlined
 } from '@ant-design/icons';
 import { Menu, Space } from 'antd';
 import ProductManagement from './productManagement';
@@ -71,6 +71,12 @@ const AdminHome = () => {
                         },
                         {
                             label:
+                                <div to={'/management/brand'}>Brand Management</div>,
+                            key: "bm",
+                            icon: <BoldOutlined></BoldOutlined>
+                        },
+                        {
+                            label:
                                 <div to={'/management/product'}>Product Management</div>,
                             key: "pm",
                             icon: <LaptopOutlined></LaptopOutlined>
@@ -88,6 +94,7 @@ const AdminHome = () => {
             </Space>
             {current === 'um' && <UserManagement />}
             {current === 'cm' && <CategoryManagement />}
+            {current === 'bm' && <CategoryManagement />}
             {current === 'pm' && <ProductManagement />}
             {current === 'om' && <OrderManagement />}
         </div>

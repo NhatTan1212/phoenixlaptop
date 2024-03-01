@@ -52,7 +52,7 @@ routerHome.get('/laptops/:query', controllerHome.getLaptopsByQuery);
 routerHome.post('/newuser', authMiddleware.isAuthAdmin, controllerHome.addUser)
 routerHome.post('/edituser', authMiddleware.isAuthAdmin, controllerHome.editUserManagement)
 routerHome.post('/edituserinfo', controllerHome.editUserInfo)
-routerHome.post('/changeuserpassword', controllerHome.editUserInfo)
+routerHome.post('/changeuserpassword', controllerHome.editUserInfoPassWord)
 routerHome.post('/deleteuser', authMiddleware.isAuthAdmin, controllerHome.deleteUser)
 routerHome.get('/editproduct/:id', authMiddleware.isAuthAdmin, controllerHome.editProduct)
 routerHome.post('/editproduct', uploadMuti, authMiddleware.isAuthAdmin, controllerHome.editProductPost)

@@ -1,7 +1,7 @@
 import { AddNewCategory } from '../../callAPI/api';
 import React, { useState, useContext } from 'react';
 import {
-    Input, Select, Row, Col
+    Input, Select, Row, Col, Tooltip
 } from 'antd';
 import '../../component/management/modalFPM.scss'
 import Cookies from 'js-cookie';
@@ -14,17 +14,31 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
     let token = Cookies.get('token');
     const context = useContext(Context);
     const [name, setName] = useState('');
+    const [slug, setSlug] = useState('');
     const [description, setDescription] = useState('');
     const [hasNameChanged, setHasNameChanged] = useState(false);
+    const [hasSlugChanged, setHasSlugChanged] = useState(false);
     const [hasDescriptionChanged, setHasDescriptionChanged] = useState(false);
     const [newCategoryFailed, setNewCategoryFailed] = useState(false);
     const [nameIsNull, setNameIsNull] = useState(false);
+    const [slugIsNull, setSlugIsNull] = useState(false);
     const [descriptionIsNull, setDescriptionIsNull] = useState(false);
 
     const onChangeName = (e) => {
         setName(e.target.value);
         setHasNameChanged(true)
         setNameIsNull(false);
+    }
+
+    const onChangeSlug = (e) => {
+        let newSlug = e.target.value
+            .trim()
+            .replace(/\s+/g, '-') // Thay thế dấu cách bằng dấu gạch ngang
+            .replace(/[^a-zA-Z0-9-]/g, '') // Loại bỏ các ký tự không phải a-z, A-Z, 0-9, hoặc dấu gạch ngang
+            .toLowerCase(); // Chuyển đổi thành chữ thường
+        setSlug(newSlug);
+        setHasSlugChanged(true)
+        setSlugIsNull(false);
     }
 
     const onChangeDescription = (e) => {
@@ -39,12 +53,17 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
         const formData = {
             token: token,
             name: name,
-            description: description
+            description: description,
+            slug: slug
         }
 
         let hasError = false;
         if (!name) {
             setNameIsNull(true);
+            hasError = true;
+        }
+        if (!slug) {
+            setSlugIsNull(true);
             hasError = true;
         }
         if (!description) {
@@ -84,6 +103,7 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
                             <Input
                                 className='mb-2 mt-0'
                                 name='name'
+                                autoComplete="off"
                                 onChange={(e) => { onChangeName(e) }}
                                 value={name}
                             />
@@ -106,6 +126,29 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
                                 {(hasDescriptionChanged && description === '') || (newCategoryFailed && descriptionIsNull)
                                     ? <p className='err-mess'>Mô tả không được để trống</p> : null
                                 }
+                            </div>
+                            <h3><span className='text-red-500'>* </span>Mã danh mục (slug):</h3>
+                            <Tooltip
+                                className='bg-white text-black'
+                                placement='topRight'
+                                title={
+                                    <div>
+                                        <div>- Nhập tiếng việt không dấu</div>
+                                        <div>- Ngăn cách bằng dấu gạch ngang</div>
+                                        <div>- Không chứa khoảng trống</div>
+                                    </div>
+                                }>
+                                <Input
+                                    className='mb-2 mt-0'
+                                    name='slug'
+                                    onChange={(e) => { onChangeSlug(e) }}
+                                    value={slug}
+                                />
+                            </Tooltip>
+
+                            <div className='wrap-err-mess'>
+                                {(hasSlugChanged && slug === '') || (newCategoryFailed && slugIsNull)
+                                    ? <p className='err-mess'>Mã danh mục không được để trống</p> : null}
                             </div>
                         </Col>
                     </Row>

@@ -532,7 +532,7 @@ async function editUserInfo(req, res) {
     }
 }
 
-async function editUserInfo(req, res) {
+async function editUserInfoPassWord(req, res) {
     try {
         const userData = await USERS.findById(req.body.id);
 
@@ -1451,10 +1451,12 @@ async function addCategory(req, res) {
         const newCategory = new CATEGORIES({
             name: req.body.name,
             description: req.body.description,
+            slug: req.body.slug
         });
 
         CATEGORIES.create(newCategory, (err, category) => {
             if (err) {
+                console.log('line 1458 controllerHome: Lỗi khi thêm danh mục - ', err);
                 res.json({ success: false, message: "Đã xảy ra lỗi khi thêm danh mục" })
                 return
             } else {
@@ -1511,7 +1513,7 @@ async function deleteCategory(req, res) {
 }
 
 module.exports = {
-    home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUserManagement, editUserInfo, deleteProduct, productDetail,
+    home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUserManagement, editUserInfo, editUserInfoPassWord, deleteProduct, productDetail,
     cart, cartServer, addCart, deleteCart, updateCart, checkout, dataOrder, createPaymentVNPAY, order, orderDetails, orderManagement,
     updateOrder, orderSuccess, orderReject, orderShipping, orderShipped, reviews, reviewsManagement,
     reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder, deliveryAddress, addDeliveryAddress, deleteDeliveryAddress, userById, addCategory, editCategory, deleteCategory

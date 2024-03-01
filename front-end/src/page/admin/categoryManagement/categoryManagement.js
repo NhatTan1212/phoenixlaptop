@@ -76,7 +76,7 @@ const CategoryManagement = () => {
 
     useEffect(() => {
         getCategories();
-    }, [isEditing, searchText, isListCategoriesChanged]);
+    }, [isEditing, searchText, isListCategoriesChanged, isOpenedModalAddNew]);
 
     useEffect(() => {
         filterCategories();
