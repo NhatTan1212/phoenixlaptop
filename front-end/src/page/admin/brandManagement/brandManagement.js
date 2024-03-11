@@ -6,7 +6,7 @@ import {
 import { GetBrands, DeleteBrand } from '../../../callAPI/api';
 import Cookies from 'js-cookie';
 import Context from '../../../store/Context';
-import ModalBrandManager from '../../../component/management/ModalBrandManager';
+import ModalBrandManager from '../../../component/management/brand/ModalBrandManager';
 
 const BrandManagement = () => {
     let token = Cookies.get('token')

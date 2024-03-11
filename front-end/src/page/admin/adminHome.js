@@ -1,22 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
     UserOutlined, BarsOutlined, LaptopOutlined, ShoppingOutlined,
     DashboardOutlined, BoldOutlined
 } from '@ant-design/icons';
 import { Menu, Space } from 'antd';
-import ProductManagement from './productManagement';
+import ProductManagement from './productManagement/productManagement';
 import OrderManagement from './orderManagement/orderManagement';
 import Cookies from 'js-cookie';
 import jwtDecode from 'jwt-decode';
 import { v4 as uuidv4 } from 'uuid';
 import UserManagement from './userManagement/userManagement';
 import CategoryManagement from './categoryManagement/categoryManagement';
+import Dashboard from './Dashboard/dashBoard';
 import BrandManagement from './brandManagement/brandManagement';
+import DescriptionManagement from './productManagement/descriptionProductManagement';
+import Context from '../../store/Context';
+import io from 'socket.io-client';
+
 
 const AdminHome = () => {
+    const context = useContext(Context)
     const [current, setCurrent] = useState('db');
     const [isAdmin, setIsAdmin] = useState(false)
+
+    function getItem(label, key, icon, children, type) {
+        return {
+            key,
+            icon,
+            children,
+            label,
+            type,
+        };
+    }
 
     useEffect(() => {
         let token = Cookies.get('token')
@@ -34,17 +50,32 @@ const AdminHome = () => {
         }
     }, [isAdmin])
 
+    useEffect(() => {
+        // Thiết lập kết nối WebSocket
+        const socket = io('http://localhost:8000/');
+
+        // Lắng nghe sự kiện khi có thông báo từ máy chủ
+        socket.on('newOrder', (data) => {
+            // Xử lý thông báo, ví dụ: hiển thị lên đầu trang
+            console.log('New order received:', data);
+            context.Message("info", "Có một đơn hàng mới vừa được tạo.")
+        });
+
+        // Ngắt kết nối khi component unmount
+        return () => socket.disconnect();
+    }, []);
+
     function AccessDeniedMessage() {
         return <div className='mt-4 font-bold'>Bạn không đủ quyền truy cập vào đường dẫn này!</div>;
     }
 
     const handleMenu = (e) => {
-        // console.log(e)
+        console.log(e)
         setCurrent(e.key);
     }
     return (
         <>{isAdmin ? <div className='flex'>
-            <Space className='items-start' >
+            <Space className='items-start bg-white' >
                 <Menu
 
                     mode='inline'
@@ -76,6 +107,10 @@ const AdminHome = () => {
                             key: "bm",
                             icon: <BoldOutlined></BoldOutlined>
                         },
+                        // getItem('Product Management', 'pm', <LaptopOutlined />, [
+                        //     getItem('Management', 'pmm'),
+                        //     getItem('Desciption', 'pmd')
+                        // ]),
                         {
                             label:
                                 <div>Product Management</div>,
@@ -93,6 +128,7 @@ const AdminHome = () => {
                 </Menu>
 
             </Space>
+            {current === 'db' && <Dashboard />}
             {current === 'um' && <UserManagement />}
             {current === 'cm' && <CategoryManagement />}
             {current === 'bm' && <BrandManagement />}

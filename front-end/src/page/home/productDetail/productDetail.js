@@ -11,9 +11,10 @@ import './productDetail.scss'
 import Cookies from 'js-cookie';
 import { Descriptions } from 'antd';
 import Instance from '../../../axiosInstance';
-import ModalProductManager from '../../../component/management/ModalProductManager';
+import ModalProductManager from '../../../component/management/product/ModalProductManager';
 import { GetBrands, GetCategories } from '../../../callAPI/api';
 import { faL } from '@fortawesome/free-solid-svg-icons';
+import ReactDOM from 'react-dom/client';
 
 const { Header, Content, Footer, Sider } = Layout;
 const items1 = ['1', '2', '3'].map((key) => ({
@@ -21,7 +22,7 @@ const items1 = ['1', '2', '3'].map((key) => ({
     label: `nav ${key}`,
 }));
 const ProductDetail = () => {
-
+    const param = useParams()
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -41,9 +42,19 @@ const ProductDetail = () => {
     const [brandDefault, setBrandDefault] = useState('')
     const [categoryDefault, setCategoryDefault] = useState('')
     const [isGetProductDetailSuccessfully, setIsGetProductDetailSuccessfully] = useState(false)
+    const [isGetBrandSuccessfully, setIsGetBrandSuccessfully] = useState(false)
+    const [showFullContent, setShowFullContent] = useState(false);
+
     const success = (text) => {
         messageApi.open({
             type: 'success',
+            content: text,
+        });
+    };
+
+    const error = (text) => {
+        messageApi.open({
+            type: 'error',
             content: text,
         });
     };
@@ -52,13 +63,6 @@ const ProductDetail = () => {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
 
-    useEffect(() => {
-        getProductDetail();
-        getBrands();
-        getCategories();
-    }, []);
-    // useEffect(() => {
-    // }, [isGetProductDetailSuccessfully]);
     const getProductDetail = () => {
         Instance.get(`/product-detail/${id}`)
             .then(response => {
@@ -81,6 +85,7 @@ const ProductDetail = () => {
             //     return brand.name
             // }, []));
             setBrands(response);
+            setIsGetBrandSuccessfully(true)
         })
     }
 
@@ -108,6 +113,7 @@ const ProductDetail = () => {
             count: buyQuantity,
             quantity: productDetail.data.quantity //số lượng hàng còn trong kho
         }
+        let cartData = JSON.parse(localStorage.getItem('cartData')) || [];
         if (token !== undefined) {
             Instance.post('/addcart', data, {
                 headers: {
@@ -156,6 +162,22 @@ const ProductDetail = () => {
         });
         setCategoryDefault(getCategory.name)
     }
+
+    useEffect(() => {
+        getProductDetail();
+        getBrands();
+        getCategories();
+    }, [param]);
+    const truncateContent = (content, maxLength) => {
+        return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content;
+    };
+    useEffect(() => {
+        if (isGetProductDetailSuccessfully && productDetail.data.detailed_evaluation !== 'null' && productDetail.data.detailed_evaluation) {
+            const content = productDetail.data.detailed_evaluation
+            const container = document.getElementById('row-detailed-evaluation')
+            showFullContent === true ? container.innerHTML = content : container.innerHTML = truncateContent(content, 3500)
+        }
+    }, [isGetProductDetailSuccessfully, showFullContent])
 
     return (
         <Layout>
@@ -207,7 +229,7 @@ const ProductDetail = () => {
                             padding: '0 24px',
                             minHeight: 280,
                         }}>
-                        {isGetProductDetailSuccessfully && (
+                        {(isGetProductDetailSuccessfully && productDetail.data.prod_name) && (
                             // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
                             <h1 className='text-[24px] font-bold'>
                                 {productDetail.data.prod_name}
@@ -327,17 +349,17 @@ const ProductDetail = () => {
                                 }
 
                             </Col>
-                            <Col span={8} className='px-[15px]'>
+                            <Col span={8} className='px-[15px] border-[1px] border-[#dbdbdb] whitespace-nowrap text-ellipsis overflow-hidden'>
                                 <div className='flex justify-between'>
                                     <h3 className='text-[#000] text-[16px] my-4 font-bold'>
                                         Thông số kỹ thuật
                                     </h3>
                                     <h3 className='text-[#dd0000] text-[14px] my-4 font-bold
                                     cursor-pointer hover:underline'
-                                        onClick={() => { viewDetailsProduct() }}>Xem chi tiết</h3>
+                                        onClick={() => { viewDetailsProduct() }}>Xem cấu hình chi tiết</h3>
                                 </div>
                                 <table className='tb-detail'>
-                                    {isGetProductDetailSuccessfully && (
+                                    {(isGetProductDetailSuccessfully && productDetail.data && isGetBrandSuccessfully && brands) && (
                                         <tbody>
                                             <tr className=''>
                                                 <td className='whitespace-nowrap'>Tên sản phẩm</td>
@@ -354,8 +376,17 @@ const ProductDetail = () => {
                                                 <td>{productDetail.data.cpu}</td>
                                             </tr>
                                             <tr>
+                                                <td>RAM</td>
+                                                <td>{productDetail.data.ram}</td>
+                                            </tr>
+                                            <tr>
                                                 <td>Ổ cứng</td>
                                                 <td>{productDetail.data.hard_drive}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Đồ họa</td>
+                                                <td>{(productDetail.data.on_board !== 'null' && productDetail.data.on_board)
+                                                    ? productDetail.data.on_board : productDetail.data.graphics}</td>
                                             </tr>
                                             <tr>
                                                 <td>Webcam</td>
@@ -363,7 +394,9 @@ const ProductDetail = () => {
                                             </tr>
                                             <tr>
                                                 <td>Kết nối</td>
-                                                <td>{productDetail.data.connection}</td>
+                                                <td
+                                                    className=' '
+                                                >{productDetail.data.connection}</td>
                                             </tr>
                                             <tr>
                                                 <td>Pin</td>
@@ -379,6 +412,22 @@ const ProductDetail = () => {
 
                                 </table>
                             </Col>
+                        </Row>
+                        <Row className='mt-4 border-t-[1px] pt-4 row-detailed-evaluation pb-4'>
+                            {isGetProductDetailSuccessfully && (
+                                <Col span={16}>
+                                    <div id='row-detailed-evaluation' className={(!showFullContent
+                                        && productDetail.data.detailed_evaluation !== 'null'
+                                        && productDetail.data.detailed_evaluation) ? 'blur-bottom' : ''}>
+                                    </div>
+                                    {(!showFullContent && productDetail.data.detailed_evaluation !== null && productDetail.data.detailed_evaluation !== 'null'
+                                        && productDetail.data.detailed_evaluation !== '') && (
+                                            <Button
+                                                className='absolute bottom-0 left-[45%]'
+                                                onClick={() => { setShowFullContent(true) }}>Xem thêm</Button>
+                                        )}
+                                </Col>
+                            )}
                         </Row>
                     </Content>
                 </Layout>

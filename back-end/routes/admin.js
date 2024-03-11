@@ -50,9 +50,19 @@ const uploadMuti = multer({
 
 routerAdmin.get('/management', authMiddleware.isAuthAdmin, controllerAdmin.controllerAdmin)
 
-routerAdmin.get('/addproducts', authMiddleware.isAuthAdmin, controllerAdmin.addProducts)
+routerAdmin.post('/newproduct', uploadMuti, authMiddleware.isAuthAdmin, controllerAdmin.newProduct
+)
+routerAdmin.get('/order-success-by-date/:days', controllerAdmin.getOrderSuccessByDate)
 
-routerAdmin.post('/newproduct', uploadMuti, authMiddleware.isAuthAdmin, controllerAdmin.newProduct)
+routerAdmin.get('/new-order-by-date/:days', controllerAdmin.getNewOrderByDate)
+
+routerAdmin.get('/new-user-by-date/:days', controllerAdmin.getNewUserByDate)
+
+routerAdmin.get('/favorite-brands/:days', controllerAdmin.getFavoriteBrands)
+
+routerAdmin.get('/favorite-laptops/:days', controllerAdmin.getFavoriteLaptops)
+
+
 
 
 

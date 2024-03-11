@@ -7,6 +7,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local');
 var FacebookStrategy = require('passport-facebook');
 const mailer = require('../../utils/mailer.js');
+const CART = require('../../models/cart.js');
 require('dotenv').config()
 
 function controllerLogin(req, res) {
@@ -30,6 +31,7 @@ async function register(req, res) {
     try {
         const name = req.body.name
         const email = req.body.email
+        const GID = req.body.GID
         const pass = req.body.pass
         const pool = await connect;
         let emailAlreadyExists = false;
@@ -70,7 +72,7 @@ async function register(req, res) {
                             "Xác nhận đăng ký tài khoản website bán laptop",
                             `
                             <p>Nhấn vào link bên dưới để xác nhận đăng ký tài khoản</p>
-                            <a href="http://localhost:8000/confirm/${email}?registrationToken=${registrationToken}">Xác nhận đăng ký</a>
+                            <a href="http://localhost:8000/confirm/${email}?registrationToken=${registrationToken}&GID=${GID}">Xác nhận đăng ký</a>
                             `
                         );
 
@@ -88,14 +90,21 @@ async function register(req, res) {
 
 async function confirmRegister(req, res) {
     const email = req.params.email;
+    let GID
+    if (req.query.GID) {
+        GID = req.query.GID
+    }
     const pool = await connect;
     const registrationToken = req.query.registrationToken;
     // console.log(email, registrationToken)
 
     USERS.findByEmail(email, (err, data) => {
         if (err) { res.send(err) }
-        let dataUser = data[0];
-        if (!dataUser) { res.json({ message: "Email not found!" }) }
+        let dataUser = data;
+        if (!dataUser) {
+            res.json({ message: "Email not found!" })
+            return
+        }
         bcrypt.compare(email, registrationToken, async (err, result) => {
             if (err) console.log(err)
             else {
@@ -110,7 +119,37 @@ async function confirmRegister(req, res) {
                         if (err) console.log(err)
                         else {
                             // res.json({ message: "Bạn đã tạo tài khoản thành công" })
-                            res.redirect('http://localhost:3000/Phoenix-technology#/auth?success=true')
+                            if (GID) {
+                                CART.findByGID(GID, (err, cart) => {
+                                    if (err) console.log(err);
+                                    if (cart.length !== 0) {
+                                        // console.log(cart);
+                                        CART.updateCartByNewAccount(GID, email, (err, data) => {
+                                            if (err) {
+                                                console.log(err);
+                                                res.json({ success: false, err: err })
+                                            }
+                                            else {
+                                                for (let i = 0; i < cart.length; i++) {
+                                                    const currentCart = cart[i];
+                                                    // Lưu cart mới vào cơ sở dữ liệu
+                                                    CART.create(currentCart, (err, data) => {
+                                                        if (err) {
+                                                            console.log(err);
+                                                            return res.json({ success: false, err: err });
+                                                        } else {
+                                                            console.log("line 141 controllerLogin3 - Cart created successfully:");
+                                                        }
+                                                    });
+                                                }
+                                                return res.redirect('http://localhost:3000/Phoenix-technology#/auth?success=true');
+                                            }
+                                        })
+                                    } else {
+                                        return res.redirect('http://localhost:3000/Phoenix-technology#/auth?success=true')
+                                    }
+                                })
+                            }
 
                         }
                     })

@@ -6,6 +6,7 @@ const Products = function (product) {
     this.brand_id = product.brand_id;
     this.category_id = product.category_id;
     this.prod_description = product.prod_description;
+    this.detailed_evaluation = product.detailed_evaluation;
     this.manufacturer = product.manufacturer;
     this.price = product.price;
     this.cost = product.cost;
@@ -22,6 +23,7 @@ const Products = function (product) {
     this.pin = product.pin;
     this.operation_system = product.operation_system;
     this.graphics = product.graphics;
+    this.on_board = product.on_board;
 
 };
 
@@ -66,65 +68,73 @@ Products.create = async (newproduct, result) => {
         })
 };
 Products.createWithPromise = async (newproduct, result) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const pool = await connect;
-            const sqlStringAddProduct = `
-            insert into PRODUCTS(prod_name,avatar, brand_id, category_id,prod_description,manufacturer,price,cost,quantity,prod_percent,cpu,
-                                    hard_drive,ram,mux_switch,screen,webcam,connection,prod_weight,pin,operation_system,graphics) 
-            values( @prod_name,@avatar,@brand_id,@category_id,@prod_description,@manufacturer,@price,@cost,@quantity,@prod_percent,@cpu,
-                    @hard_drive,@ram,@mux_switch,@screen,@webcam,@connection,@prod_weight,@pin,@operation_system,@graphics)
-            `;
-            const data = pool.request()
-                .input('prod_name', sql.NVARCHAR(255), newproduct.prod_name)
-                .input('avatar', sql.VARCHAR(255), newproduct.avatar)
-                .input('brand_id', sql.INT, newproduct.brand_id)
-                .input('category_id', sql.INT, newproduct.category_id)
-                .input('prod_description', sql.NVARCHAR(sql.MAX), newproduct.prod_description)
-                .input('manufacturer', sql.NVARCHAR(255), newproduct.manufacturer)
-                .input('price', sql.FLOAT, newproduct.price)
-                .input('cost', sql.FLOAT, newproduct.cost)
-                .input('quantity', sql.INT, newproduct.quantity)
-                .input('prod_percent', sql.FLOAT, newproduct.prod_percent)
-                .input('cpu', sql.NVARCHAR(255), newproduct.cpu)
-                .input('hard_drive', sql.NVARCHAR(255), newproduct.hard_drive)
-                .input('ram', sql.NVARCHAR(255), newproduct.ram)
-                .input('mux_switch', sql.NVARCHAR(255), newproduct.mux_switch)
-                .input('screen', sql.NVARCHAR(255), newproduct.screen)
-                .input('webcam', sql.NVARCHAR(255), newproduct.webcam)
-                .input('connection', sql.NVARCHAR(255), newproduct.connection)
-                .input('prod_weight', sql.NVARCHAR(255), newproduct.prod_weight)
-                .input('pin', sql.NVARCHAR(255), newproduct.pin)
-                .input('operation_system', sql.NVARCHAR(255), newproduct.operation_system)
-                .input('graphics', sql.NVARCHAR(255), newproduct.graphics)
-                .query(sqlStringAddProduct)
-            resolve({ ...newproduct })
-        } catch (error) {
-            console.error("Error when create new product! Error Details: ", error);
-            reject(error)
+    try {
+        const pool = await connect;
+        const sqlStringAddProduct = `
+            INSERT INTO PRODUCTS(prod_name, avatar, brand_id, category_id, prod_description, manufacturer, price, cost, quantity, prod_percent, cpu,
+                                hard_drive, ram, mux_switch, screen, webcam, connection, prod_weight, pin, operation_system, graphics) 
+            VALUES (@prod_name, @avatar, @brand_id, @category_id, @prod_description, @manufacturer, @price, @cost, @quantity, @prod_percent, @cpu,
+                    @hard_drive, @ram, @mux_switch, @screen, @webcam, @connection, @prod_weight, @pin, @operation_system, @graphics);
+        `;
+        const data = await pool.request()
+            .input('prod_name', sql.NVARCHAR(255), newproduct.prod_name)
+            .input('avatar', sql.VARCHAR(255), newproduct.avatar)
+            .input('brand_id', sql.INT, newproduct.brand_id)
+            .input('category_id', sql.INT, newproduct.category_id)
+            .input('prod_description', sql.NVARCHAR(sql.MAX), newproduct.prod_description)
+            .input('manufacturer', sql.NVARCHAR(255), newproduct.manufacturer)
+            .input('price', sql.FLOAT, newproduct.price)
+            .input('cost', sql.FLOAT, newproduct.cost)
+            .input('quantity', sql.INT, newproduct.quantity)
+            .input('prod_percent', sql.FLOAT, newproduct.prod_percent)
+            .input('cpu', sql.NVARCHAR(255), newproduct.cpu)
+            .input('hard_drive', sql.NVARCHAR(255), newproduct.hard_drive)
+            .input('ram', sql.NVARCHAR(255), newproduct.ram)
+            .input('mux_switch', sql.NVARCHAR(255), newproduct.mux_switch)
+            .input('screen', sql.NVARCHAR(255), newproduct.screen)
+            .input('webcam', sql.NVARCHAR(255), newproduct.webcam)
+            .input('connection', sql.NVARCHAR(255), newproduct.connection)
+            .input('prod_weight', sql.NVARCHAR(255), newproduct.prod_weight)
+            .input('pin', sql.NVARCHAR(255), newproduct.pin)
+            .input('operation_system', sql.NVARCHAR(255), newproduct.operation_system)
+            .input('graphics', sql.NVARCHAR(255), newproduct.graphics)
+            .query(sqlStringAddProduct);
+
+        const sqlStringSelectLastProduct = `
+            SELECT *
+            FROM PRODUCTS
+            WHERE id = (SELECT MAX(id) FROM PRODUCTS);
+        `;
+        const dataLastProduct = await pool.request().query(sqlStringSelectLastProduct);
+        console.log('line 109 product.js', dataLastProduct);
+        if (dataLastProduct.recordset.length > 0) {
+            return dataLastProduct.recordset[0].id;
+        } else {
+            throw new Error('No product found.');
         }
-
-    })
-
+    } catch (error) {
+        console.error("Error when create new product! Error Details: ", error);
+        throw error;
+    }
 };
 
-Products.selectLast = async (result) => {
+
+
+Products.selectLast = async () => {
     const pool = await connect;
     const sqlStringAddProduct = `
         SELECT *
         FROM PRODUCTS
         WHERE id = (SELECT MAX(id) FROM PRODUCTS);
     `;
-    await pool.request()
-        .query(sqlStringAddProduct, (err, data) => {
-            if (err) {
-                console.log(err)
-            } else {
-                console.log('id: ', data.recordset[0].id)
-                result(null, data.recordset[0].id);
-            }
-        })
+    const data = await pool.request().query(sqlStringAddProduct);
+    if (data.recordset.length > 0) {
+        return data.recordset[0].id;
+    } else {
+        throw new Error('No product found.');
+    }
 }
+
 
 Products.updateDecreaseQuantityById = async (id, count, result) => {
     const pool = await connect;
@@ -148,7 +158,7 @@ Products.updateDecreaseQuantityById = async (id, count, result) => {
 Products.find = async (result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
-        select * FROM PRODUCTS
+        select * FROM PRODUCTS order by id desc
     `;
     await pool.request()
         .query(sqlStringAddProduct, (err, data) => {
@@ -185,7 +195,7 @@ Products.findById = async (id) => {
         try {
             const pool = await connect;
             const sqlStringAddProduct = `
-                SELECT * FROM PRODUCTS WHERE id = @id
+                SELECT * FROM PRODUCTS WHERE id = @id 
             `;
             const result = await pool.request()
                 .input('id', sql.Int, id)
@@ -203,7 +213,7 @@ Products.findByBrandId = async (id) => {
         try {
             const pool = await connect;
             const sqlStringAddProduct = `
-                SELECT * FROM PRODUCTS WHERE brand_id = @id
+                SELECT * FROM PRODUCTS WHERE brand_id = @id order by id desc
             `;
             const result = await pool.request()
                 .input('id', sql.Int, id)
@@ -272,7 +282,7 @@ Products.findByQuery = async (slugBrand, slugCategory, sort) => {
 Products.findByCategoryId = async (id, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
-        select * FROM PRODUCTS where category_id = @id
+        select * FROM PRODUCTS where category_id = @id order by id desc
     `;
     await pool.request()
         .input('id', sql.Int, id)
@@ -291,7 +301,8 @@ Products.findByCategorySlug = async (slug, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
         SELECT * FROM PRODUCTS 
-        WHERE category_id IN (SELECT category_id FROM CATEGORIES WHERE slug IN (${slug}));
+        WHERE category_id IN (SELECT category_id FROM CATEGORIES WHERE slug IN (${slug}))
+        order by id desc;
     `;
     await pool.request()
         .query(sqlStringAddProduct, (err, data) => {
@@ -308,7 +319,8 @@ Products.findByBrandSlug = async (slug, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
         SELECT * FROM PRODUCTS 
-        WHERE brand_id IN (SELECT brand_id FROM BRANDS WHERE slug IN (${slug}));
+        WHERE brand_id IN (SELECT brand_id FROM BRANDS WHERE slug IN (${slug})
+        order by id desc);
     `;
     await pool.request()
         .query(sqlStringAddProduct, (err, data) => {
@@ -330,6 +342,7 @@ Products.updateById = async (id, newproduct, result) => {
         prod_name = @prod_name,
         avatar = @avatar,
         prod_description = @prod_description,
+        detailed_evaluation = @detailed_evaluation,
         manufacturer = @manufacturer,
         price = @price,
         cost = @cost,
@@ -345,7 +358,8 @@ Products.updateById = async (id, newproduct, result) => {
         prod_weight = @prod_weight,
         pin = @pin,
         operation_system = @operation_system,
-        graphics = @graphics
+        graphics = @graphics,
+        on_board = @on_board
     WHERE id = @id;
     `;
     await pool.request()
@@ -355,6 +369,7 @@ Products.updateById = async (id, newproduct, result) => {
         .input('prod_name', sql.NVARCHAR(255), newproduct.prod_name)
         .input('avatar', sql.VARCHAR(255), newproduct.avatar)
         .input('prod_description', sql.NVARCHAR(sql.MAX), newproduct.prod_description)
+        .input('detailed_evaluation', sql.NVARCHAR(sql.MAX), newproduct.detailed_evaluation)
         .input('manufacturer', sql.NVARCHAR(255), newproduct.manufacturer)
         .input('price', sql.FLOAT, newproduct.price)
         .input('cost', sql.FLOAT, newproduct.cost)
@@ -371,6 +386,7 @@ Products.updateById = async (id, newproduct, result) => {
         .input('pin', sql.NVARCHAR(255), newproduct.pin)
         .input('operation_system', sql.NVARCHAR(255), newproduct.operation_system)
         .input('graphics', sql.NVARCHAR(255), newproduct.graphics)
+        .input('on_board', sql.NVARCHAR(255), newproduct.on_board)
         .query(sqlStringAddProduct, (err, data) => {
             if (err) {
                 console.log(err)
@@ -441,8 +457,16 @@ Products.updateByIdButNotAvatar = async (id, newproduct, result) => {
 Products.deleteById = async (id, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
+        DELETE FROM REVIEWS
+        WHERE product_id = @id;
+        DELETE FROM ORDER_DETAILS
+        WHERE product_id = @id
+        DELETE FROM CARTS
+        WHERE product_id = @id;
+        DELETE FROM IMAGES
+        WHERE product_id = @id;
         DELETE FROM PRODUCTS
-        WHERE id = @id;
+        WHERE id = @id
     `;
     await pool.request()
         .input('id', sql.Int, id)

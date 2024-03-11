@@ -85,6 +85,62 @@ USERS.findByEmail = async (email, result) => {
         })
 }
 
+USERS.findNewUserByDays = async (days, result) => {
+    const pool = await connect;
+    const resData = {};
+
+    const sqlString1 = `
+        SELECT *
+        FROM USERS
+        WHERE confirmation_status = 1 
+        And created_at >= DATEADD(day, -@days+1, GETDATE())
+        AND created_at <= GETDATE();
+    `;
+
+    const getUserCurrent = new Promise((resolve, reject) => {
+        pool.request()
+            .input('days', sql.Int, days)
+            .query(sqlString1, (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resData["daysCurrent"] = data.recordset;
+                    resolve();
+                }
+            });
+    });
+
+    const sqlString2 = `
+        SELECT *
+        FROM USERS
+        WHERE confirmation_status = 1 
+        And created_at >= DATEADD(day, -@days*2+1, GETDATE())
+        AND created_at <= DATEADD(day, -@days+1, GETDATE());
+    `;
+
+    const getUserBefore = new Promise((resolve, reject) => {
+        pool.request()
+            .input('days', sql.Int, days)
+            .query(sqlString2, (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resData["daysBefore"] = data.recordset;
+                    resolve();
+                }
+            });
+    });
+
+    try {
+        await Promise.all([getUserCurrent, getUserBefore]);
+        result(null, resData);
+    } catch (error) {
+        result(error, null);
+    }
+};
+
 USERS.findByIdProvider = async (id, provider, result) => {
 
     const pool = await connect;

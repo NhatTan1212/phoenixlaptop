@@ -5,7 +5,7 @@ import {
 } from 'antd';
 import '../userManagement/userManagement.scss'
 import { GetUsers, DeleteUser } from '../../../callAPI/api';
-import ModalUserManager from '../../../component/management/ModalUserManager';
+import ModalUserManager from '../../../component/management/user/ModalUserManager';
 import Cookies from 'js-cookie';
 import Context from '../../../store/Context';
 

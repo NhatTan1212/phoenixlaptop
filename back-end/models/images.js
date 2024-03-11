@@ -18,6 +18,8 @@ IMAGES.create = async (image, result) => {
             if (err) {
                 console.log(err)
             } else {
+                console.log('line 21 images.js', image.product_id);
+                // console.log(image.url);
                 console.log("Create new image successfully")
                 result(null, { id: data.insertId, ...data });
             }
