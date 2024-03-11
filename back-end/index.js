@@ -1,12 +1,30 @@
 const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
 const session = require('express-session');
-const { sql, connect } = require('./connect');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 var passport = require('passport');
 const cors = require('cors');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+
+  // Ngắn ngủ kết nối khi client ngắt kết nối
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+global.io = io;
 
 app.use(cors());
 const path = require('path');
@@ -39,6 +57,8 @@ app.use(passport.authenticate('session'));
 app.use(express.static('public'));
 const port = process.env.PORT || 8000
 // Start the server
-app.listen(port, function () {
-  console.log('Server is listening on port 8000');
+server.listen(port, function () {
+  console.log(`Server is listening on port ${port}`);
 });
+
+module.exports = io;

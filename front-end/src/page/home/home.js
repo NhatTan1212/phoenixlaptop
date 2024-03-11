@@ -95,10 +95,11 @@ function Home() {
 
                 </div>
                 <div className='flex justify-start text-start 
-            items-start h-[40%] flex-col '>
+            items-start h-[40%] flex-col whitespace-nowrap overflow-hidden text-ellipsis'>
                     {brand && <img src={brand.image} alt="Brand Logo"
                         className="brand-logo max-w-[80px]" />}
-                    <Link className=' text-[16px] line-clamp-2 font-bold 
+                    <Link to={`/product-detail/${product.id}`}
+                        className=' text-[16px] line-clamp-2 font-bold 
                     overflow-hidden mt-[25px]'>
                         {product.prod_description}
                     </Link>

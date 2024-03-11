@@ -109,15 +109,18 @@ function Cart() {
             )
         },
         {
+            width: 100,
             title: 'Số lượng',
             key: 'count',
             dataIndex: 'count',
             render: (_, record) => (
-                <InputNumber
-                    min={1}
-                    max={record.is_possible_to_order}
-                    value={record.count}
-                    onChange={(newQuantity) => handleQuantityChange(record.id, newQuantity)} />
+                record.is_possible_to_order !== 0 ?
+                    <InputNumber
+                        min={1}
+                        max={record.is_possible_to_order}
+                        value={record.count}
+                        onChange={(newQuantity) => handleQuantityChange(record.id, newQuantity)} />
+                    : <span className='text-[#e6101d] font-bold'>Hết hàng</span>
             )
         },
         {
@@ -455,6 +458,9 @@ function Cart() {
                     }
                 })
                     .then(response => {
+                        if (!response.data.success) {
+                            return context.Message("error", response.data.msg)
+                        }
                         setVnpayStatus('success');
                         console.log(response);
                         if (response.data.order_id) {
@@ -482,6 +488,8 @@ function Cart() {
                             // window.open(response.data.redirect, "_blank");
                             window.location.href = response.data.redirect;
 
+                        } else {
+                            return context.Message("error", response.data.msg)
                         }
                     })
                     .catch(error => {

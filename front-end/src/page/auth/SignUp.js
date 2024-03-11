@@ -51,6 +51,10 @@ const SignUp = () => {
                 email: email,
                 pass: password
             };
+            if (Cookies.get('tokenGID')) {
+                // console.log(Cookies.get('tokenGID'));
+                dataUser['GID'] = Cookies.get('tokenGID')
+            }
 
             fetch("http://localhost:8000/requireregister", {
                 method: "POST",

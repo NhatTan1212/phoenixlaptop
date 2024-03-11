@@ -6,7 +6,7 @@ import {
 import { GetCategories, DeleteCategory } from '../../../callAPI/api';
 import Cookies from 'js-cookie';
 import Context from '../../../store/Context';
-import ModalCategoryManager from '../../../component/management/ModalCategoryManager';
+import ModalCategoryManager from '../../../component/management/category/ModalCategoryManager';
 
 const CategoryManagement = () => {
     let token = Cookies.get('token')

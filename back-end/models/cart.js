@@ -54,27 +54,9 @@ CART.findByGID = async (guest_id, result) => {
                 console.log(err)
             } else {
                 // console.log(data)
+                result(null, data.recordset);
+                sql.close();
             }
-            result(null, data.recordset);
-            sql.close();
-        })
-}
-
-CART.findByGID = async (guest_id, result) => {
-    const pool = await connect;
-    const sqlStringAddProduct = `
-        select * FROM CARTS where guest_id = @guest_id
-    `;
-    await pool.request()
-        .input('guest_id', sql.VARCHAR(50), guest_id)
-        .query(sqlStringAddProduct, (err, data) => {
-            if (err) {
-                console.log(err)
-            } else {
-                // console.log(data)
-            }
-            result(null, data.recordset);
-            sql.close();
         })
 }
 
@@ -121,6 +103,25 @@ CART.create = async (cart, result) => {
         })
 };
 
+CART.updateDecreaseQuantityByProductId = async (product_id, count, result) => {
+    console.log('line 107 cart.js ', product_id, count);
+    const pool = await connect;
+    const sqlString = `
+    update CARTS SET is_possible_to_order = is_possible_to_order-@count where product_id=@product_id and is_possible_to_order-@count>=0
+    `;
+    await pool.request()
+        .input('product_id', sql.Int, product_id)
+        .input('count', sql.Int, count)
+        .query(sqlString, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                // console.log('id: ', data.recordset)
+                result(null, data.recordset);
+            }
+        })
+}
+
 
 CART.updateById = async (user_id, product_id, count, is_possible_to_order, result) => {
     const pool = await connect;
@@ -165,6 +166,32 @@ CART.updateByGID = async (guest_id, product_id, count, is_possible_to_order, res
         .input('product_id', sql.Int, product_id)
         .input('count', sql.Int, count)
         .input('is_possible_to_order', sql.Int, is_possible_to_order)
+        .query(sqlStringAddProduct, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('update cart by guest_id success')
+            }
+            result(null, { "message": "success", "data": data });
+            sql.close();
+        })
+};
+
+CART.updateCartByNewAccount = async (guest_id, email, result) => {
+    const pool = await connect;
+    const sqlStringAddProduct = `
+    UPDATE CARTS
+    SET user_id = (
+        SELECT id FROM USERS WHERE email = @email
+    ),
+    updated_at = CURRENT_TIMESTAMP,
+    guest_id = null
+    WHERE guest_id = @guest_id;
+    
+    `;
+    await pool.request()
+        .input('guest_id', sql.VARCHAR(50), guest_id)
+        .input('email', sql.VARCHAR(100), email)
         .query(sqlStringAddProduct, (err, data) => {
             if (err) {
                 console.log(err)

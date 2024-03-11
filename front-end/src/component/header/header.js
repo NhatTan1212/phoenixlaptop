@@ -339,17 +339,17 @@ function Header() {
                         bg-white top-[40px] z-10 w-[263px] overflow-hidden
                         h-[406.58px] `}>
                             {categories.map((category) => (
-                                <li key={category.category_id} className=' pt-[8px] 
-                                pl-[12px]'>
-                                    <Link to={`laptop/category=${category.slug}`} className='text-black'>
+                                <li key={category.category_id} className=' pt-[8px] group/category
+                                pl-[12px] hover:bg-[#c8191f] '>
+                                    <Link to={`laptop/category=${category.slug}`} className='text-black group-hover/category:text-white'>
                                         {category.name}
                                     </Link>
                                 </li>
                             ))}
                             {brands.map((brand) => (
-                                <li key={brand.brand_id} className=' pt-[10px] 
-                                pl-[12px] last:pb-[10px]'>
-                                    <Link to={`laptop/brand=${brand.slug}`} className='text-black'>
+                                <li key={brand.brand_id} className=' pt-[10px] group/category
+                                pl-[12px] hover:text-white hover:bg-[#c8191f]  last:pb-[10px]'>
+                                    <Link to={`laptop/brand=${brand.slug}`} className='text-black group-hover/category:text-white'>
                                         Laptop {brand.name}
 
                                     </Link>

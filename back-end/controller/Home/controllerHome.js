@@ -10,6 +10,7 @@ const uuid = uuidv4();
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const mailer = require('../../utils/mailer.js');
+const io = require('../../index.js');
 
 const moment = require('moment');
 require('dotenv').config();
@@ -265,14 +266,6 @@ async function editProduct(req, res) {
 }
 
 async function editProductPost(req, res) {
-    // uploadMuti(req, res, async function (err) {
-    //     if (err instanceof multer.MulterError) {
-    //         return res.json({ "kq": 0, "errMsg": "A Multer error occurred when uploading.", errDetail: err });
-    //     } else if (err) {
-    //         console.log(err)
-    //         return res.json({ "kq": 0, "errMsg": "An unknown error occurred when uploading: ", errDetail: err });
-    //     }
-    // console.log('file', req.file)
     console.log('body', req.body)
     console.log('files', req.files)
 
@@ -291,6 +284,7 @@ async function editProductPost(req, res) {
         category_id: req.body.category_id,
         prod_name: req.body.prod_name,
         prod_description: req.body.prod_description,
+        detailed_evaluation: req.body.detailed_evaluation,
         manufacturer: req.body.manufacturer,
         price: req.body.price,
         cost: req.body.cost,
@@ -306,7 +300,8 @@ async function editProductPost(req, res) {
         prod_weight: req.body.prod_weight,
         pin: req.body.pin,
         operation_system: req.body.operation_system,
-        graphics: req.body.graphics
+        graphics: req.body.graphics,
+        on_board: req.body.on_board
     };
 
     //Update Avata
@@ -905,12 +900,22 @@ const mailerOrderSuccessfully = (email, data, productList) => {
         `
     );
 }
-function dataOrder(req, res) {
+
+async function dataOrder(req, res) {
     const token = req.body.token;
     const tokenGID = req.body.tokenGID;
     let uid = null
     let gid = null
-
+    // console.log(req.body.listProduct);
+    for (const product of req.body.listProduct) {
+        const productInDb = await Products.findById(product.product_id);
+        console.log('line910 controllerHome - productInDb: ', productInDb[0].quantity, 'product: ', product.count);
+        if (productInDb[0].quantity - product.count < 0) {
+            // console.log('lọt vào đây');
+            return res.json({ success: false, msg: `Số lượng ${product.prod_name} trong kho không đủ.` });
+        }
+    }
+    // return res.send('true')
     // Tạo một đối tượng order để sử dụng chung
     const newOrder = new ORDERS({
         user_id: null,
@@ -946,17 +951,17 @@ function dataOrder(req, res) {
     }
     let productList = '';
 
-    // Tạo danh sách sản phẩm
+    // Tạo danh sách sản phẩm gửi mail cho khách hàng
     req.body.listProduct.forEach((product, index) => {
         productList += `
-<tr style="border-bottom: 1px solid #e5e5e5">
-  <td>${index + 1}</td>
-  <td style="text-align: center"><img style="height: 120px" src="${product.avatar}"></td>
-  <td>${product.prod_name}</td>
-  <td>${product.price}</td>
-  <td>${product.count}</td>
-</tr>
-`;
+        <tr style="border-bottom: 1px solid #e5e5e5">
+          <td>${index + 1}</td>
+          <td style="text-align: center"><img style="height: 120px" src="${product.avatar}"></td>
+          <td>${product.prod_name}</td>
+          <td>${product.price}</td>
+          <td>${product.count}</td>
+        </tr>
+        `;
     });
 
     if (req.body.paymentMethod === "VNPAY") {
@@ -996,19 +1001,25 @@ function dataOrder(req, res) {
 
                             ORDER_DETAILS.create(orderDetails, (err) => {
                                 if (err) {
-                                    console.log('Lỗi tại controllerHome:line 857 (ORDER_DETAILS.create) - ' + err);
+                                    console.log('Lỗi tại controllerHome:line 1002 (ORDER_DETAILS.create) - ' + err);
                                     return json({ success: false, err: err })
                                 }
                             });
                             Products.updateDecreaseQuantityById(product.product_id, product.count, (err, data) => {
                                 if (err) {
-                                    console.log('Lỗi tại controllerHome:line 861 (updateDecreaseQuantityById) - ' + err);
+                                    console.log('Lỗi tại controllerHome:line 1008 (updateDecreaseQuantityById) - ' + err);
+                                    return json({ success: false, err: err })
+                                }
+                            })
+                            CART.updateDecreaseQuantityByProductId(product.product_id, product.count, (err, data) => {
+                                if (err) {
+                                    console.log('Lỗi tại controllerHome:line 1014 (updateDecreaseQuantityById) - ' + err);
                                     return json({ success: false, err: err })
                                 }
                             })
                             CART.deleteCart(uid, gid, product.product_id, (err, data) => {
                                 if (err) {
-                                    console.log('Lỗi tại controllerHome:line 919 (deleteCart) - ' + err);
+                                    console.log('Lỗi tại controllerHome:line 1020 (deleteCart) - ' + err);
                                     return json({ success: false, err: err })
                                 } else {
                                     requestsCompleted++;
@@ -1016,6 +1027,7 @@ function dataOrder(req, res) {
                                     console.log('line 924: controllerHome.js - requestsCompleted and completedRequests', requestsCompleted, completedRequests);
                                     if (requestsCompleted === completedRequests) {
                                         mailerOrderSuccessfully(email, req.body, productList)
+
                                         res.json({ success: true, redirectUrl: '../order', order_id: order.id });
                                     }
                                 }
@@ -1060,6 +1072,12 @@ function dataOrder(req, res) {
                         return json({ success: false, err: err })
                     }
                 })
+                CART.updateDecreaseQuantityByProductId(product.product_id, product.count, (err, data) => {
+                    if (err) {
+                        console.log('Lỗi tại controllerHome:line 1014 (updateDecreaseQuantityById) - ' + err);
+                        return json({ success: false, err: err })
+                    }
+                })
                 CART.deleteCart(uid, gid, product.product_id, (err, data) => {
                     if (err) {
                         console.log('Lỗi tại controllerHome:line 919 (deleteCart) - ' + err);
@@ -1070,6 +1088,7 @@ function dataOrder(req, res) {
                         console.log('line 924: controllerHome.js - requestsCompleted and completedRequests', requestsCompleted, completedRequests);
                         if (requestsCompleted === completedRequests) {
                             mailerOrderSuccessfully(email, req.body, productList)
+                            global.io.emit('newOrder', req.body);
                             res.json({ success: true, redirectUrl: '../order', order_id: order });
                         }
                     }
@@ -1098,8 +1117,15 @@ function sortObject(obj) {
     return sorted;
 }
 
-function createPaymentVNPAY(req, res) {
-
+async function createPaymentVNPAY(req, res) {
+    for (const product of req.body.listProduct) {
+        const productInDb = await Products.findById(product.product_id);
+        console.log('line910 controllerHome - productInDb: ', productInDb[0].quantity, 'product: ', product.count);
+        if (productInDb[0].quantity - product.count < 0) {
+            // console.log('lọt vào đây');
+            return res.json({ success: false, msg: `Số lượng ${product.prod_name} trong kho không đủ.` });
+        }
+    }
     process.env.TZ = 'Asia/Ho_Chi_Minh';
 
     let date = new Date();

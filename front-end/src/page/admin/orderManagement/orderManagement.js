@@ -187,6 +187,7 @@ const OrderManagement = () => {
             title: 'Ngày đặt',
             key: 'created_at',
             dataIndex: 'created_at',
+            sorter: (record1, record2) => { return record1.id - record2.id },
             render: (text, record) => {
                 const date = new Date(record.created_at).toLocaleDateString();
                 const time = new Date(record.created_at).toISOString().slice(11, 19);

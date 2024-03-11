@@ -41,7 +41,7 @@ const renderListProduct = (product, brands) => {
         items-start h-[40%] flex-col '>
                 {brand && <img src={brand.image} alt="Brand Logo"
                     className="brand-logo max-w-[80px]" />}
-                <Link className=' text-[16px] line-clamp-2 font-bold min-h-[50px]
+                <Link to={`/product-detail/${product.id}`} className=' text-[16px] line-clamp-2 font-bold min-h-[50px]
                 overflow-hidden mt-[25px]'>
                     {product.prod_description}
                 </Link>

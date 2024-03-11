@@ -145,6 +145,185 @@ ORDERS.findById = async (user_id, guest_id, result) => {
             }
         })
 }
+
+ORDERS.findTotalBrandSuccessfulByDays = async (days, result) => {
+    const pool = await connect;
+    const sqlString = `
+            SELECT 
+                P.brand_id,
+                B.name,
+                SUM(OD.quantity) AS total_success_products
+            FROM 
+                ORDERS O 
+                JOIN ORDER_DETAILS OD ON O.id = OD.order_id 
+                JOIN PRODUCTS P ON OD.product_id = P.id 
+                JOIN BRANDS B ON P.brand_id = B.brand_id
+            WHERE 
+                O.is_success = 1 and O.successful_at <= GETDATE() and successful_at >= DATEADD(day,-@days,GETDATE())
+            GROUP BY 
+                P.brand_id,B.name
+            ORDER BY 
+                total_success_products DESC;
+    `;
+    await pool.request()
+        .input('days', sql.Int, days)
+        .query(sqlString, (err, data) => {
+            if (err) {
+                console.log(err)
+                result(err, null)
+            } else {
+                // console.log(data)
+                result(null, data.recordset);
+            }
+        })
+}
+
+ORDERS.findTotalLaptopsSuccessfulByDays = async (days, result) => {
+    const pool = await connect;
+    const sqlString = `
+            SELECT
+            P.avatar,
+                P.prod_name,
+                SUM(OD.quantity)as quantity_sold, 
+                OD.price,
+                P.quantity as stock
+            FROM 
+                ORDERS O 
+                JOIN ORDER_DETAILS OD ON O.id = OD.order_id 
+                JOIN PRODUCTS P ON OD.product_id = P.id 
+            WHERE 
+                O.is_success = 1 and O.successful_at <= GETDATE() and successful_at >= DATEADD(day,-@days,GETDATE())
+            Group By 
+            P.avatar,
+            P.prod_name,
+                OD.price,
+                P.quantity
+                Order by quantity_sold desc
+    `;
+    await pool.request()
+        .input('days', sql.Int, days)
+        .query(sqlString, (err, data) => {
+            if (err) {
+                console.log(err)
+                result(err, null)
+            } else {
+                // console.log(data)
+                result(null, data.recordset);
+            }
+        })
+}
+
+ORDERS.findOrderSuccessByDays = async (days, result) => {
+    const pool = await connect;
+    const resData = {};
+
+    const sqlString1 = `
+        SELECT *
+        FROM ORDERS
+        WHERE is_success = 1
+        AND successful_at >= DATEADD(day, -@days+1, GETDATE())
+        AND successful_at <= GETDATE();
+    `;
+
+    const getOrderCurrent = new Promise((resolve, reject) => {
+        pool.request()
+            .input('days', sql.Int, days)
+            .query(sqlString1, (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resData["daysCurrent"] = data.recordset;
+                    resolve();
+                }
+            });
+    });
+
+    const sqlString2 = `
+        SELECT *
+        FROM ORDERS
+        WHERE is_success = 1
+        AND successful_at >= DATEADD(day, -@days*2+1, GETDATE())
+        AND successful_at <= DATEADD(day, -@days+1, GETDATE());
+    `;
+
+    const getOrderBefore = new Promise((resolve, reject) => {
+        pool.request()
+            .input('days', sql.Int, days)
+            .query(sqlString2, (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resData["daysBefore"] = data.recordset;
+                    resolve();
+                }
+            });
+    });
+
+    try {
+        await Promise.all([getOrderCurrent, getOrderBefore]);
+        result(null, resData);
+    } catch (error) {
+        result(error, null);
+    }
+};
+
+ORDERS.findNewOrderByDays = async (days, result) => {
+    const pool = await connect;
+    const resData = {};
+
+    const sqlString1 = `
+        SELECT *
+        FROM ORDERS
+        WHERE created_at >= DATEADD(day, -@days+1, GETDATE())
+        AND created_at <= GETDATE();
+    `;
+
+    const getOrderCurrent = new Promise((resolve, reject) => {
+        pool.request()
+            .input('days', sql.Int, days)
+            .query(sqlString1, (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resData["daysCurrent"] = data.recordset;
+                    resolve();
+                }
+            });
+    });
+
+    const sqlString2 = `
+        SELECT *
+        FROM ORDERS
+        WHERE created_at >= DATEADD(day, -@days*2+1, GETDATE())
+        AND created_at <= DATEADD(day, -@days+1, GETDATE());
+    `;
+
+    const getOrderBefore = new Promise((resolve, reject) => {
+        pool.request()
+            .input('days', sql.Int, days)
+            .query(sqlString2, (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resData["daysBefore"] = data.recordset;
+                    resolve();
+                }
+            });
+    });
+
+    try {
+        await Promise.all([getOrderCurrent, getOrderBefore]);
+        result(null, resData);
+    } catch (error) {
+        result(error, null);
+    }
+};
+
+
 ORDERS.findByVnpTransactionNo = async (vnp_TransactionNo, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
