@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
 import { HomeOutlined, LaptopOutlined } from '@ant-design/icons';
-import { Breadcrumb, Row, Col, Checkbox, List, Card } from 'antd';
-import './AllProduct.scss';
-import { useParams, Link, useNavigate, redirect } from 'react-router-dom';
-import { GetBrands, GetProductsByQuery, GetCategories } from '../../../callAPI/api';
+import { Breadcrumb, Card, Checkbox, Col, List, Pagination, Row } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { GetBrands, GetCategories, GetProductsByQuery } from '../../../callAPI/api';
+import CheckBoxGroup from '../../../component/CheckBoxGroup';
 import renderListProduct from '../../../component/ListProducts';
-import CheckBoxGroup from '../../../component/CheckBoxGroup'
+import './AllProduct.scss';
 
 const CheckboxGroup = Checkbox.Group;
 function AllProduct() {
+    const location = useLocation();
     let navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [brands, setBrands] = useState([]);
@@ -22,8 +23,18 @@ function AllProduct() {
     const [isCheckedAllBrands, setIsCheckedAllBrands] = useState(false)
     const [isCheckedAllCategories, setIsCheckedAllCategories] = useState(false)
     const [sortStatus, setSortStatus] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalProducts: 1,
+        limit: 1
+    })
+    useEffect(() => {
 
+        setCurrentPage(pagination.currentPage)//a hiển thử đi
 
+    }, [query])
 
     useEffect(() => {
         getBrands();
@@ -31,10 +42,9 @@ function AllProduct() {
         getProductsByQuery();
         getSortSelected();
         setCheckBoxSelected();
-        console.log(query);
     }, [query]);
     const setCheckBoxSelected = () => {
-        if (query === 'allproduct') {
+        if (query === 'page=1') {
             setIsCheckedAllBrands(true)
             setIsCheckedAllCategories(true)
         } else {
@@ -42,17 +52,14 @@ function AllProduct() {
             setIsCheckedAllCategories(true)
             if (query.includes('&')) {
                 let arrQuerySplit = query.split('&')
-                console.log(arrQuerySplit);
                 arrQuerySplit.forEach((querySplit) => {
                     if (querySplit.includes('brand')) {
                         let brand = querySplit.split('=')[1].split(',')
-                        console.log(brand);
                         setCheckedListBrands(brand)
                         setIsCheckedAllBrands(false)
                     }
                     if (querySplit.includes('category')) {
                         let getCategory = querySplit.split('=')[1].split(',')
-                        console.log(getCategory);
                         setCheckedListCategories(getCategory)
                         setIsCheckedAllCategories(false)
                     }
@@ -63,7 +70,6 @@ function AllProduct() {
                 if (query.includes('brand')) {
                     let brand = query.split('=')[1]
                     brand = brand.split(',')
-                    console.log(brand);
                     setCheckedListBrands(brand)
                     setIsCheckedAllBrands(false)
                     setIsCheckedAllCategories(true)
@@ -75,7 +81,6 @@ function AllProduct() {
                 if (query.includes('category')) {
                     let getCategory = query.split('=')[1]
                     getCategory = getCategory.split(',')
-                    console.log(getCategory);
                     setCheckedListCategories(getCategory)
                     setIsCheckedAllCategories(false)
                     setIsCheckedAllBrands(true)
@@ -89,7 +94,6 @@ function AllProduct() {
     }
 
     const getSortSelected = () => {
-        // console.log(query);
         if (query.includes('sort=gia-thap-den-cao')) {
             setSortStatus('asc')
         } else if (query.includes('sort=gia-cao-den-thap')) {
@@ -98,7 +102,6 @@ function AllProduct() {
             setSortStatus(null)
         }
     }
-
     const getBrands = () => {
         GetBrands().then(response => {
             setBrands(response);
@@ -121,15 +124,20 @@ function AllProduct() {
     }
 
     const getProductsByQuery = () => {
-        console.log(query)
         GetProductsByQuery(query).then(response => {
-            setProducts(response);
+            setProducts(response.products);
+            setPagination({
+                currentPage: response.currentPage,
+                totalPages: response.totalPages,
+                totalProducts: response.totalProducts,
+                limit: response.limit,
+            })
+            console.log('>>> Check call api:', response);
         })
     }
 
     const handleCheckboxChangeBrands = (e) => {
         setCheckedListBrands(e)
-        console.log(e);
         let brandQuery = e.join(',')
         let categoryQuery = checkedListCategories.join(',')
         let sortQuery = query.split('sort=')[1]
@@ -137,39 +145,33 @@ function AllProduct() {
         if (e.length !== 0) {
             newQuery = `/laptop/brand=${brandQuery}`
         }
-        console.log(brandQuery);
-        console.log(categoryQuery);
-        console.log(sortQuery);
         if (categoryQuery !== '' && categoryQuery !== undefined) {
             newQuery += `&category=${categoryQuery}`
         }
         if (sortQuery !== '' && sortQuery !== undefined) {
             newQuery += `&sort=${sortQuery}`
         }
-        console.log(newQuery);
-        navigate(newQuery)
+        navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
 
     };
 
     const handleSelectAllChangeBrands = (e) => {
-        console.log(e.target.checked);
         if (e.target.checked) {
             let newQuery = '/laptop/'
             let categoryQuery = checkedListCategories.join(',')
             let sortQuery = query.split('sort=')[1]
-            console.log(sortQuery);
             if (categoryQuery || sortQuery) {
                 if (categoryQuery) {
-                    newQuery += `category=${categoryQuery}`
+                    newQuery += `category=${categoryQuery.includes(`page`)
+                        ? (categoryQuery.split(`&page=${currentPage}`).join('')) : categoryQuery}`
                 }
                 if (sortQuery) {
-                    newQuery += `&sort=${sortQuery}`
+                    newQuery += `&sort=${sortQuery.includes(`page`)
+                        ? (sortQuery.split(`&page=${currentPage}`).join('')) : sortQuery}`
                 }
-            } else {
-                newQuery += 'allproduct'
             }
             setCheckedListBrands([])
-            navigate(newQuery)
+            navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
         } else {
 
         }
@@ -178,7 +180,6 @@ function AllProduct() {
     const handleCheckboxChangeCategories = (e) => {
 
         setCheckedListCategories(e)
-        console.log(e);
         let categoryQuery = e.join(',')
         let brandQuery = checkedListBrands.join(',')
         let sortQuery = query.split('sort=')[1]
@@ -186,73 +187,103 @@ function AllProduct() {
         if (e.length !== 0) {
             newQuery = `/laptop/category=${categoryQuery}`
         }
-        console.log(brandQuery);
-        console.log(categoryQuery);
-        console.log(sortQuery);
         if (brandQuery !== '' && brandQuery !== undefined) {
             newQuery += `&brand=${brandQuery}`
         }
         if (sortQuery !== '' && sortQuery !== undefined) {
             newQuery += `&sort=${sortQuery}`
         }
-        console.log(newQuery);
-        navigate(newQuery)
+        navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
     };
 
     const handleSelectAllChangeCategories = (e) => {
-        console.log(e.target.checked);
         if (e.target.checked) {
             let newQuery = '/laptop/'
             let brandQuery = checkedListBrands.join(',')
             let sortQuery = query.split('sort=')[1]
-            console.log(sortQuery);
             if (brandQuery || sortQuery) {
                 if (brandQuery) {
-                    newQuery += `brand=${brandQuery}`
+                    newQuery += `&brand=${brandQuery.includes(`page`)
+                        ? (brandQuery.split(`&page=${currentPage}`).join('')) : brandQuery}`
                 }
                 if (sortQuery) {
-                    newQuery += `&sort=${sortQuery}`
+                    newQuery += `&sort=${sortQuery.includes(`page`)
+                        ? (sortQuery.split(`&page=${currentPage}`).join('')) : sortQuery}`
                 }
-            } else {
-                newQuery += 'allproduct'
             }
             setCheckedListCategories([])
-            navigate(newQuery)
+            navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
         } else {
 
         }
     };
 
     const handleChangeSort = (sort) => {
-        console.log(query);
-        let queryNotSort = query.split('&sort=')[0];
-        console.log('hi123' + queryNotSort);
+        let queryNotSort = query.includes('&sort=') ? query.split('&sort=')[0] : query.split('sort=')[0];
         if (sort === 'asc') {
-            if (query.includes('allproduct')) {
-                navigate('/laptop/sort=gia-thap-den-cao')
-            } else if (checkedListBrands.length > 0 || checkedListCategories > 0) {
-                navigate(`/laptop/${queryNotSort}&sort=gia-thap-den-cao`)
+            if (query === queryNotSort) {
+                let locationPath = location.pathname.split(`&page=${currentPage}`).join('')
+                const newUrl = `${locationPath}&page=1`;
+                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
+                    navigate(`${newUrl}&sort=gia-thap-den-cao`)
+
+                } else {
+                    navigate(`/laptop/sort=gia-thap-den-cao&page=1`)
+
+                }
 
             } else {
-                navigate(`/laptop/sort=gia-thap-den-cao`)
+                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
+                    let newQ = `/laptop/${queryNotSort}&sort=gia-thap-den-cao`.split(`&page=${currentPage}`).join('')
 
+                    navigate(`${newQ}&page=1`)
+                } else {
+                    navigate(`/laptop/sort=gia-thap-den-cao&page=1`)
+
+                }
             }
         } else if (sort === 'desc') {
-            if (query.includes('allproduct')) {
-                navigate('/laptop/sort=gia-cao-den-thap')
-            } else if (checkedListBrands.length > 0 || checkedListCategories > 0) {
-                navigate(`/laptop/${queryNotSort}&sort=gia-cao-den-thap`)
+            if (query === queryNotSort) {
+                let locationPath = location.pathname.split(`&page=${currentPage}`).join('')
+                const newUrl = `${locationPath}&page=1`;
+                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
+                    navigate(`${newUrl}&sort=gia-cao-den-thap`)
+
+                } else {
+                    navigate(`/laptop/sort=gia-cao-den-thap&page=1`)
+
+                }
 
             } else {
-                navigate(`/laptop/sort=gia-cao-den-thap`)
+                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
+                    let newQ = `/laptop/${queryNotSort}&sort=gia-cao-den-thap`.split(`&page=${currentPage}`).join('')
 
+                    navigate(`${newQ}&page=1`)
+                } else {
+                    navigate(`/laptop/sort=gia-cao-den-thap&page=1`)
+
+                }
             }
 
         } else {
-            if (query.includes('&sort')) navigate(`/laptop/${queryNotSort}`)
-            else navigate('/laptop/allproduct')
+            console.log(query);
+            console.log(queryNotSort);
+            if (query.includes('sort')) {
+                let newQ = `/laptop/${queryNotSort}`.split(`&page=${currentPage}`).join('')
+                navigate(`${newQ}&page=1`)
+            }
         }
 
+    };
+
+    useEffect(() => {
+        getProductsByQuery();
+    }, [currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+
+        navigate(location.pathname.replace(/(?<=page=)\d+/, `${page}`))
     };
 
     return (
@@ -354,6 +385,15 @@ function AllProduct() {
                                 </List.Item>
                             )}
                         />
+                        <div className='flex justify-center'>
+                            <Pagination
+                                onChange={(page) => { handlePageChange(page) }}
+                                current={pagination.currentPage}
+                                pageSize={pagination.limit}
+                                total={pagination.totalProducts}
+                            />
+                        </div>
+
                     </div>
                 </Col>
             </Row>

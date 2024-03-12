@@ -1537,10 +1537,50 @@ async function deleteCategory(req, res) {
         return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
     }
 }
+async function getAllLaptop(req, res) {
+    try {
+        let page = parseInt(req.query.page);
+        let sort = req.query.sort ? req.query.sort : '';
+        let limit = req.query.limit ? req.query.limit : 12;
+        let brand = req.query.brand ? req.query.brand : '';
+        let category = req.query.category ? req.query.category : '';
+
+        const reqData = {
+            page: page,
+            sort: sort,
+            limit: limit,
+            brand: brand,
+            category: category
+        }
+
+        if (page) {
+            page = page < 1 ? 1 : page;
+            Products.getAllWithPaginationAndFilter(reqData, (err, products) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({ error: 'Internal Server Error' });
+                } else {
+                    return res.json(products);
+                }
+            });
+        } else {
+            Products.find((err, data) => {
+                if (err) console.log(err);
+                else {
+                    res.json(data)
+                }
+            })
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+        return res.json({ error: 'Internal Server Error' });
+    }
+}
 
 module.exports = {
     home, laptopGaming, getLaptopsByQuery, listImage, management, editProduct, editProductPost, addUser, deleteUser, editUserManagement, editUserInfo, editUserInfoPassWord, deleteProduct, productDetail,
     cart, cartServer, addCart, deleteCart, updateCart, checkout, dataOrder, createPaymentVNPAY, order, orderDetails, orderManagement,
     updateOrder, orderSuccess, orderReject, orderShipping, orderShipped, reviews, reviewsManagement,
-    reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder, deliveryAddress, addDeliveryAddress, deleteDeliveryAddress, userById, addCategory, editCategory, deleteCategory
+    reviewsManagementByProduct, deleteReviews, updateOrderIsRated, users, deleteOrder, deliveryAddress, addDeliveryAddress, deleteDeliveryAddress, userById, addCategory, editCategory, deleteCategory,
+    getAllLaptop
 }

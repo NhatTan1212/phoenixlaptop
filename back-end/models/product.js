@@ -481,5 +481,89 @@ Products.deleteById = async (id, result) => {
         })
 }
 
+Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
+    try {
+        const pool = await connect;
+
+        let page = reqData.page;
+        let limit = reqData.limit;
+        let sort = reqData.sort;
+        let brand = reqData.brand;
+        let category = reqData.category;
+
+        if (brand.includes(',')) {
+            brand = brand.split(',').join(',').replace(/,/g, "','")
+        }
+
+        if (category.includes(',')) {
+            category = category.split(',').join(',').replace(/,/g, "','")
+        }
+
+        const countQuery = `SELECT COUNT(*) AS totalCount FROM Products`;
+        const countResult = await pool.request().query(countQuery);
+        const totalCount = countResult.recordset[0].totalCount;
+        const totalPages = Math.ceil(totalCount / limit);
+
+        const offset = ((page > totalPages ? 1 : page) - 1) * limit;
+
+        let totalProductFilter = []
+
+        let query = `SELECT * FROM PRODUCTS`;
+
+        if (!brand && !category) {
+            query += ` WHERE 1=1`;
+        } else if (brand && category) {
+            query += ` WHERE brand_id IN (SELECT brand_id FROM BRANDS WHERE slug IN ('${brand}')) 
+            AND category_id IN (SELECT category_id FROM CATEGORIES WHERE slug IN ('${category}'))`
+            totalProductFilter = await pool.request().query(query);
+        } else if (brand && !category) {
+            query += ` WHERE brand_id IN (SELECT brand_id FROM BRANDS WHERE slug IN ('${brand}'))`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (!brand && category) {
+            query += ` WHERE category_id IN (SELECT category_id FROM CATEGORIES WHERE slug IN ('${category}'))`;
+            totalProductFilter = await pool.request().query(query);
+        }
+
+        if (sort === 'gia-thap-den-cao' || sort === 'gia-cao-den-thap') {
+            const tableSortConvert = {
+                "gia-thap-den-cao": "asc",
+                "gia-cao-den-thap": "desc"
+            }
+
+            sort = tableSortConvert[sort]
+
+            query += ` ORDER BY price ${sort.toUpperCase()}`;
+        } else {
+            query += ` ORDER BY id`;
+        }
+
+        query += ` OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
+
+        const result = await pool.request().query(query);
+        console.log(totalProductFilter);
+        const data = {
+            products: result.recordset,
+            currentPage: parseInt(page),
+            totalPages:
+                (brand || category)
+                    ? Math.ceil(totalProductFilter.recordset.length / parseInt(limit))
+                    : totalPages,
+            totalProducts: (brand || category) ? totalProductFilter.recordset.length : totalCount,
+            limit: parseInt(limit),
+        };
+
+        resultCallback(null, data);
+    } catch (error) {
+        console.error('Error:', error.message);
+        resultCallback(error, null);
+    } finally {
+        try {
+            await sql.close();
+        } catch (err) {
+            console.error('Error closing connection:', err.message);
+        }
+    }
+};
+
 
 module.exports = Products;

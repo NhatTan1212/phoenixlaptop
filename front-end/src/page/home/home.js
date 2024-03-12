@@ -145,7 +145,7 @@ function Home() {
                     inline-block font-bold text-[20px] rounded-t-[10px]'
                         >SẢN PHẨM KHUYẾN MÃI HOT NHẤT</h2>
                         <Link
-                            to={'/laptop/allproduct'}
+                            to={'/laptop?page=1'} //từ em thử cái
                             className='font-bold text-[#c8191f]'>{"xem tất cả >>"}</Link>
                     </div>
                     <Card className=' w-[100%] h-auto'>
