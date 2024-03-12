@@ -133,7 +133,7 @@ const GetLaptopGaming = () => {
 }
 
 const GetProductsByQuery = (query) => {
-    return Instance.get(`/laptops/${query}`)
+    return Instance.get(`/laptops?${query}`)//oke
         .then((res) => res.data)
         .catch(error => {
             // Handle errors here

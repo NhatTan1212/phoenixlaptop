@@ -84,5 +84,6 @@ routerHome.put('/update-order-is-rated/:id', authMiddleware.isAuth, controllerHo
 routerHome.post('/newcategory', authMiddleware.isAuthAdmin, controllerHome.addCategory)
 routerHome.post('/editcategory', authMiddleware.isAuthAdmin, controllerHome.editCategory)
 routerHome.post('/deletecategory', authMiddleware.isAuthAdmin, controllerHome.deleteCategory)
+routerHome.get('/laptops', controllerHome.getAllLaptop) // with pagination, filter
 
 module.exports.routerHome = routerHome
