@@ -3,7 +3,7 @@ import Context from '../../../store/Context';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
-import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal } from 'antd';
+import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col } from 'antd';
 import './cart.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faAngleLeft, faAngleRight, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -31,10 +31,14 @@ function sortObject(obj) {
 }
 
 function Cart() {
+    const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const navigate = useNavigate();
     const token = Cookies.get('token');
     const tokenGID = Cookies.get('tokenGID');
-    const context = useContext(Context)
     const isFinishAddNewOrderVNPAY = context.isFinishAddNewOrderVNPAY
     const setIsFinishAddNewOrderVNPAY = context.setIsFinishAddNewOrderVNPAY
     const isCartChange = context.isCartChange
@@ -80,9 +84,13 @@ function Cart() {
             title: 'Hình sản phẩm',
             dataIndex: 'avatar',
             key: 'avatar',
+            sortDirections: ["descend", "ascend"],
+
             render: (_, record) => (
                 // console.log("record", record)
-                <div className='w-[108px]'>
+                <div
+                    className='w-[108px]'
+                >
                     < img
                         src={record.avatar}
                         className='w-full h-auto border-[1px] border-[#e1dada]'
@@ -95,6 +103,8 @@ function Cart() {
             title: 'Miêu tả',
             dataIndex: 'description',
             key: 'description',
+            sortDirections: ["descend", "ascend"],
+
             render: (_, record) => (
                 // console.log("record", record)
                 <p className='font-bold text-[17px] text-[#333]'>{record.description}</p>
@@ -104,6 +114,8 @@ function Cart() {
             title: 'Đơn giá',
             key: 'price',
             dataIndex: 'price',
+            sortDirections: ["descend", "ascend"],
+
             render: (_, record) => (
                 <span>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
             )
@@ -113,6 +125,8 @@ function Cart() {
             title: 'Số lượng',
             key: 'count',
             dataIndex: 'count',
+            sortDirections: ["descend", "ascend"],
+
             render: (_, record) => (
                 record.is_possible_to_order !== 0 ?
                     <InputNumber
@@ -126,6 +140,8 @@ function Cart() {
         {
             title: 'Xóa',
             key: 'action',
+            sortDirections: ["descend", "ascend"],
+
             render: (_, record) => (
                 <Space size="middle">
                     <a onClick={async () => {
@@ -140,6 +156,65 @@ function Cart() {
                 </Space>
             ),
         },
+    ];
+
+    const deviceColumns = [
+        {
+            title: "Giỏ hàng",
+            render: (record, key, index) => {
+                return (
+                    <div>
+                        <Row>
+                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }}>
+                                <div
+                                    className='w-[108px]'
+                                >
+                                    < img
+                                        src={record.avatar}
+                                        className='w-full h-auto border-[1px] border-[#e1dada]'
+                                    ></img >
+
+                                </div>
+                            </Col>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>
+                                <p className='font-bold text-[17px] text-[#333]'>{record.description}</p>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }} />
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Col>
+                        </Row>
+                        <Row>
+                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }}></Col>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>
+                                {
+                                    record.is_possible_to_order !== 0 ?
+                                        <InputNumber
+                                            min={1}
+                                            max={record.is_possible_to_order}
+                                            value={record.count}
+                                            onChange={(newQuantity) => handleQuantityChange(record.id, newQuantity)} />
+                                        : <span className='text-[#e6101d] font-bold'>Hết hàng</span>
+                                }
+                                <span>
+                                    <Space size="middle" className='pl-3'>
+                                        <a onClick={async () => {
+                                            setProductIdToDelete(record.product_id)
+                                            await setShowDeleteConfirmation(true)
+
+                                            const okButtonModal = document.querySelector('.ant-btn-primary')
+                                            okButtonModal.id = 'okButtonModal'
+                                        }}>
+                                            <FontAwesomeIcon icon={faXmark} className='text-[#c8191f]' ></FontAwesomeIcon>
+                                        </a>
+                                    </Space>
+                                </span>
+                            </Col>
+                        </Row>
+                    </div>
+                )
+            }
+        }
     ];
 
     const data = cart.map((item) => ({
@@ -226,6 +301,8 @@ function Cart() {
                 console.error('Error updating cart:', error);
             });
     };
+
+
 
     const postToCreateNewOrder = () => {
         console.log(isFinishAddNewOrderVNPAY);
@@ -525,7 +602,7 @@ function Cart() {
 
     return (
 
-        <div className='bg-[#f0f0f0] py-3'>
+        <div className='bg-[#f0f0f0] py-3   mx-[auto] max-w-[805px]'>
             <Modal
                 title="Xác nhận xóa sản phẩm"
                 open={showDeleteConfirmation}
@@ -602,17 +679,17 @@ function Cart() {
                         </>
                 }
             </Modal>
-            <div className='w-10/12  mx-[auto] '>
-                <Link to={'/'} className='flex items-center mx-[263px] mb-3'>
+            <div className=''>
+                <Link to={'/'} className='flex items-center  mb-3'>
                     <FontAwesomeIcon
                         className='text-[gray] pr-2'
                         icon={faAngleLeft}></FontAwesomeIcon>
                     <h5>Quay lại mua thêm sản phẩm khác</h5>
                 </Link>
-                <div className='bg-[#ffffff] mx-[263px] inline-block'>
+                <div className='bg-[#ffffff] inline-block'>
                     <Table
                         className=''
-                        columns={columns}
+                        columns={isHiddenAutoCpl ? columns : deviceColumns}
                         dataSource={data} />
                     <div className='flex justify-between font-bold text-[20px]
                 '>
@@ -704,9 +781,9 @@ function Cart() {
                                                 setDetailAddress(e.target.value)
                                             }}
                                             placeholder='Chi tiết tên đường, số nhà'></Input>
-                                        <div className='flex items-center justify-between '>
+                                        <div className={`${isHiddenAutoCpl ? 'flex' : ''} items-center justify-between `}>
                                             <Select
-                                                className='my-3 flex-1 mr-2 items-center'
+                                                className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
                                                 showSearch
                                                 value={provinceSelected || "Chọn Tỉnh/Thành phố"}
                                                 options={optionsSelectProvince}
@@ -717,7 +794,7 @@ function Cart() {
 
                                             </Select>
                                             <Select
-                                                className='my-3 flex-1 mx-2'
+                                                className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
                                                 showSearch
                                                 value={districtSelected || "Chọn Quận/Huyện"}
                                                 options={optionsSelectDistricts}
@@ -728,7 +805,7 @@ function Cart() {
 
                                             </Select>
                                             <Select
-                                                className='my-3 flex-1 ml-2'
+                                                className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
                                                 showSearch
                                                 value={wardSelected || "Chọn Phường/Xã"}
                                                 options={optionsSelectWards}
@@ -809,7 +886,7 @@ function Cart() {
                                         </p>
                             }
                         </div>
-                        <div className='flex items-center justify-between'>
+                        <div className={` items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''}`}>
                             <p className='px-5'>
                                 <b className='text-[red]'>(*)</b>
                                 Quý khách hàng vui lòng kiểm tra lại thông

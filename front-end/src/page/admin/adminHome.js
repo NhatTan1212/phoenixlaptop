@@ -21,7 +21,8 @@ import io from 'socket.io-client';
 
 const AdminHome = () => {
     const context = useContext(Context)
-    const [current, setCurrent] = useState('db');
+    const currentPageAdminHome = context.currentPageAdminHome
+    const setCurrentPageAdminHome = context.setCurrentPageAdminHome
     const [isAdmin, setIsAdmin] = useState(false)
 
     function getItem(label, key, icon, children, type) {
@@ -71,17 +72,17 @@ const AdminHome = () => {
 
     const handleMenu = (e) => {
         console.log(e)
-        setCurrent(e.key);
+        setCurrentPageAdminHome(e.key);
     }
     return (
         <>{isAdmin ? <div className='flex'>
-            <Space className='items-start bg-white' >
+            <Space className='items-start bg-white max-[992px]:hidden' >
                 <Menu
 
                     mode='inline'
-                    defaultSelectedKeys={[current]}
+                    defaultSelectedKeys={[currentPageAdminHome]}
                     onClick={(e) => { handleMenu(e) }}
-                    selectedKeys={[current]}
+                    selectedKeys={[currentPageAdminHome]}
                     items={[
                         {
                             label:
@@ -128,12 +129,12 @@ const AdminHome = () => {
                 </Menu>
 
             </Space>
-            {current === 'db' && <Dashboard />}
-            {current === 'um' && <UserManagement />}
-            {current === 'cm' && <CategoryManagement />}
-            {current === 'bm' && <BrandManagement />}
-            {current === 'pm' && <ProductManagement />}
-            {current === 'om' && <OrderManagement />}
+            {currentPageAdminHome === 'db' && <Dashboard />}
+            {currentPageAdminHome === 'um' && <UserManagement />}
+            {currentPageAdminHome === 'cm' && <CategoryManagement />}
+            {currentPageAdminHome === 'bm' && <BrandManagement />}
+            {currentPageAdminHome === 'pm' && <ProductManagement />}
+            {currentPageAdminHome === 'om' && <OrderManagement />}
         </div>
             : <AccessDeniedMessage />
         }

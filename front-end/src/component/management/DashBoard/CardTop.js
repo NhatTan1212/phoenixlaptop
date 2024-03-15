@@ -46,7 +46,7 @@ const CardTop = ({ cardInfo }) => {
                     <Col span={12} className='text-end'>
                         <Select
                             className=''
-                            defaultValue="7 ngày gần nhất"
+                            defaultValue="7 ngày"
                             onChange={handleChange}
                             options={optionsSelectDay}
                         />
@@ -55,7 +55,7 @@ const CardTop = ({ cardInfo }) => {
             }
             bordered={false}
         >
-            <div className='flex justify-between'>
+            <div className='flex justify-between max-[1300px]:flex-col-reverse'>
                 <div className='flex'>
                     <IconComponent className='text-[30px] my-auto mr-2 p-4 bg-[#ce1b1b] rounded-xl text-white' />
                     <span className='text-[30px] my-auto'>
@@ -66,7 +66,7 @@ const CardTop = ({ cardInfo }) => {
 
                     </span>
                 </div>
-                <div className='flex'>
+                <div className='flex max-[1300px]:justify-end max-[1300px]:pb-2'>
                     <IconUpDownComponent className={`${iconClass} text-[20px] my-auto pt mr-2`} />
                     <span className='text-[20px] my-auto'>{parseFloat(cardInfo.percentCard).toFixed(2)} %</span>
                 </div>

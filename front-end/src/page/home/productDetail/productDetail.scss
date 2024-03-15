@@ -44,3 +44,10 @@ font-size: 20px;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
     filter: blur(0px); /* Độ mờ của phần mờ mờ */
 }
+
+
+@media (min-width: 1650px) {
+    .prod-detail-content {
+      width: 1650px;
+    }
+  }
