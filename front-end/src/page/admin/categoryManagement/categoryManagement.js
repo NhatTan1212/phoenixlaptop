@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { HomeOutlined, LaptopOutlined, } from '@ant-design/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye } from '@fortawesome/free-regular-svg-icons';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { HomeOutlined, BarsOutlined, } from '@ant-design/icons';
 import {
     Breadcrumb, Input, Button, Table, Modal
 } from 'antd';
@@ -11,6 +14,10 @@ import ModalCategoryManager from '../../../component/management/category/ModalCa
 const CategoryManagement = () => {
     let token = Cookies.get('token')
     const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const [categories, setCategories] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
@@ -32,16 +39,18 @@ const CategoryManagement = () => {
         {
             title: 'Tên danh mục',
             dataIndex: 'name',
-            width: '25%',
+            width: '30%',
         },
         {
             title: 'Mô tả',
             dataIndex: 'description',
+            sortDirections: ["descend", "ascend"],
+            responsive: ["lg"]
         },
         {
             title: 'Action',
             dataIndex: 'action',
-            width: '10%',
+            width: `${isHiddenAutoCpl ? '150px' : '10%'}`,
             render: (text, record) => {
                 return (<div className='flex flex-col h-auto'>
                     <button className=' bg-[#c8191f] text-white text-center
@@ -50,7 +59,7 @@ const CategoryManagement = () => {
                         onClick={(e) => {
                             viewDetailsCategory(record)
                         }}>
-                        Xem chi tiết
+                        {!isScreenSmaller1280 ? 'Xem chi tiết' : <FontAwesomeIcon className='min-w-[60px]' icon={faEye} />}
                     </button>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -58,7 +67,7 @@ const CategoryManagement = () => {
                         onClick={(e) => {
                             updateCategory(record)
                         }}>
-                        Chỉnh sửa
+                        {!isScreenSmaller1280 ? 'Chỉnh sửa' : <FontAwesomeIcon icon={faPenToSquare} />}
                     </button>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -67,7 +76,7 @@ const CategoryManagement = () => {
                             setCategoryIdToDelete(record.category_id)
                             setShowDeleteConfirmation(true)
                         }}>
-                        Xóa
+                        {!isScreenSmaller1280 ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
                     </button>
                 </div>)
             }
@@ -174,25 +183,25 @@ const CategoryManagement = () => {
                         },
                         {
                             title: <span className='flex items-center'>
-                                <LaptopOutlined className='mr-2' /> Category Management
+                                <BarsOutlined className='mr-2' /> Category Management
                             </span>,
                         },
                     ]}
                 />
-                <div className='flex justify-between bg-white items-center p-4'>
+                <div className={`flex justify-between bg-white items-center  ${isHiddenAutoCpl ? 'p-4' : 'flex-col-reverse p-0'}`}>
 
                     <Input.Search
                         allowClear
-                        className='searchPM'
+                        className={`searchPM ${isHiddenAutoCpl ? '' : 'w-full pt-2'}`}
                         placeholder='Nhập danh mục, từ khóa cần tìm kiếm,...'
                         onChange={(e) => { handleChangeInputSearch(e) }}
-                        style={{ width: '20%' }}></Input.Search>
+                        style={{ width: '45%' }}></Input.Search>
                     <Button
-                        className='btn-add-prd bg-[#c8191f] text-white 
-                    h-auto'
+                        className={`btn-add-prd bg-[#c8191f] text-white ${isHiddenAutoCpl ? '' : 'w-full'}
+                        h-auto`}
                         onClick={() => { addNewCategory() }}
                     >
-                        <span className='font-bold text-[18px] mr-2'>
+                        <span className={`font-bold text-[18px] mr-2`}>
                             +
                         </span>
                         <span>

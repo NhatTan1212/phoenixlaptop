@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Breadcrumb, Input, Button, Table, Select
+    Breadcrumb, Input, Button, Table, Select, Row, Col
 } from 'antd';
 import { GetFavoriteLaptopsByDays } from '../../../callAPI/management/apiDashBoard';
 import './TableFavoriteLaptops.scss'
+import Context from '../../../store/Context';
 
 const TableFavoriteLaptops = ({ data }) => {
+    const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const [favoriteLaptopsData, setFavoriteLaptopsData] = useState([])
     const columns = [
         {
@@ -31,6 +37,38 @@ const TableFavoriteLaptops = ({ data }) => {
             title: 'Còn trong kho',
             dataIndex: 'stock',
         },
+    ];
+
+    const deviceColumns = [
+        {
+            title: "Laptop bán chạy",
+            render: (record, key, index) => {
+                return (
+                    <div>
+                        <Row>
+                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }}>
+                                <div
+                                    className='w-[108px]'
+                                >
+                                    < img
+                                        src={record.avatar}
+                                        className='w-full h-auto border-[1px] border-[#e1dada]'
+                                    ></img >
+
+                                </div>
+                            </Col>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>
+                                <p className='font-bold text-[17px] text-[#333]'>{record.prod_name}</p>
+                                <p>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                <p>Số lượng đã bán: {record.quantity_sold}</p>
+                                <p>Còn trong kho: {record.stock}</p>
+                            </Col>
+
+                        </Row>
+                    </div>
+                )
+            }
+        }
     ];
 
     const getFavoriteBrandsByDays = (days) => {
@@ -75,7 +113,7 @@ const TableFavoriteLaptops = ({ data }) => {
                 <Table
                     pagination={{ defaultPageSize: 5 }}
                     className='table-favorite-product'
-                    columns={columns}
+                    columns={isHiddenAutoCpl ? columns : deviceColumns}
                     dataSource={favoriteLaptopsData}>
                 </Table>
             </div>

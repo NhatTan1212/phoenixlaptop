@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Col, Divider, Row } from 'antd';
 import CardTop from '../../../component/management/DashBoard/CardTop';
 import ChartNewOrders from '../../../component/management/DashBoard/ChartNewOrder';
@@ -9,9 +9,14 @@ import { GetFavoriteBrandsByDays, GetNewOrderByDays, GetNewUserByDays, GetOrderS
 import Cookies from 'js-cookie';
 import { faLessThan } from '@fortawesome/free-solid-svg-icons';
 import TableFavoriteLaptops from '../../../component/management/DashBoard/TableFavoriteLaptop';
+import Context from '../../../store/Context';
 
 const Dashboard = () => {
     let token = Cookies.get('token')
+    const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
 
     // order success
     const [orderSuccess7Days, setOrderSuccess7Days] = useState([]);
@@ -220,7 +225,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container flex-1 mt-1 mx-3">
             <Row gutter={16}>
-                <Col span={8}>
+                <Col xl={{ span: 10 }} lg={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
                             daysOrderSuccessSelected === 7 ? {
@@ -245,7 +250,7 @@ const Dashboard = () => {
                         }
                     />
                 </Col>
-                <Col span={8}>
+                <Col xl={{ span: 7 }} lg={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
                             daysNewOrderSelected === 7 ? {
@@ -270,7 +275,7 @@ const Dashboard = () => {
                         }
                     />
                 </Col>
-                <Col span={8}>
+                <Col xl={{ span: 7 }} lg={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
                             daysNewUserSelected === 7 ? {
@@ -316,7 +321,8 @@ const Dashboard = () => {
                 </Col>
             </Row>
             <Row className='mt-4 h-max' justify={'space-between'}>
-                <Col span={16} className='max-w-[1094px]'>
+                <Col xl={{ span: 16 }} lg={{ span: 24 }} sm={{ span: 24 }} xs={{ span: 24 }}
+                    className='max-w-[1094px]'>
                     <TableFavoriteLaptops
                         data={{
                             daysFavoriteLaptopsSelected: daysFavoriteLaptopsSelected,
@@ -324,7 +330,8 @@ const Dashboard = () => {
                         }}
                     ></TableFavoriteLaptops>
                 </Col>
-                <Col span={8} className='bg-white max-w-[781px]'>
+                <Col xl={{ span: 8 }} lg={{ span: 24 }} sm={{ span: 24 }} xs={{ span: 24 }}
+                    className='bg-white max-w-[781px] max-[1200px]:max-w-[1200px]'>
                     <ChartFavoriteBrands
                         data={{
                             daysFavoriteBrandsSelected: daysFavoriteBrandsSelected,

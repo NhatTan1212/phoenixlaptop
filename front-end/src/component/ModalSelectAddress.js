@@ -18,7 +18,11 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
     const [addNewWardSelected, setAddNewWardSelected] = useState(null)
     const [radioAddressSelected, setRadioAddressSelected] = useState(null)
     const token = Cookies.get('token');
+
     const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
 
     const handleOkBtnSelectAddress = (id) => {
         console.log(id);
@@ -157,9 +161,9 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
                                             setAddNewDetailAddress(e.target.value)
                                         }}
                                         placeholder='Chi tiết tên đường, số nhà'></Input>
-                                    <div className='flex items-center justify-between '>
+                                    <div className={`items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''} `}>
                                         <Select
-                                            className='my-3 flex-1 mr-2 items-center'
+                                            className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
                                             showSearch
                                             value={addNewProvinceSelected || "Chọn Tỉnh/Thành phố"}
                                             options={optionsSelectProvince}
@@ -170,7 +174,7 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
 
                                         </Select>
                                         <Select
-                                            className='my-3 flex-1 mx-2'
+                                            className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
                                             showSearch
                                             value={addNewDistrictSelected || "Chọn Quận/Huyện"}
                                             options={optionsSelectDistricts}
@@ -181,7 +185,7 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
 
                                         </Select>
                                         <Select
-                                            className='my-3 flex-1 ml-2'
+                                            className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
                                             showSearch
                                             value={addNewWardSelected || "Chọn Phường/Xã"}
                                             options={optionsSelectWards}

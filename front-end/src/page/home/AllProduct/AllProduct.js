@@ -1,14 +1,20 @@
 import { HomeOutlined, LaptopOutlined } from '@ant-design/icons';
 import { Breadcrumb, Card, Checkbox, Col, List, Pagination, Row } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { GetBrands, GetCategories, GetProductsByQuery } from '../../../callAPI/api';
 import CheckBoxGroup from '../../../component/CheckBoxGroup';
 import renderListProduct from '../../../component/ListProducts';
 import './AllProduct.scss';
+import Context from '../../../store/Context';
 
 const CheckboxGroup = Checkbox.Group;
 function AllProduct() {
+    const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const location = useLocation();
     let navigate = useNavigate();
     const [products, setProducts] = useState([]);
@@ -56,6 +62,9 @@ function AllProduct() {
                     if (querySplit.includes('brand')) {
                         let brand = querySplit.split('=')[1].split(',')
                         setCheckedListBrands(brand)
+                        if (!query.includes('category')) {
+                            setCheckedListCategories([])
+                        }
                         setIsCheckedAllBrands(false)
                     }
                     if (querySplit.includes('category')) {
@@ -287,116 +296,120 @@ function AllProduct() {
     };
 
     return (
-        <div className="w-10/12 m-auto">
-            <Breadcrumb
-                className="bc-allproduct"
-                items={[
-                    {
-                        href: '/',
-                        title: (
-                            <span className="flex items-center">
-                                <HomeOutlined /> Trang chủ
-                            </span>
-                        ),
-                    },
-                    {
-                        title: (
-                            <span className="flex items-center">
-                                <LaptopOutlined className="mr-2" /> Laptop
-                            </span>
-                        ),
-                    },
-                ]}
-            />
+        <div className="allproduct-wrap-content m-auto ">
+            <div className={`${isScreenSmaller430 ? 'mx-4' : 'mx-[30px]'}`}>
+                <Breadcrumb
+                    className="bc-allproduct"
+                    items={[
+                        {
+                            href: '/',
+                            title: (
+                                <span className="flex items-center">
+                                    <HomeOutlined /> Trang chủ
+                                </span>
+                            ),
+                        },
+                        {
+                            title: (
+                                <span className="flex items-center">
+                                    <LaptopOutlined className="mr-2" /> Laptop
+                                </span>
+                            ),
+                        },
+                    ]}
+                />
 
-            <Row gutter={[16, 16]}>
-                {/* Col for checkboxes */}
-                <Col xs={24} sm={12} md={6}>
-                    <CheckBoxGroup
-                        tittle={'Hãng sản xuất'}
-                        nameDisplay={nameBrands}
-                        checkedList={checkedListBrands}
-                        handleCheckboxChange={handleCheckboxChangeBrands}
-                        handleSelectAllChange={handleSelectAllChangeBrands}
-                        type={brands}
-                        param={query}
-                        isCheckedAll={isCheckedAllBrands}
-                    />
-
-                    <CheckBoxGroup
-
-                        tittle={'Thể loại'}
-                        nameDisplay={nameCategories}
-                        checkedList={checkedListCategories}
-                        handleCheckboxChange={handleCheckboxChangeCategories}
-                        handleSelectAllChange={handleSelectAllChangeCategories}
-                        type={categories}
-                        isCheckedAll={isCheckedAllCategories}
-                    />
-                </Col>
-
-                {/* Col for product list */}
-                <Col xs={24} sm={12} md={18}>
-                    <div className="product-list-section bg-white p-4 pt-0">
-                        {/* Product list goes here */}
-                        <div className='flex'>
-                            <span className='my-4 px-3 py-1 ml-0 pl-0 '>Ưu tiên xem:</span>
-                            <span
-                                className={
-                                    sortStatus === null
-                                        ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white rounded-l-md')
-                                        : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] text-black rounded-l-md')
-                                }
-                                onClick={() => { handleChangeSort() }}
-                            >
-                                Mới nhập
-                            </span>
-                            <span
-                                className={
-                                    sortStatus === 'desc'
-                                        ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0')
-                                        : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0')
-                                }
-                                onClick={() => { handleChangeSort('desc') }}
-                            >
-                                Giá cao
-                            </span>
-                            <span
-                                className=
-                                {
-                                    sortStatus === 'asc'
-                                        ? 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0 rounded-r-md'
-                                        : 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0 rounded-r-md'
-                                }
-                                onClick={() => { handleChangeSort('asc') }}
-                            >
-                                Giá thấp
-                            </span>
-                        </div>
-                        <List
-                            grid={{ gutter: 16, column: 3 }}
-                            dataSource={products}
-                            renderItem={(item) => (
-                                <List.Item className='h-full'>
-                                    <Card className=' w-[100%] h-[100%]'>
-                                        {renderListProduct(item, brands)}
-
-                                    </Card>
-                                </List.Item>
-                            )}
+                <Row gutter={[16, 16]}>
+                    {/* Col for checkboxes */}
+                    <Col xs={24} sm={24} md={24} lg={6}>
+                        <CheckBoxGroup
+                            tittle={'Hãng sản xuất'}
+                            nameDisplay={nameBrands}
+                            checkedList={checkedListBrands}
+                            handleCheckboxChange={handleCheckboxChangeBrands}
+                            handleSelectAllChange={handleSelectAllChangeBrands}
+                            type={brands}
+                            param={query}
+                            isCheckedAll={isCheckedAllBrands}
                         />
-                        <div className='flex justify-center'>
-                            <Pagination
-                                onChange={(page) => { handlePageChange(page) }}
-                                current={pagination.currentPage}
-                                pageSize={pagination.limit}
-                                total={pagination.totalProducts}
-                            />
-                        </div>
 
-                    </div>
-                </Col>
-            </Row>
+                        <CheckBoxGroup
+
+                            tittle={'Thể loại'}
+                            nameDisplay={nameCategories}
+                            checkedList={checkedListCategories}
+                            handleCheckboxChange={handleCheckboxChangeCategories}
+                            handleSelectAllChange={handleSelectAllChangeCategories}
+                            type={categories}
+                            isCheckedAll={isCheckedAllCategories}
+                        />
+                    </Col>
+
+                    {/* Col for product list */}
+                    <Col xs={24} sm={24} md={24} lg={18}>
+                        <div className={`product-list-section bg-white  pt-0 ${isScreenSmaller430 ? 'p-0' : 'p-4'}`}>
+                            {/* Product list goes here */}
+                            <div className='flex'>
+                                <span className='my-4 px-3 py-1 ml-0 pl-0 '>Ưu tiên xem:</span>
+                                <span
+                                    className={
+                                        sortStatus === null
+                                            ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white rounded-l-md')
+                                            : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] text-black rounded-l-md')
+                                    }
+                                    onClick={() => { handleChangeSort() }}
+                                >
+                                    Mới nhập
+                                </span>
+                                <span
+                                    className={
+                                        sortStatus === 'desc'
+                                            ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0')
+                                            : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0')
+                                    }
+                                    onClick={() => { handleChangeSort('desc') }}
+                                >
+                                    Giá cao
+                                </span>
+                                <span
+                                    className=
+                                    {
+                                        sortStatus === 'asc'
+                                            ? 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0 rounded-r-md'
+                                            : 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0 rounded-r-md'
+                                    }
+                                    onClick={() => { handleChangeSort('asc') }}
+                                >
+                                    Giá thấp
+                                </span>
+                            </div>
+                            <List
+                                grid={isHiddenAutoCpl ? { gutter: 16, column: 3 } : { gutter: 16, column: 2 }}
+                                className=''
+                                dataSource={products}
+                                renderItem={(item) => (
+                                    <List.Item className='h-full'>
+                                        <Card className=' w-[100%] h-[100%] overflow-hidden'>
+                                            {renderListProduct(item, brands)}
+
+                                        </Card>
+                                    </List.Item>
+                                )}
+                            />
+                            <div className='flex justify-center'>
+                                <Pagination
+                                    onChange={(page) => { handlePageChange(page) }}
+                                    current={pagination.currentPage}
+                                    pageSize={pagination.limit}
+                                    total={pagination.totalProducts}
+                                />
+                            </div>
+
+                        </div>
+                    </Col>
+                </Row>
+
+            </div>
         </div>
     );
 }

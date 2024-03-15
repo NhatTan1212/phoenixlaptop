@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye } from '@fortawesome/free-regular-svg-icons';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { HomeOutlined, LaptopOutlined, } from '@ant-design/icons';
 import {
     Breadcrumb, Input, Button, Table, Modal
@@ -11,6 +14,10 @@ import ModalBrandManager from '../../../component/management/brand/ModalBrandMan
 const BrandManagement = () => {
     let token = Cookies.get('token')
     const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const [brands, setBrands] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
@@ -32,7 +39,9 @@ const BrandManagement = () => {
         {
             title: 'Tên thương hiệu',
             dataIndex: 'name',
-            width: '15%'
+            width: '15%',
+            sortDirections: ["descend", "ascend"],
+            responsive: ["md"]
         },
         {
             title: 'Hình ảnh',
@@ -47,6 +56,11 @@ const BrandManagement = () => {
         {
             title: 'Mô tả',
             dataIndex: 'description',
+            sortDirections: ["descend", "ascend"],
+            responsive: ["lg"],
+            render: (_, record) => {
+                return <div className=' max-h-[3em] overflow-hidden'>{record.description}</div>
+            }
         },
         {
             title: 'Action',
@@ -54,14 +68,14 @@ const BrandManagement = () => {
             width: '10%',
             render: (text, record) => {
                 return (
-                    <div className='flex flex-col h-auto'>
+                    <div className='flex flex-col h-auto min-w-[90px]'>
                         <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
                     p-1 px-2'
                             onClick={(e) => {
                                 viewDetailsBrand(record)
                             }}>
-                            Xem chi tiết
+                            {!isScreenSmaller1280 ? 'Xem chi tiết' : <FontAwesomeIcon className='min-w-[60px]' icon={faEye} />}
                         </button>
                         <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -69,7 +83,7 @@ const BrandManagement = () => {
                             onClick={(e) => {
                                 updateBrand(record)
                             }}>
-                            Chỉnh sửa
+                            {!isScreenSmaller1280 ? 'Chỉnh sửa' : <FontAwesomeIcon icon={faPenToSquare} />}
                         </button>
                         <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -78,7 +92,7 @@ const BrandManagement = () => {
                                 setBrandIdToDelete(record.brand_id)
                                 setShowDeleteConfirmation(true)
                             }}>
-                            Xóa
+                            {!isScreenSmaller1280 ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
                         </button>
                     </div>
                 )
@@ -186,17 +200,17 @@ const BrandManagement = () => {
                         },
                     ]}
                 />
-                <div className='flex justify-between bg-white items-center p-4'>
+                <div className={`flex justify-between bg-white items-center  ${isHiddenAutoCpl ? 'p-4' : 'flex-col-reverse p-0'}`}>
 
                     <Input.Search
                         allowClear
-                        className='searchPM'
+                        className={`searchPM ${isHiddenAutoCpl ? '' : 'w-full pt-2'}`}
                         placeholder='Nhập thương hiệu, từ khóa cần tìm kiếm,...'
                         onChange={(e) => { handleChangeInputSearch(e) }}
-                        style={{ width: '20%' }}></Input.Search>
+                        style={{ width: '45%' }}></Input.Search>
                     <Button
-                        className='btn-add-prd bg-[#c8191f] text-white 
-                    h-auto'
+                        className={`btn-add-prd bg-[#c8191f] text-white ${isHiddenAutoCpl ? '' : 'w-full'}
+                      h-auto`}
                         onClick={() => { addNewBrand() }}
                     >
                         <span className='font-bold text-[18px] mr-2'>

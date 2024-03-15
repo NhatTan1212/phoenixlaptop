@@ -22,12 +22,17 @@ const items1 = ['1', '2', '3'].map((key) => ({
     label: `nav ${key}`,
 }));
 const ProductDetail = () => {
+    //Context responsive
+    const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const param = useParams()
     const {
         token: { colorBgContainer },
     } = theme.useToken();
     const navigate = useNavigate()
-    const context = useContext(Context)
     const isCartChange = context.isCartChange
     const setIsCartChange = context.setIsCartChange
     const [productDetail, setProductDetail] = useState({});
@@ -198,15 +203,13 @@ const ProductDetail = () => {
                 : null
             }
             <Content
-                className='w-10/12 mx-[auto]'
+                className='w-10/12 mx-[auto] max-[550px]:w-full'
                 style={{
                     padding: '0',
                 }}>
                 <Breadcrumb
-                    className=''
-                    style={{
-                        margin: '16px 0',
-                    }}>
+                    className='my-0 mx-4 max-[550px]:mx-6'
+                >
                     <Breadcrumb.Item>
                         <Link to={'/'}>Home</Link>
                     </Breadcrumb.Item>
@@ -225,18 +228,19 @@ const ProductDetail = () => {
                         background: colorBgContainer,
                     }}>
                     <Content
+                        className='py-0 px-6'
                         style={{
-                            padding: '0 24px',
+
                             minHeight: 280,
                         }}>
                         {(isGetProductDetailSuccessfully && productDetail.data.prod_name) && (
                             // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
-                            <h1 className='text-[24px] font-bold'>
+                            <h1 className='md:text-[24px] font-bold sm:text-[17px]'>
                                 {productDetail.data.prod_name}
                             </h1>
                         )}
-                        <Row className='mt-[30px]'>
-                            <Col span={8} className='px-[15px]'>
+                        <Row className={`mt-[30px] ${isScreenSmaller1280 ? 'block' : ''}`}>
+                            <Col span={`${isScreenSmaller1280 ? '24' : '8'}`} className='px-[15px]'>
                                 {(isGetProductDetailSuccessfully && productDetail.images && productDetail.images.length > 0) && (
                                     // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
                                     <Image src={productDetail.images[0].url}></Image>
@@ -263,7 +267,7 @@ const ProductDetail = () => {
                                     </div>
                                 </Image.PreviewGroup>
                             </Col>
-                            <Col span={8} className='px-[15px] flex flex-col mt-[30px]'>
+                            <Col span={`${isScreenSmaller1280 ? '24' : '8'}`} className='px-[15px] flex flex-col mt-[30px]'>
                                 {(isGetProductDetailSuccessfully && productDetail.data.quantity) ?
                                     <>
                                         <span className='text-[16px]'>Giá chính hãng:
@@ -349,7 +353,7 @@ const ProductDetail = () => {
                                 }
 
                             </Col>
-                            <Col span={8} className='px-[15px] border-[1px] border-[#dbdbdb] whitespace-nowrap text-ellipsis overflow-hidden'>
+                            <Col span={`${isScreenSmaller1280 ? '24' : '8'}`} className='px-[15px] border-[1px] border-[#dbdbdb] whitespace-nowrap text-ellipsis overflow-hidden'>
                                 <div className='flex justify-between'>
                                     <h3 className='text-[#000] text-[16px] my-4 font-bold'>
                                         Thông số kỹ thuật
@@ -415,7 +419,7 @@ const ProductDetail = () => {
                         </Row>
                         <Row className='mt-4 border-t-[1px] pt-4 row-detailed-evaluation pb-4'>
                             {isGetProductDetailSuccessfully && (
-                                <Col span={16}>
+                                <Col span={`${isScreenSmaller1280 ? '24' : '16'}`}>
                                     <div id='row-detailed-evaluation' className={(!showFullContent
                                         && productDetail.data.detailed_evaluation !== 'null'
                                         && productDetail.data.detailed_evaluation) ? 'blur-bottom' : ''}>

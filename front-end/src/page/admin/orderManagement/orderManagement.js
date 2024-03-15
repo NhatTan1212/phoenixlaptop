@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye } from '@fortawesome/free-regular-svg-icons';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { useParams, Link } from 'react-router-dom';
 import { HomeOutlined, ShoppingOutlined, InboxOutlined, PlusOutlined, } from '@ant-design/icons';
 import {
@@ -20,6 +23,10 @@ const { Option } = Select;
 
 const OrderManagement = () => {
     const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const [form] = Form.useForm();
     const token = Cookies.get('token');
     const [orders, setOrders] = useState([]);
@@ -53,11 +60,13 @@ const OrderManagement = () => {
             title: 'Hình sản phẩm',
             dataIndex: 'avatar',
             key: 'avatar',
+            sortDirections: ["descend", "ascend"],
+            responsive: ["xxl"],
             render: (_, record) => (
-                <div className='avatar w-[108px]'>
+                <div className='avatar w-[108px] '>
                     <img
                         src={record.avatar}
-                        className='w-full h-auto border-[1px] border-[#e1dada]'
+                        className='w-full h-auto border-[1px] border-[#e1dada] '
                     />
                 </div>
             )
@@ -68,12 +77,16 @@ const OrderManagement = () => {
             dataIndex: 'total',
             render: (_, record) => (
                 <span>{record.total.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
-            )
+            ),
+            sorter: (record1, record2) => { return record1.total - record2.total }
         },
         {
             title: 'Địa chỉ nhận hàng',
             key: 'user_address',
             dataIndex: 'user_address',
+            render: (_, record) => {
+                return <div className=' max-h-[5em] overflow-hidden'>{record.user_address}</div>
+            }
         },
         {
             title: 'Hình thức thanh toán',
@@ -208,7 +221,7 @@ const OrderManagement = () => {
                             // console.log(record)
                             handleViewOrderDetail(record)
                         }}>
-                        Xem chi tiết
+                        {!isScreenSmaller1280 ? 'Xem chi tiết' : <FontAwesomeIcon className='min-w-[60px]' icon={faEye} />}
                     </button>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -217,7 +230,7 @@ const OrderManagement = () => {
                             // console.log(record)
                             handleEditOrder(record)
                         }}>
-                        Chỉnh sửa
+                        {!isScreenSmaller1280 ? 'Chỉnh sửa' : <FontAwesomeIcon icon={faPenToSquare} />}
                     </button>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -226,7 +239,7 @@ const OrderManagement = () => {
                             setOrderIdToDelete(record.id)
                             setShowDeleteConfirmation(true)
                         }}>
-                        Xóa
+                        {!isScreenSmaller1280 ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
                     </button>
                 </div>)
             }
@@ -550,7 +563,7 @@ const OrderManagement = () => {
                         onSearch={(e) => { console.log('hi') }}
                         onChange={(e) => { handleChangeInputSearch(e) }}
                         onPressEnter={(e) => { console.log('hi') }}
-                        style={{ width: '20%' }}></Input.Search>
+                        style={{ width: '45%' }}></Input.Search>
                     {/* <Button className='btn-add-prd bg-[#c8191f] text-white 
                     h-auto'>
                         <span className='font-bold text-[18px] mr-2'>

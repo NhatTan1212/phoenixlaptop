@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { HomeOutlined, LaptopOutlined, InboxOutlined, PlusOutlined, } from '@ant-design/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye } from '@fortawesome/free-regular-svg-icons';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { HomeOutlined, UserOutlined, InboxOutlined, PlusOutlined, } from '@ant-design/icons';
 import {
-    Breadcrumb, Input, Button, Table, Modal
+    Breadcrumb, Input, Button, Table, Modal, Row, Col
 } from 'antd';
 import '../userManagement/userManagement.scss'
 import { GetUsers, DeleteUser } from '../../../callAPI/api';
@@ -12,6 +15,10 @@ import Context from '../../../store/Context';
 const UserManagement = () => {
     let token = Cookies.get('token')
     const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const [users, setUsers] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
@@ -44,6 +51,13 @@ const UserManagement = () => {
         {
             title: 'Email',
             dataIndex: 'email',
+            render: (text, record) => {
+                return (
+                    <div className='max-w-[90px] overflow-hidden whitespace-nowrap text-ellipsis'>
+                        <span>{record.email}</span>
+                    </div>
+                )
+            }
         },
 
         {
@@ -58,7 +72,7 @@ const UserManagement = () => {
         {
             title: 'Action',
             dataIndex: 'action',
-            width: '10%',
+            width: '150px',
             render: (text, record) => {
                 return (<div className='flex flex-col h-auto'>
                     <button className=' bg-[#c8191f] text-white text-center
@@ -68,7 +82,7 @@ const UserManagement = () => {
                             console.log(record)
                             viewDetailsUser(record)
                         }}>
-                        Xem chi tiết
+                        {!isScreenSmaller1280 ? 'Xem chi tiết' : <FontAwesomeIcon className='min-w-[60px]' icon={faEye} />}
                     </button>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -77,7 +91,7 @@ const UserManagement = () => {
                             // console.log(record)
                             updateUser(record)
                         }}>
-                        Chỉnh sửa
+                        {!isScreenSmaller1280 ? 'Chỉnh sửa' : <FontAwesomeIcon icon={faPenToSquare} />}
                     </button>
                     <button className=' bg-[#c8191f] text-white text-center
                     hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
@@ -88,7 +102,65 @@ const UserManagement = () => {
                             setRole(record.role)
                             console.log(record.role)
                         }}>
-                        Xóa
+                        {!isScreenSmaller1280 ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
+                    </button>
+                </div>)
+            }
+        },
+    ];
+
+    const deviceColumns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            width: '10%',
+            sorter: (record1, record2) => { return record1.id - record2.id }
+        },
+        {
+            title: "Thông tin tài khoản",
+            render: (record, key, index) => {
+                return (
+                    <div className='overflow-hidden whitespace-nowrap text-ellipsis max-[480px]:max-w-[150px]'>
+                        <p>Tên: {record.name}</p>
+                        <p className='w-full'>Email: {record.email}</p>
+                        <p>Vai trò: {record.role}</p>
+                    </div>
+                )
+            }
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            render: (text, record) => {
+                return (<div className='flex flex-col h-auto'>
+                    <button className=' bg-[#c8191f] text-white text-center
+                    hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
+                    p-1 px-2'
+                        onClick={(e) => {
+                            console.log(record)
+                            viewDetailsUser(record)
+                        }}>
+                        {isHiddenAutoCpl ? 'Xem chi tiết' : <FontAwesomeIcon icon={faEye} />}
+                    </button>
+                    <button className=' bg-[#c8191f] text-white text-center
+                    hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
+                    p-1 px-2 mt-2'
+                        onClick={(e) => {
+                            // console.log(record)
+                            updateUser(record)
+                        }}>
+                        {isHiddenAutoCpl ? 'Chỉnh sửa' : <FontAwesomeIcon icon={faPenToSquare} />}
+                    </button>
+                    <button className=' bg-[#c8191f] text-white text-center
+                    hover:text-white hover:shadow-[0_0_6px_0_#333] rounded-[30px] 
+                    p-1 px-2 mt-2'
+                        onClick={(e) => {
+                            setUserIdToDelete(record.id)
+                            setShowDeleteConfirmation(true)
+                            setRole(record.role)
+                            console.log(record.role)
+                        }}>
+                        {isHiddenAutoCpl ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
                     </button>
                 </div>)
             }
@@ -204,22 +276,22 @@ const UserManagement = () => {
                         },
                         {
                             title: <span className='flex items-center'>
-                                <LaptopOutlined className='mr-2' /> Users Management
+                                <UserOutlined className='mr-2' /> Users Management
                             </span>,
                         },
                     ]}
                 />
-                <div className='flex justify-between bg-white items-center p-4'>
+                <div className={`flex justify-between bg-white items-center  ${isHiddenAutoCpl ? 'p-4' : 'flex-col-reverse p-0'}`}>
 
                     <Input.Search
                         allowClear
-                        className='searchPM'
+                        className={`searchPM ${isHiddenAutoCpl ? '' : 'w-full pt-2'}`}
                         placeholder='Nhập tài khoản, từ khóa cần tìm kiếm,...'
                         onChange={(e) => { handleChangeInputSearch(e) }}
-                        style={{ width: '20%' }}></Input.Search>
+                        style={{ width: '45%' }}></Input.Search>
                     <Button
-                        className='btn-add-prd bg-[#c8191f] text-white 
-                    h-auto'
+                        className={`btn-add-prd bg-[#c8191f] text-white ${isHiddenAutoCpl ? '' : 'w-full'}
+                        h-auto`}
                         onClick={() => { addNewUsers() }}
                     >
                         <span className='font-bold text-[18px] mr-2'>
@@ -235,7 +307,7 @@ const UserManagement = () => {
                     <h3>Quản lý tài khoản</h3>
                     <Table
                         className='table-users-management'
-                        columns={columns}
+                        columns={isHiddenAutoCpl ? columns : deviceColumns}
                         dataSource={filteredUsers.map((users) => ({
                             ...users,
                             key: users.id
