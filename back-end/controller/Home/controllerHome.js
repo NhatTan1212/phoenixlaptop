@@ -629,6 +629,7 @@ function cart(req, res) {
     console.log(token, tokenGID)
     if (token) {
         let verify = jwt.verify(token, 'secretId')
+        console.log('line 632 controllerHome verifyToken: ', verify);
         // res.render('cart')
         CART.findById(verify.id, (err, cart) => {
             if (!err) {
@@ -921,8 +922,11 @@ async function dataOrder(req, res) {
         user_id: null,
         guest_id: null,
         avatar: req.body.avatar,
+        prod_name: req.body.prod_name,
         note: req.body.note,
         paymentMethods: req.body.paymentMethod,
+        quantity: req.body.quantity,
+        total_product: req.body.total_product,
         total: req.body.total,
         name: req.body.name,
         email: req.body.email,

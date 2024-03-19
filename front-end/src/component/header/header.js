@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../store/Context';
 import '../header/header.scss';
-import { Link, NavLink, useLocation, useParams, useHistory } from 'react-router-dom';
+import { Link, NavLink, useLocation, useParams, useHistory, useNavigate } from 'react-router-dom';
 import logo from '../../images/logo1000.png'
 import { AutoComplete, Input, Row, Col, Drawer, Space, Menu } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -18,6 +18,7 @@ import {
 
 const { Search } = Input;
 function Header() {
+    const navigate = useNavigate()
     const { param } = useParams(); // Lấy tham số từ URL
     const token = Cookies.get('token');
     const context = useContext(Context)
@@ -53,6 +54,8 @@ function Header() {
     const handleMenu = (e) => {
         console.log(e)
         setCurrentPageAdminHome(e.key);
+        setIsBarOpen(false)
+        navigate('/management')
     }
     //Context responsive
     const isHiddenAutoCpl = context.isHiddenAutoCpl
@@ -75,6 +78,7 @@ function Header() {
         // Xóa sự kiện lắng nghe khi component bị unmount
         return () => window.removeEventListener('resize', handleResize);
     }, []); // Chỉ chạy một lần khi component được render
+
 
     // console.log(isHomePage)
     const renderOption = (item) => (
@@ -294,7 +298,7 @@ function Header() {
                     <li className=' pt-[8px] group/category
                 pl-[12px] hover:bg-[#c8191f] '>
                         <Link
-                            to={'/'}
+                            onClick={() => setIsBarOpen(false)} to={'/'}
                             className='text-black group-hover/category:text-white'
                         >Trang chủ</Link>
                     </li>
@@ -302,7 +306,7 @@ function Header() {
                 {categories.map((category) => (
                     <li key={category.category_id} className=' pt-[8px] group/category
             pl-[12px] hover:bg-[#c8191f] '>
-                        <Link to={`laptop/category=${category.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/category=${category.slug}&page=1`} className='text-black group-hover/category:text-white'>
                             {category.name}
                         </Link>
                     </li>
@@ -310,7 +314,7 @@ function Header() {
                 {brands.map((brand) => (
                     <li key={brand.brand_id} className=' pt-[10px] group/category
             pl-[12px] hover:text-white hover:bg-[#c8191f]  last:pb-[10px]'>
-                        <Link to={`laptop/brand=${brand.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/brand=${brand.slug}&page=1`} className='text-black group-hover/category:text-white'>
                             Laptop {brand.name}
 
                         </Link>
@@ -395,7 +399,7 @@ function Header() {
                         xs={{ span: 16, offset: 0 }} lg={{ span: 5, offset: 0 }} xl={{ span: 3, offset: 0 }}
                         className={` ${isHiddenAutoCpl ? '' : 'flex'} ${isScreenSmaller430 ? 'pl-4' : 'pl-6'}`}
                     >
-                        <div className={`${(!isHiddenAutoCpl) ? 'block' : 'hidden'} my-auto pr-6`}>
+                        <div className={`${(!isHiddenAutoCpl) ? 'block' : 'hidden'} my-auto pr-6 max-[430px]:pr-4`}>
                             <FontAwesomeIcon
                                 className='text-white text-[25px]'
                                 icon={faBars} onClick={toggleBar} />
@@ -405,7 +409,7 @@ function Header() {
                                 // className={'inline-block'}
                                 to='/'
                             ><img
-                                className={` max-w-[197px] mx-[30px] mt-[33px] mb-[25px] ${!isHiddenAutoCpl ? 'ml-0' : ''}`}
+                                className={` max-w-[197px] mx-[30px] mt-[33px] mb-[25px] ${!isHiddenAutoCpl ? 'ml-0' : ''} max-[430px]:w-[180px]`}
                                 src={logo}></img>
                             </NavLink>
                         </div>

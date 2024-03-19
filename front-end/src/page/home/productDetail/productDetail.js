@@ -243,7 +243,8 @@ const ProductDetail = () => {
                             <Col span={`${isScreenSmaller1280 ? '24' : '8'}`} className='px-[15px]'>
                                 {(isGetProductDetailSuccessfully && productDetail.images && productDetail.images.length > 0) && (
                                     // Hiển thị nội dung của component chỉ khi dữ liệu đã sẵn sàng
-                                    <Image src={productDetail.images[0].url}></Image>
+                                    <Image src={productDetail.images[0].url}
+                                        className='max-h-[500px]'></Image>
                                 )}
 
                                 <Image.PreviewGroup
@@ -256,6 +257,7 @@ const ProductDetail = () => {
                                             images.map((img) => (
                                                 <Image
                                                     // className='border-0 border-red-500'
+
                                                     width={75}
                                                     key={img.image_id}
                                                     src={img.url}>

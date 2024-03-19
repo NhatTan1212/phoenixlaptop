@@ -162,9 +162,11 @@ const ProductManagement = () => {
             render: (record, key, index) => {
                 return (
                     <div>
+                        <div className='pb-2'>Mã sản phẩm: {record.id}</div>
                         <Row className='overflow-hidden text-ellipsis max-[470px]:max-w-[300px]'>
                             <Col md={{ span: 6, offset: 0 }} sm={{ span: 6, offset: 0 }} xs={{ span: 6, offset: 0 }}
                                 className='max-[490px]:max-w-full'>
+
                                 <div
                                     className='w-[108px]'
                                 >

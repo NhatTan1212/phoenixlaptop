@@ -25,8 +25,23 @@ io.on('connection', (socket) => {
 });
 
 global.io = io;
-
+global.appAll = app
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,            //access-control-allow-credentials:true
+  optionSuccessStatus: 200
+}
+// app.use(cors(corsOptions));
 app.use(cors());
+// app
+// Thêm middleware xử lý yêu cầu được chuyển hướng
+
 const path = require('path');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

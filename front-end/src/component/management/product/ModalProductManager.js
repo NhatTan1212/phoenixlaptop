@@ -8,6 +8,7 @@ const ModalProductManager = ({ title, isActioning, width, setIsActioning, setAct
 
     return (
         <Modal
+            className=''
             title={title}
             open={isActioning === true}
             width={width}

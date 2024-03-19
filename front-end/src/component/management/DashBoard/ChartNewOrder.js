@@ -11,8 +11,8 @@ ChartJS.register(
     CategoryScale, LinearScale, TimeScale, Tooltip, Legend, LineElement, PointElement, Title, SubTitle,
 )
 
-defaults.maintainAspectRatio = false
 defaults.responsive = true
+defaults.maintainAspectRatio = false
 
 const ChartNewOrders = ({ data }) => {
 
@@ -145,7 +145,7 @@ const ChartNewOrders = ({ data }) => {
     };
 
     return (
-        <div className='relative'>
+        <div className='relative '>
             <Select
                 className='absolute right-2 top-2'
                 value={data.modeViewChartNewOrder || 7}
@@ -168,7 +168,8 @@ const ChartNewOrders = ({ data }) => {
                 }}
             ></Select>
             <Line
-                height={500}
+                // height={500}
+                className='w-full h-full max-h-[500px] min-h-[300px]'
                 data={dataNewOrder}
                 options={optionsNewOrder}
             />

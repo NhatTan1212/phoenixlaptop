@@ -3,8 +3,11 @@ const { sql, connect } = require('../connect');
 const ORDERS = function (order) {
     this.user_id = order.user_id;
     this.paymentMethods = order.paymentMethods;
+    this.quantity = order.quantity;
+    this.total_product = order.total_product;
     this.total = order.total;
     this.avatar = order.avatar;
+    this.prod_name = order.prod_name;
     this.name = order.name;
     this.note = order.note;
     this.guest_id = order.guest_id;
@@ -34,10 +37,10 @@ const ORDERS = function (order) {
 ORDERS.create = async (order, result) => {
     const pool = await connect;
     const sqlStringAddOrder = `
-    INSERT INTO ORDERS (paymentMethods, guest_id, avatar, note, total, user_id, name, email, user_address, phone, trading_code, 
+    INSERT INTO ORDERS (paymentMethods, guest_id, avatar, prod_name, note, quantity,total_product, total, user_id, name, email, user_address, phone, trading_code, 
                         is_payment, is_approved, is_being_shipped, is_transported, is_success, vnp_BankCode, vnp_CardType, vnp_OrderInfo, 
                         vnp_PayDate, vnp_TransactionNo, created_at, updated_at)
-    VALUES (@paymentMethods,@guest_id, @avatar, @note, @total, @user_id, @name, @email, @user_address, @phone, @trading_code, 
+    VALUES (@paymentMethods,@guest_id, @avatar, @prod_name, @note, @quantity,@total_product, @total, @user_id, @name, @email, @user_address, @phone, @trading_code, 
                         @is_payment, @is_approved, @is_being_shipped, @is_transported, @is_success, @vnp_BankCode, @vnp_CardType, @vnp_OrderInfo, 
                         @vnp_PayDate, @vnp_TransactionNo, GETDATE(), GETDATE());
     `;
@@ -45,7 +48,10 @@ ORDERS.create = async (order, result) => {
         .input('paymentMethods', sql.VARCHAR(255), order.paymentMethods)
         .input('guest_id', sql.VARCHAR(50), order.guest_id)
         .input('avatar', sql.NVARCHAR(255), order.avatar)
+        .input('prod_name', sql.NVARCHAR(255), order.prod_name)
         .input('note', sql.NVARCHAR(255), order.note)
+        .input('quantity', sql.Int, order.quantity)
+        .input('total_product', sql.Int, order.total_product)
         .input('total', sql.Float, order.total)
         .input('user_id', sql.Int, order.user_id)
         .input('name', sql.NVARCHAR(100), order.name)
@@ -114,7 +120,7 @@ ORDERS.create = async (order, result) => {
 ORDERS.find = async (result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
-        select * FROM ORDERS
+        select * FROM ORDERS order by id desc
     `;
     await pool.request()
         .query(sqlStringAddProduct, (err, data) => {
@@ -131,7 +137,7 @@ ORDERS.find = async (result) => {
 ORDERS.findById = async (user_id, guest_id, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `
-        select * FROM ORDERS where user_id = @user_id or guest_id = @guest_id
+        select * FROM ORDERS where user_id = @user_id or guest_id = @guest_id order by id desc
     `;
     await pool.request()
         .input('user_id', sql.Int, user_id)
