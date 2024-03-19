@@ -313,7 +313,16 @@ const DeleteOrder = (requestData) => {
         });
 }
 
+const SignInFb = () => {
+    return Instance.get('/login/federated/facebook')
+        .then(response => response.data)
+        .catch(error => {
+            console.error('Loi call api SignInFb:', error);
+        });
+}
+
 export {
     GetUsers, GetUsersById, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, AddNewBrand, DeleteBrand, EditBrand, GetLaptopGaming, GetProductsByQuery, EditUser, EditUserInfoById, ChangeUserPasswordById, AddNewUser, DeleteUser, GetCategories, GetImages,
-    EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress, AddNewCategory, EditCategory, DeleteCategory
+    EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress, AddNewCategory, EditCategory, DeleteCategory,
+    SignInFb
 };

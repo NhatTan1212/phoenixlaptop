@@ -225,7 +225,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container flex-1 mt-1 mx-3">
             <Row gutter={16}>
-                <Col xl={{ span: 10 }} lg={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
+                <Col xl={{ span: 10 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
                             daysOrderSuccessSelected === 7 ? {
@@ -250,7 +250,7 @@ const Dashboard = () => {
                         }
                     />
                 </Col>
-                <Col xl={{ span: 7 }} lg={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
+                <Col xl={{ span: 7 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
                             daysNewOrderSelected === 7 ? {
@@ -275,7 +275,7 @@ const Dashboard = () => {
                         }
                     />
                 </Col>
-                <Col xl={{ span: 7 }} lg={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
+                <Col xl={{ span: 7 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
                             daysNewUserSelected === 7 ? {

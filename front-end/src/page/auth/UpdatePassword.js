@@ -54,13 +54,15 @@ const UpdatePassword = () => {
     };
 
     return (
-        <div className='container'>
+        <div className='container m-auto h-auto'>
             <div className='wrapContent'>
                 <div className='confirmationForm'>
                     <h2>Reset Password</h2>
                     {/* <input placeholder='New Password' type="password" onChange={(e) => { setPassword(e.target.value) }}></input> */}
                     <div className='wrap-password'>
-                        <input placeholder='New Password' type={isPasswordVisible ? 'text' : 'password'} onChange={(e) => { setPassword(e.target.value) }}>
+                        <input
+                            className='input'
+                            placeholder='New Password' type={isPasswordVisible ? 'text' : 'password'} onChange={(e) => { setPassword(e.target.value) }}>
                         </input>
                         {isPasswordVisible
                             ? <FontAwesomeIcon icon={faEyeSlash} className='eye-icon' onClick={() => { showPassword() }} />

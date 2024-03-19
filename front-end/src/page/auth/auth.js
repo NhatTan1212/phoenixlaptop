@@ -8,6 +8,7 @@ import { faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { faFacebookF } from '@fortawesome/free-brands-svg-icons';
 // import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { SignInFb } from '../../callAPI/api';
 // import '../../views/font.scss'
 
 const Auth = () => {
@@ -84,6 +85,13 @@ const Auth = () => {
         return setIsPasswordVisible(!isPasswordVisible)
     }
 
+    const handleSignInFb = () => {
+        console.log('hi');
+        SignInFb().then((data) => {
+            console.log(data);
+        })
+    }
+
     useEffect(() => {
         if (successMessage === 'true') {
             alert("Tài khoản của bạn đã được đăng ký thành công!");
@@ -91,7 +99,7 @@ const Auth = () => {
     }, [successMessage]);
 
     return (
-        <div className={`container m-auto min-w-full h-auto`}  >
+        <div className={`container m-auto h-auto`}  >
             <div className='wrapContent h-auto mb-[100px]'>
                 <div className='loginForm'>
                     <h2 className='text-[20px] font-bold'>Sign In</h2>
@@ -150,7 +158,10 @@ const Auth = () => {
                         <div className="line"></div>
                     </div>
                     <div className='wrap-sign-in-fb'>
-                        <button className='btnSignInFb'>
+                        <a className='btnSignInFb'
+                            // onClick={handleSignInFb}
+                            href="http://localhost:8000/login/federated/facebook"
+                        >
                             <label>
                                 <FontAwesomeIcon icon={faFacebookF} className='fb-icon' />
 
@@ -159,11 +170,14 @@ const Auth = () => {
 
                                 SIGN IN WITH FACEBOOK
                             </label>
-                        </button>
+                        </a>
 
                     </div>
                     <div className='wrap-sign-in-gg'>
-                        <button className='btnSignInGg'>
+                        <a className='btnSignInGg'
+                            // onClick={handleSignInFb}
+                            href="http://localhost:8000/login/federated/google"
+                        >
                             <label>
                                 <img src={ggIcon} className='gg-icon'></img>
 
@@ -172,7 +186,7 @@ const Auth = () => {
                                 SIGN IN WITH GOOGLE
 
                             </label>
-                        </button>
+                        </a>
 
                     </div>
                     <div className='labelSignUp'>

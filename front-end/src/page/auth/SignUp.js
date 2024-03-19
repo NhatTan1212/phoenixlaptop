@@ -219,7 +219,10 @@ const SignUp = () => {
                         <div className="line"></div>
                     </div>
                     <div className='wrap-sign-in-fb'>
-                        <button className='btnSignInFb'>
+                        <a className='btnSignInFb'
+                            // onClick={handleSignInFb}
+                            href="http://localhost:8000/login/federated/facebook"
+                        >
                             <label>
                                 <FontAwesomeIcon icon={faFacebookF} className='fb-icon' />
 
@@ -228,11 +231,14 @@ const SignUp = () => {
 
                                 SIGN IN WITH FACEBOOK
                             </label>
-                        </button>
+                        </a>
 
                     </div>
                     <div className='wrap-sign-in-gg'>
-                        <button className='btnSignInGg'>
+                        <a className='btnSignInGg'
+                            // onClick={handleSignInFb}
+                            href="http://localhost:8000/login/federated/google"
+                        >
                             <label>
                                 <img src={ggIcon} className='gg-icon'></img>
 
@@ -241,7 +247,7 @@ const SignUp = () => {
                                 SIGN IN WITH GOOGLE
 
                             </label>
-                        </button>
+                        </a>
 
                     </div>
                     <div className='labelSignUp'>

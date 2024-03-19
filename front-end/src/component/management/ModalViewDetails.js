@@ -3,17 +3,23 @@ import {
     Input, Select, Image, Row, Col, Upload
 } from 'antd';
 import '../../component/management/ModalViewDetails.scss'
+import Context from '../../store/Context';
 
 const ModalViewDetails = ({ actioningProduct, fileList, brandDefault,
     categoryDefault }) => {
+    const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
 
     return (
         <div className='wrap-modal-view w-full'>
             {/* {console.log(fileList)} */}
-            <div className='relative min-h-[450px]'>
+            <div className='relative min-h-[450px] overflow-hidden'>
                 <Image
                     src={actioningProduct.avatar}
-                    className='avatar-modal-view max-w-[450px] ml-[15%] object-contain'
+                    className={`avatar-modal-view max-w-[450px] object-contain ml-[5%] sm:ml-[15%] md:ml-[25%] lg:ml-[15%]
+                    ${isHiddenAutoCpl ? '' : '-translate-x-[60px]'} `}
                 ></Image>
 
                 <Image.PreviewGroup

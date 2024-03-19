@@ -46,7 +46,7 @@ const TableFavoriteLaptops = ({ data }) => {
                 return (
                     <div>
                         <Row>
-                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }}>
+                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 24, offset: 0 }}>
                                 <div
                                     className='w-[108px]'
                                 >
@@ -57,8 +57,8 @@ const TableFavoriteLaptops = ({ data }) => {
 
                                 </div>
                             </Col>
-                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>
-                                <p className='font-bold text-[17px] text-[#333]'>{record.prod_name}</p>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 24 }}>
+                                <p className='font-bold text-[17px] text-[#333] max-[576px]:max-w-[250px]'>{record.prod_name}</p>
                                 <p>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                 <p>Số lượng đã bán: {record.quantity_sold}</p>
                                 <p>Còn trong kho: {record.stock}</p>

@@ -6,8 +6,10 @@ const jwt = require('jsonwebtoken')
 var passport = require('passport');
 var LocalStrategy = require('passport-local');
 var FacebookStrategy = require('passport-facebook');
+var GoogleStrategy = require('passport-google-oidc');
 const mailer = require('../../utils/mailer.js');
 const CART = require('../../models/cart.js');
+const cors = require('cors');
 require('dotenv').config()
 
 function controllerLogin(req, res) {
@@ -250,7 +252,7 @@ function login(req, res) {
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: '/auth/facebook/callback',
+    callbackURL: "/auth/facebook/callback",
     state: true
 }, async function verify(accessToken, refreshToken, profile, cb) {
     const pool = await connect;
@@ -261,12 +263,13 @@ passport.use(new FacebookStrategy({
         if (user.length === 0) {
             console.log('hi')
             const sqlStringAddSearch = `
-            insert into USERS(name,provider,role) 
-            values(@name,@provider,'user')
+            insert into USERS(name,provider,role,subject) 
+            values(@name,@provider,'user',@subject)
             `;
             await pool.request()
                 .input('name', sql.NVARCHAR(100), profile.displayName)
                 .input('provider', sql.VARCHAR(255), 'https://www.facebook.com')
+                .input('subject', sql.VARCHAR(255), profile.id)
                 .query(sqlStringAddSearch, (err, data) => {
                     if (err) { console.log(err); return cb(err); }
                     USERS.findLast((err, user) => {
@@ -292,38 +295,56 @@ passport.use(new FacebookStrategy({
                     })
                 })
         } else {
-            return cb(null, user);
+            const sqlStringAddSearch = `
+            SELECT u.* 
+            FROM USERS u 
+            JOIN PROVIDED_USERS p ON u.subject = p.subject 
+            WHERE p.subject = @subject;
+            `;
+            await pool.request()
+                .input('subject', sql.VARCHAR(255), profile.id)
+                .query(sqlStringAddSearch, (err, data) => {
+                    console.log('line306 controllerLogin3: ', data);
+                    return cb(null, data.recordset[0]);
+                })
         }
     })
 }));
-
 function loginFb_Get(req, res) {
-
     passport.authenticate('facebook')(req, res);
 }
 
+
 function loginFb_Get_Callback(req, res) {
-    passport.authenticate('facebook', { failureRedirect: '/login' },
+
+
+    passport.authenticate('facebook', { failureRedirect: 'http://localhost:3000/#/auth' },
         function (err, user) {
+            console.log('line 331 controllerlogin3: ', user);
             if (err) return res.status(500).json('loi server');
-            if (!user) { return res.redirect('/login'); }
+            if (!user) { return res.redirect('http://localhost:3000/#/auth'); }
             let token = jwt.sign({
-                id: user[0].user_id,
+                id: user.user_id || user.id,
                 role: "user"
             }, 'secretId')
-            res.cookie('token', token, { httpOnly: true });
-            return res.redirect("/")
+            // res.cookie('token', token, { httpOnly: false });
+            return res.redirect(`http://localhost:3000/#/?username=${user.name}&token=${token}`);
+
 
             // res.send(user)
-            // return res.redirect('/');
 
         })(req, res)
 }
 
 function loginFb(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Max-Age", "1800");
+    res.setHeader("Access-Control-Allow-Headers", "content-type");
+    res.setHeader("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, PATCH, OPTIONS");
     // const { username, password } = req.body;
     passport.authenticate('facebook', (err, dataUser) => {
-        if (err) return res.status(500).json('loi server');
+        if (err) return res.json({ success: false, msg: err });
         // if (!dataUser) return res.json('username or password invalid');
         console.log(dataUser)
         // let roleUser = dataUser.role;
@@ -350,6 +371,92 @@ function loginFb(req, res) {
     })(req, res);
 }
 
+passport.use(new GoogleStrategy({
+    clientID: process.env['GOOGLE_CLIENT_ID'],
+    clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
+    callbackURL: '/oauth2/redirect/google',
+    scope: ['profile']
+}, async function verify(issuer, profile, cb) {
+    const pool = await connect;
+    console.log(profile)
+    PROVIDED_USERS.findByIdProvider(profile.id, 'https://www.google.com', async (err, user) => {
+        console.log(user.length)
+        if (err) { return cb(err); }
+        if (user.length === 0) {
+            console.log('hi')
+            const sqlStringAddSearch = `
+            insert into USERS(name,provider,role,subject) 
+            values(@name,@provider,'user',@subject)
+            `;
+            await pool.request()
+                .input('name', sql.NVARCHAR(100), profile.displayName)
+                .input('provider', sql.VARCHAR(255), 'https://www.google.com')
+                .input('subject', sql.VARCHAR(255), profile.id)
+                .query(sqlStringAddSearch, (err, data) => {
+                    if (err) { console.log(err); return cb(err); }
+                    USERS.findLast((err, user) => {
+                        if (err) { console.log(err); return cb(err); }
+                        let user_id = user.id
+                        console.log(user_id)
+                        const provided_user = new PROVIDED_USERS({
+                            user_id: user_id,
+                            name: profile.displayName,
+                            // email: profile.email,
+                            provider: 'https://www.google.com',
+                            subject: profile.id
+                        });
+                        PROVIDED_USERS.create(provided_user, (err, data) => {
+                            if (err) { console.log(err); return cb(err); }
+                            // console.log(provided_user)
+                            let user = {
+                                user_id: user_id,
+                                name: profile.displayName
+                            };
+                            return cb(null, user);
+                        })
+                    })
+                })
+        } else {
+            const sqlStringFindUser = `
+            SELECT u.* 
+            FROM USERS u 
+            JOIN PROVIDED_USERS p ON u.subject = p.subject 
+            WHERE p.subject = @subject;
+            `;
+            await pool.request()
+                .input('subject', sql.VARCHAR(255), profile.id)
+                .query(sqlStringFindUser, (err, data) => {
+                    console.log('line306 controllerLogin3: ', data);
+                    return cb(null, data.recordset[0]);
+                })
+        }
+    })
+}));
+
+function loginGG_Get(req, res) {
+    passport.authenticate('google')(req, res);
+}
+
+function loginGG_Get_Callback(req, res) {
+
+    passport.authenticate('google', { failureRedirect: 'http://localhost:3000/#/auth' },
+        function (err, user) {
+            console.log('line 331 controllerlogin3: ', user);
+            if (err) return res.status(500).json('loi server');
+            if (!user) { return res.redirect('http://localhost:3000/#/auth'); }
+            let token = jwt.sign({
+                id: user.user_id || user.id,
+                role: "user"
+            }, 'secretId')
+            // res.cookie('token', token, { httpOnly: false });
+            return res.redirect(`http://localhost:3000/#/?username=${user.name}&token=${token}`);
+
+
+            // res.send(user)
+
+        })(req, res)
+}
+
 function logout(req, res) {
     // Đầu tiên, bạn cần đảm bảo rằng tên của cookie token là chính xác
     const tokenCookieName = 'token'; // Đổi tên này thành tên bạn đã sử dụng cho cookie token
@@ -368,5 +475,6 @@ function logout(req, res) {
 
 
 module.exports = {
-    controllerLogin, selectAllUsers, register, confirmRegister, login, loginFb, logout, loginFb_Get, loginFb_Get_Callback, confirmRegisterPost
+    controllerLogin, selectAllUsers, register, confirmRegister, login, loginFb, logout, loginFb_Get, loginFb_Get_Callback,
+    confirmRegisterPost, loginGG_Get, loginGG_Get_Callback
 }

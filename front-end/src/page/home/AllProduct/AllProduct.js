@@ -350,7 +350,7 @@ function AllProduct() {
                         <div className={`product-list-section bg-white  pt-0 ${isScreenSmaller430 ? 'p-0' : 'p-4'}`}>
                             {/* Product list goes here */}
                             <div className='flex'>
-                                <span className='my-4 px-3 py-1 ml-0 pl-0 '>Ưu tiên xem:</span>
+                                <span className='my-4 px-3 py-1 ml-0 pl-0 max-[430px]:pl-2 '>Ưu tiên xem:</span>
                                 <span
                                     className={
                                         sortStatus === null
@@ -384,7 +384,7 @@ function AllProduct() {
                                 </span>
                             </div>
                             <List
-                                grid={isHiddenAutoCpl ? { gutter: 16, column: 3 } : { gutter: 16, column: 2 }}
+                                grid={isHiddenAutoCpl ? { gutter: 16, column: 3 } : { gutter: 0, column: 2 }}
                                 className=''
                                 dataSource={products}
                                 renderItem={(item) => (

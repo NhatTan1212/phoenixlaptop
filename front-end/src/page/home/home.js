@@ -79,7 +79,7 @@ function Home() {
         return (
 
             <Card.Grid style={gridStyle} key={product.id}
-                className='relative home-grid-card'>
+                className='relative home-grid-card min-h-[470px]'>
                 <div className='absolute top-[15px] right-[15px] 
                 z-[2]'>
                     <span
@@ -91,7 +91,7 @@ function Home() {
                         -{product.prod_percent}%
                     </span>
                 </div>
-                <div className='flex overflow-hidden items-center h-[60%] min-h-[185px]'>
+                <div className='flex overflow-hidden items-center h-auto min-h-[60%]'>
                     <Link to={`/product-detail/${product.id}`}
                         className=''>
                         <img src={product.avatar} alt=''
@@ -101,12 +101,14 @@ function Home() {
 
                 </div>
                 <div className='flex justify-start text-start 
-            items-start h-auto flex-col whitespace-nowrap overflow-hidden text-ellipsis'>
-                    {brand && <img src={brand.image} alt="Brand Logo"
-                        className="brand-logo max-w-[80px]" />}
+            items-start h-auto flex-col overflow-hidden text-ellipsis'>
+                    {
+                        brand &&
+                        <img src={brand.image} alt="Brand Logo"
+                            className="brand-logo max-w-[80px] min-h-[36px]" />}
                     <Link to={`/product-detail/${product.id}`}
-                        className=' text-[16px] line-clamp-2 font-bold 
-                    overflow-hidden mt-[25px]'>
+                        className=' text-[16px] font-bold max-[700px]:text-[14px]
+                    overflow-hidden mt-[25px] max-w-full text-ellipsis line-clamp-2'>
                         {product.prod_description}
                     </Link>
                     <span className='text-[#1d1d1d] text-[16px] 
@@ -165,7 +167,7 @@ function Home() {
                     <Card className=' w-[100%] h-auto'>
                         {
                             !isHiddenAutoCpl ?
-                                laptopGaming.slice(0, 2).map(renderListProduct)
+                                hotSaleProducts.slice(0, 2).map(renderListProduct)
                                 :
                                 isScreenSmaller1280 ?
                                     hotSaleProducts.slice(0, 4).map(renderListProduct)

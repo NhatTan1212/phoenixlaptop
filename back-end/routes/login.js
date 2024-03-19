@@ -16,9 +16,14 @@ routerLogin.post('/confirm/:email', controllerLogin3.confirmRegisterPost)
 
 routerLogin.post('/requirelogin', controllerLogin3.login)
 
+//login with facebook
 routerLogin.get('/login/federated/facebook', controllerLogin3.loginFb_Get);
 routerLogin.get('/auth/facebook/callback', controllerLogin3.loginFb_Get_Callback);
 routerLogin.post('/requireloginfb', controllerLogin3.loginFb)
+
+//login with google
+routerLogin.get('/login/federated/google', controllerLogin3.loginGG_Get);
+routerLogin.get('/oauth2/redirect/google', controllerLogin3.loginGG_Get_Callback);
 
 routerLogin.get('/logout', authMiddleware.loggedin, controllerLogin3.logout)
 

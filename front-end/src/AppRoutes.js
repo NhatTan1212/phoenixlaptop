@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import ProductDetail from './page/home/productDetail/productDetail';
 import Auth from './page/auth/auth';
 import SignUp from './page/auth/SignUp';
@@ -24,9 +24,27 @@ import ProfileManager from './page/home/profile/profileManager';
 
 function AppRoutes() {
     const navigate = useNavigate()
+    const { param } = useParams();
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
     useEffect(() => {
+        // if()
         let token = Cookies.get('token')
         let tokenGID = Cookies.get('tokenGID')
+        const queryParams = new URLSearchParams(location.search);
+        const tokenParam = queryParams.get('token');
+        const username = queryParams.get('username');
+        console.log(tokenParam);
+        console.log(username);
+        if (tokenParam && isHomePage) {
+            localStorage.setItem('user_name', username);
+            Cookies.set('token', tokenParam, { expires: 31 })
+            Cookies.remove('tokenGID');
+        }
+        if (token) {
+            if (tokenGID) Cookies.remove('tokenGID');
+        }
+        console.log(token);
         if (token || tokenGID) { }
         else {
             const guestId = uuidv4();

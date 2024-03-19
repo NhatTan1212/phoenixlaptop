@@ -14,6 +14,10 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
     categoryDefault, brands, categories, brandsSelect, categorySelect, setIsListProductsChanged }) => {
     let token = Cookies.get('token')
     const context = useContext(Context)
+    const isHiddenAutoCpl = context.isHiddenAutoCpl
+    const isScreenSmaller1280 = context.isScreenSmaller1280
+    const isScreenSmaller430 = context.isScreenSmaller430
+
     const [productName, setProductName] = useState('')
     const [price, setPrice] = useState('')
     const [cost, setCost] = useState('')
@@ -143,14 +147,14 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
 
             <div
                 className='fpm-wrap-input-file h-[450px] cursor-pointer border-dashed border-2
-                relative'
+                relative overflow-hidden'
                 onClick={() => {
                     let fpmInputFile = document.querySelector(".fpm-input-file")
                     fpmInputFile.click()
                 }}
             >
                 <div className='text-add-img absolute text-xl font-bold flex
-                flex-col top-[40%]' >
+                flex-col top-[40%] ' >
                     <PlusOutlined className='mb-3'></PlusOutlined>
                     Click để thêm ảnh đại diện cho sản phẩm
                 </div>
@@ -186,7 +190,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                     {/* <Form.Item className='flex-1 mr-2'> */}
 
                     <Row className='mt-[15px]'>
-                        <Col span={12}
+                        <Col span={isHiddenAutoCpl ? 12 : 24}
                             className='text-start px-[15px] pl-0'>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Tên sản phẩm:</h3>
@@ -728,7 +732,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                             </ul>
                         </Col>
-                        <Col span={12} className='text-start px-[15px] pr-0'>
+                        <Col span={isHiddenAutoCpl ? 12 : 24} className='text-start px-[15px] pr-0'>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Thương hiệu:</h3>
                                 <Select

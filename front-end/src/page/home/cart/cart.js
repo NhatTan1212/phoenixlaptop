@@ -165,7 +165,7 @@ function Cart() {
                 return (
                     <div>
                         <Row>
-                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }}>
+                            <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 24, offset: 0 }}>
                                 <div
                                     className='w-[108px]'
                                 >
@@ -176,17 +176,17 @@ function Cart() {
 
                                 </div>
                             </Col>
-                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>
-                                <p className='font-bold text-[17px] text-[#333]'>{record.description}</p>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 24 }}>
+                                <p className='font-bold text-[17px] text-[#333] max-[420px]:max-w-[300px]'>{record.description}</p>
                             </Col>
                         </Row>
                         <Row>
                             <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }} />
-                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Col>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 24 }}>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Col>
                         </Row>
                         <Row>
                             <Col md={{ span: 6, offset: 1 }} sm={{ span: 6, offset: 1 }} xs={{ span: 8, offset: 0 }}></Col>
-                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 16 }}>
+                            <Col md={{ span: 17 }} sm={{ span: 17 }} xs={{ span: 24 }}>
                                 {
                                     record.is_possible_to_order !== 0 ?
                                         <InputNumber
@@ -512,7 +512,11 @@ function Cart() {
                 note: note,
                 paymentMethod: valueRadioPay,
                 listProduct: newList,
-                avatar: cart[0].avatar
+                avatar: cart[0].avatar,
+                prod_name: cart[0].prod_name,
+                quantity: cart[0].count,
+                total_product: newList.length,
+
             }
             if (valueRadioPay === 'VNPAY') {
                 if (valueRadioLanguage === 'vn' || valueRadioLanguage === '' || valueRadioLanguage === null) {
@@ -656,15 +660,25 @@ function Cart() {
                             <FontAwesomeIcon
                                 className='text-[#4ea722] text-[60px]'
                                 icon={faCircleCheck}></FontAwesomeIcon>
-                            <p className='text-[#4ea722] text-[20px] my-6'>Đơn hàng của quý khách đã thanh toán thành công!</p>
+                            <p className='text-[#4ea722] text-[20px] my-6'>Đặt hàng thành công!</p>
+                            <p className='text-[#000000] text-[17px] my-6'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>
                             <div className=''>
-                                <Button className='w-[180px] mr-6'>Tiếp tục mua hàng</Button>
                                 <Button
-                                    className='w-[180px]'
+                                    className='w-[180px] mr-6'
                                     onClick={() => {
-                                        navigate(`../order-detail/${idNavigateOrderDetail}`)
+                                        setVnpayStatus(null)
+                                        setIsFinishAddNewOrderVNPAY(false)
                                     }}
-                                >Xem chi tiết đơn hàng</Button>
+                                >Tiếp tục mua hàng</Button>
+                                {!tokenGID ?
+                                    <Button
+                                        className='w-[180px]'
+                                        onClick={() => {
+                                            navigate(`../order-detail/${idNavigateOrderDetail}`)
+                                        }}
+                                    >Xem chi tiết đơn hàng</Button>
+                                    : <></>
+                                }
                             </div>
                         </>
                         :
@@ -700,7 +714,7 @@ function Cart() {
                     </div>
 
 
-                    <div className='mx-5 my-5 px-3 py-5 border-[1px] border-[#d9d9d9]'>
+                    <div className='mx-5 my-5 px-3 py-5 border-[1px] border-[#d9d9d9] max-[400px]:mx-0'>
                         <h3 className='font-bold text-[18px] text-[#333333]'>1. Thông tin khách hàng</h3>
                         <div className='px-5 '>
                             <Input
