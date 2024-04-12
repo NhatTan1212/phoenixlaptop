@@ -26,9 +26,39 @@ DELIVERY_ADDRESS.create = async (delivery_address, result) => {
                 console.log(err)
                 result(err, null)
             } else {
-                result(null, data)
+                const sqlStringquerylast = `
+                    SELECT id
+                    FROM DELIVERY_ADDRESS
+                    WHERE 
+                        user_id = @user_id AND
+                        detail_address = @detail_address AND
+                        province = @province AND
+                        district = @district AND
+                        ward = @ward
+                `;
+
+                const request = pool.request();
+                request.input('user_id', sql.Int, delivery_address.user_id)
+                request.input('detail_address', sql.NVARCHAR(100), delivery_address.detail_address)
+                request.input('province', sql.NVARCHAR(50), delivery_address.province)
+                request.input('district', sql.NVARCHAR(50), delivery_address.district)
+                request.input('ward', sql.NVARCHAR(50), delivery_address.ward)
+
+                request.query(sqlStringquerylast, (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        result(err, null);
+                    } else {
+                        if (data.recordset.length > 0) {
+                            console.log('>> Retrieved address_id:', data.recordset[0]);
+                            result(null, data.recordset[0].id);
+                        } else {
+                            console.log('>> Address not found');
+                            result('Address not found', null);
+                        }
+                    }
+                });
             }
-            sql.close()
         })
 };
 
@@ -43,8 +73,26 @@ DELIVERY_ADDRESS.findByUserId = async (user_id, result) => {
             if (err) {
                 console.log(err)
             } else {
-                // console.log(data)
+                console.log('76 deliveryaddress', data)
                 result(null, data.recordset);
+            }
+            sql.close()
+        })
+}
+
+DELIVERY_ADDRESS.findByAddressId = async (address_id, result) => {
+    const pool = await connect;
+    const sqlStringAddProduct = `
+        select * FROM DELIVERY_ADDRESS where id = @address_id
+    `;
+    await pool.request()
+        .input('address_id', sql.Int, address_id)
+        .query(sqlStringAddProduct, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                // console.log(data)
+                result(null, data.recordset[0]);
             }
             sql.close()
         })
