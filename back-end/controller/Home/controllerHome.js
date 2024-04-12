@@ -90,12 +90,12 @@ function home(req, res) {
 }
 
 function deliveryAddress(req, res) {
-  console.log(req.body);
+  console.log('line 93 delivery address', req.body);
   let token = req.body.token;
   console.log("token =", token);
   let verify = jwt.verify(token, "secretId");
   const user_id = verify.id;
-  console.log(user_id);
+  console.log('delivery 98', user_id);
   DELIVERY_ADDRESS.findByUserId(user_id, (err, data) => {
     if (err) {
       console.log(err);
@@ -118,29 +118,53 @@ async function addDeliveryAddress(req, res) {
     ward: req.body.ward,
     detail_address: req.body.detail_address,
   });
-
-  DELIVERY_ADDRESS.create(newAddress, (err, address) => {
+  DELIVERY_ADDRESS.create(newAddress, (err, address_id) => {
     if (err) {
-      res.json({ success: false });
       console.log(err);
+      return res.json({ success: false });
     }
-    // console.log(req.body)
+    console.log('>> check address_id: ', address_id);
+    DELIVERY_ADDRESS.findByUserId(user_id, (err, data) => {
+      if (err) {
+        console.log(err);
+        return res.json({ success: false });
+      }
+      if (data.length == 1) {
+        USERS.editDefaultAddressByUserId(user_id, address_id, (err, data) => {
+          if (err) {
+            console.log(err);
+            return res.json({ success: false });
+          }
+        })
+      }
+    })
     res.json({ success: true });
   });
+
+
 }
 
 const deleteDeliveryAddress = (req, res) => {
   let token = req.body.token;
   let user_id = jwt.verify(token, "secretId").id;
   let address_id = req.body.address_id;
-  DELIVERY_ADDRESS.deleteById(user_id, address_id, (err, data) => {
-    if (err) {
-      res.json({ success: false });
-      console.log("line 126: ControllerHome - Lỗi delete DeliveryAddress", err);
+  USERS.findById(user_id).then(async (data) => {
+    if (data.default_address === address_id + '') {
+      USERS.editDefaultAddressByUserId(user_id, null, (err, data) => {
+        if (err) return res.json({ success: false, msg: err })
+
+      })
     }
-    // console.log(req.body)
-    res.json({ success: true });
-  });
+    DELIVERY_ADDRESS.deleteById(user_id, address_id, (err, data) => {
+      if (err) {
+        res.json({ success: false });
+        console.log("line 126: ControllerHome - Lỗi delete DeliveryAddress", err);
+      }
+      // console.log(req.body)
+      res.json({ success: true });
+    });
+  })
+
 };
 
 function laptopGaming(req, res) {
@@ -237,14 +261,22 @@ function users(req, res) {
 function userById(req, res) {
   const userId = USERS.findById(req.params.id);
   userId.then((user) => {
-    const newUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-    };
-    res.json(newUser);
+
+    DELIVERY_ADDRESS.findByUserId(user.id, (err, data) => {
+      if (err) return res.json({ success: false })
+      const foundAddressObj = data.find(item => item.id === parseInt(user.default_address));
+      const default_address = foundAddressObj ? `${foundAddressObj.detail_address}, ${foundAddressObj.province}, ${foundAddressObj.district}, ${foundAddressObj.ward}` : ''
+      const newUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        default_address_id: user.default_address,
+        default_address: default_address
+      };
+      res.json(newUser);
+    })
   });
 }
 
@@ -562,13 +594,14 @@ async function editUserManagement(req, res) {
 }
 
 async function editUserInfo(req, res) {
-  console.log(req.body);
+  console.log('body line 597 ', req.body);
 
   try {
     const newUser = {
       id: req.body.id,
       name: req.body.name,
       phone: req.body.phone,
+      defAddressID: req.body.defAddressID
     };
 
     USERS.editUserInfoByUserId(newUser, (err, user) => {
@@ -577,7 +610,6 @@ async function editUserInfo(req, res) {
         console.log(err);
         return;
       }
-      console.log(req.body);
       res.json({ success: true });
     });
   } catch (error) {
@@ -705,7 +737,18 @@ function cart(req, res) {
       if (!err) {
         // console.log(cart)
         // res.render("cart", { data: cart })
-        res.json(cart);
+        USERS.findById(verify.id).then((user) => {
+          console.log('cart', parseInt(user.default_address));
+          DELIVERY_ADDRESS.findByAddressId(parseInt(user.default_address), (err, data) => {
+            if (err) return res.json({ success: false, msg: err })
+            const default_address = `${data.detail_address}, ${data.province}, ${data.district}, ${data.ward}`
+            if (cart[0]) cart[0]["default_address"] = default_address;
+            console.log(cart);
+            return res.json(cart)
+          })
+
+        })
+
       }
     });
   } else if (tokenGID) {
@@ -868,7 +911,7 @@ function deleteCart(req, res) {
   }
 }
 
-function updateCart(req, res) {
+async function updateCart(req, res) {
   let token = req.body.token;
   let tokenGID = req.body.tokenGID;
   let cart = req.body.cart;
@@ -908,6 +951,11 @@ function updateCart(req, res) {
       cart.forEach((item) => {
         updateCartByUser(userId, item);
       });
+      if (req.body.default_address) {
+        await USERS.editDefaultAddressByUserId(userId, req.body.default_address, (err, data) => {
+          if (err) return res.json({ success: false, msg: err });
+        })
+      }
 
       res.json({ success: true });
     } catch (err) {
@@ -1058,6 +1106,11 @@ async function dataOrder(req, res) {
     const verify = jwt.verify(token, "secretId");
     newOrder.user_id = verify.id;
     uid = verify.id;
+    if (req.body.default_address) {
+      await USERS.editDefaultAddressByUserId(verify.id, req.body.default_address, (err, data) => {
+        if (err) return res.json({ success: false, msg: err });
+      })
+    }
   } else if (tokenGID !== undefined) {
     newOrder.guest_id = tokenGID;
     gid = tokenGID;
@@ -1069,15 +1122,15 @@ async function dataOrder(req, res) {
     productList += `
         <tr style="border-bottom: 1px solid #e5e5e5">
           <td>${index + 1}</td>
-          <td style="text-align: center"><img style="height: 120px" src="${
-            product.avatar
-          }"></td>
+          <td style="text-align: center"><img style="height: 120px" src="${product.avatar
+      }"></td>
           <td>${product.prod_name}</td>
           <td>${product.price}</td>
           <td>${product.count}</td>
         </tr>
         `;
   });
+
 
   if (req.body.paymentMethod === "VNPAY") {
     let getPayDate = req.body.vnp_PayDate;
@@ -1129,7 +1182,7 @@ async function dataOrder(req, res) {
                 if (err) {
                   console.log(
                     "Lỗi tại controllerHome:line 1002 (ORDER_DETAILS.create) - " +
-                      err
+                    err
                   );
                   return json({ success: false, err: err });
                 }
@@ -1141,7 +1194,7 @@ async function dataOrder(req, res) {
                   if (err) {
                     console.log(
                       "Lỗi tại controllerHome:line 1008 (updateDecreaseQuantityById) - " +
-                        err
+                      err
                     );
                     return json({ success: false, err: err });
                   }
@@ -1154,7 +1207,7 @@ async function dataOrder(req, res) {
                   if (err) {
                     console.log(
                       "Lỗi tại controllerHome:line 1014 (updateDecreaseQuantityById) - " +
-                        err
+                      err
                     );
                     return json({ success: false, err: err });
                   }
@@ -1228,7 +1281,7 @@ async function dataOrder(req, res) {
             if (err) {
               console.log(
                 "Lỗi tại controllerHome:line 861 (updateDecreaseQuantityById) - " +
-                  err
+                err
               );
               return json({ success: false, err: err });
             }
@@ -1241,7 +1294,7 @@ async function dataOrder(req, res) {
             if (err) {
               console.log(
                 "Lỗi tại controllerHome:line 1014 (updateDecreaseQuantityById) - " +
-                  err
+                err
               );
               return json({ success: false, err: err });
             }

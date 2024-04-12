@@ -10,13 +10,13 @@ import { Link } from 'react-router-dom';
 
 const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSelectingDeliveryAddress, optionsSelectProvince, optionsSelectWards,
     optionsSelectDistricts, setDetailAddress, setProvinceSelected, setDistrictSelected, setWardSelected, setOptionsSelectDistricts, setOptionsSelectWards,
-    isAddressDeliveryChange, setIsAddressDeliveryChange, getDeliveryAddress
+    isAddressDeliveryChange, setIsAddressDeliveryChange, getDeliveryAddress, setRadioAddressSelected, radioAddressSelected
 }) => {
     const [addNewDetailAddress, setAddNewDetailAddress] = useState("");
     const [addNewProvinceSelected, setAddNewProvinceSelected] = useState(null)
     const [addNewDistrictSelected, setAddNewDistrictSelected] = useState(null)
     const [addNewWardSelected, setAddNewWardSelected] = useState(null)
-    const [radioAddressSelected, setRadioAddressSelected] = useState(null)
+
     const token = Cookies.get('token');
 
     const context = useContext(Context)
@@ -36,7 +36,6 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
             }
         });
         setIsSelectingDeliveryAddress(false); // Đóng modal
-        setRadioAddressSelected(null)
     }
 
     const handleAddNewAddress = () => {
@@ -58,6 +57,8 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
         })
         console.log(findProvince)
         setAddNewProvinceSelected(findProvince.Name)
+        setAddNewDistrictSelected(null)
+        setAddNewWardSelected(null)
         setOptionsSelectDistricts(findProvince.Districts)
     }
 
@@ -67,6 +68,7 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
         })
         console.log(findDistrict)
         setAddNewDistrictSelected(findDistrict.Name)
+        setAddNewWardSelected(null)
         setOptionsSelectWards(findDistrict.Wards)
     }
 
@@ -79,6 +81,7 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
     }
 
     const handleRemoveAddress = (address_id) => {
+
         console.log(address_id);
         const requestData = {
             token: token,
@@ -116,7 +119,6 @@ const ModalSelectAddress = ({ addressSaved, isSelectingDeliveryAddress, setIsSel
                         setAddNewProvinceSelected('')
                         setAddNewDistrictSelected('')
                         setAddNewWardSelected('')
-                        setRadioAddressSelected(null)
                     }} // Đóng modal khi bấm hủy
                     className='model-cart'
                 >

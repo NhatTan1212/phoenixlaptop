@@ -262,7 +262,7 @@ function Header() {
 
     const AutoCompleteCpn = ({ isHidden }) => {
         return (<AutoComplete
-            className={`${isHidden ? 'hidden ' : ''}my-auto header-autocpl ${!isHiddenAutoCpl ? 'pb-2' : ''}
+            className={`${isHidden ? 'hidden ' : ''}my-auto header-autocpl ${!isHiddenAutoCpl ? 'pb-2' : ''} ${isAdminHomePage ? 'hidden' : ''}
             `}
             popupClassName="certain-category-search-dropdown"
             popupMatchSelectWidth={300}
@@ -424,9 +424,9 @@ function Header() {
                         className='flex justify-end'
                     >
                         <div className='header-wrapnav-right flex h-full'>
-                            <Link to={"/cart"} className={`my-auto flex p-6 group/cart ${isScreenSmaller1280 ? 'pr-0' : ''}
+                            <Link to={"/cart"} className={`my-auto flex p-6 group/cart ${isScreenSmaller1280 ? 'pr-0' : ''}${isAdminHomePage ? 'hidden' : ''}
                             `}>
-                                <span className='text-white relative'>
+                                <span className={`text-white relative ${isAdminHomePage ? 'hidden' : ''}`}>
                                     <FontAwesomeIcon icon={faCartFlatbed}
                                         className=' text-[20px] py-3 px-[0.55rem] bg-white text-black
                                         rounded-[10px]'>
@@ -434,12 +434,12 @@ function Header() {
                                     <span className={`${cart > 0 ? 'block ' : 'hidden '}absolute text-white z-10 text-center bg-red-500 
                             ${cart > 10
                                             ? 'rounded-[8px] w-[27px] h-[21px] right-[-13px] top-[-11px] text-[16px] flex flex-col'
-                                            : 'rounded-[50%] w-[22px] h-[22px] right-[-11px] top-[-11px] text-[16px]'}`}>
+                                            : 'rounded-[50%] w-[22px] h-[22px] right-[-11px] top-[-11px] text-[16px]'} ${isAdminHomePage ? 'hidden' : ''}`} >
                                         {cart}
                                     </span>
                                 </span>
                                 {!isHiddenAutoCpl ? null :
-                                    <span className='text-white pl-[5px] text-[17px] my-auto group-hover/cart:text-[red]'>Giỏ hàng</span>
+                                    <span className={`text-white pl-[5px] text-[17px] my-auto group-hover/cart:text-[red] ${isAdminHomePage ? 'hidden' : ''}`}>Giỏ hàng</span>
                                 }
                             </Link>
                             {

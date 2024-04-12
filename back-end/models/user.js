@@ -7,6 +7,7 @@ const USERS = function (user) {
     this.email = user.email;
     this.role = user.role;
     this.registrationToken = user.registrationToken;
+    this.default_address = user.default_address;
 };
 
 USERS.find = async (result) => {
@@ -334,15 +335,35 @@ USERS.editByUserId = async (editUser, result) => {
         })
 }
 
+USERS.editDefaultAddressByUserId = async (userId, default_address, result) => {
+    const pool = await connect;
+    const sqlStringAddUser = `
+        UPDATE USERS SET default_address = @default_address WHERE id = @id
+    `;
+    await pool.request()
+        .input('default_address', sql.NVARCHAR(sql.MAX), default_address + '')
+        .input('id', sql.Int, userId)
+        .query(sqlStringAddUser, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                // console.log(data)
+            }
+            result(null, data);
+            sql.close();
+        })
+}
+
 USERS.editUserInfoByUserId = async (editUserInfo, result) => {
     const pool = await connect;
     const sqlStringAddUser = `
-        UPDATE USERS SET name = @name, phone = @phone WHERE id = @id
+        UPDATE USERS SET name = @name, phone = @phone, default_address = @default_address WHERE id = @id
     `;
     await pool.request()
         .input('name', sql.NVARCHAR(100), editUserInfo.name)
         .input('phone', sql.VARCHAR(15), editUserInfo.phone)
         .input('id', sql.Int, editUserInfo.id)
+        .input('default_address', sql.NVARCHAR(sql.MAX), editUserInfo.defAddressID + '')
         .query(sqlStringAddUser, (err, data) => {
             if (err) {
                 console.log(err)

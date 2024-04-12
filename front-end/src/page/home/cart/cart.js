@@ -3,7 +3,7 @@ import Context from '../../../store/Context';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
-import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col } from 'antd';
+import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col, Checkbox } from 'antd';
 import './cart.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faAngleLeft, faAngleRight, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -67,6 +67,8 @@ function Cart() {
     const [isFinish, setIsFinish] = useState(false)
     const [isAddressDeliveryChange, setIsAddressDeliveryChange] = useState(false)
     const [idNavigateOrderDetail, setIdNavigateOrderDetail] = useState('')
+    const [checked, setChecked] = useState(false);
+    const [radioAddressSelected, setRadioAddressSelected] = useState(null)
 
     //Xử lý VNPAY
     const location = useLocation();
@@ -78,6 +80,10 @@ function Cart() {
         const antInput = document.querySelector('.ant-input')
         antInput.classList.add('ant-input-cart')
     }
+    const onChange = (e) => {
+        console.log('checked = ', e.target.checked);
+        setChecked(e.target.checked);
+    };
 
     const columns = [
         {
@@ -288,6 +294,9 @@ function Cart() {
             [authKey]: authValue,
             cart: cart
         };
+        if (checked) {
+            requestData["default_address"] = radioAddressSelected.toString()
+        }
 
         Instance.post('/updatecart', requestData, {
             headers: {
@@ -421,6 +430,10 @@ function Cart() {
                 .then(response => {
                     console.log(response.data);
                     setCart(response.data)
+                    setDetailAddress(response.data[0].default_address.split(',')[0])
+                    setProvinceSelected(response.data[0].default_address.split(',')[1])
+                    setDistrictSelected(response.data[0].default_address.split(',')[2])
+                    setWardSelected(response.data[0].default_address.split(',')[3])
 
                 })
                 .catch(error => {
@@ -451,6 +464,8 @@ function Cart() {
         })
         console.log(findProvince)
         setProvinceSelected(findProvince.Name)
+        setDistrictSelected(null)
+        setWardSelected(null)
         setOptionsSelectDistricts(findProvince.Districts)
     }
 
@@ -460,6 +475,7 @@ function Cart() {
         })
         console.log(findDistrict)
         setDistrictSelected(findDistrict.Name)
+        setWardSelected(null)
         setOptionsSelectWards(findDistrict.Wards)
     }
 
@@ -518,6 +534,10 @@ function Cart() {
                 total_product: newList.length,
 
             }
+            if (checked) {
+                dataOder["default_address"] = radioAddressSelected.toString()
+            }
+
             if (valueRadioPay === 'VNPAY') {
                 if (valueRadioLanguage === 'vn' || valueRadioLanguage === '' || valueRadioLanguage === null) {
                     dataOder['language'] = 'vn'
@@ -529,6 +549,7 @@ function Cart() {
                     dataOder['bankCode'] = 'VNBANK'
                 }
             }
+
             console.log(dataOder)
             const dataString = JSON.stringify(dataOder);
             sessionStorage.setItem('dataOrder', dataString);
@@ -635,6 +656,8 @@ function Cart() {
                 isAddressDeliveryChange={isAddressDeliveryChange}
                 setIsAddressDeliveryChange={setIsAddressDeliveryChange}
                 getDeliveryAddress={getDeliveryAddress}
+                setRadioAddressSelected={setRadioAddressSelected}
+                radioAddressSelected={radioAddressSelected}
             />
 
 
@@ -829,6 +852,11 @@ function Cart() {
                                                 onChange={(e) => handleChangeWard(e)}>
 
                                             </Select>
+                                        </div>
+                                        <div>
+                                            <Checkbox checked={checked} onChange={onChange} className='chkbox-cart'>
+                                                Chọn làm địa chỉ giao hàng mặc định
+                                            </Checkbox>
                                         </div>
                                     </div>
                             }

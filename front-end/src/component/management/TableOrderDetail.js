@@ -14,7 +14,7 @@ const TableOrderDetail = ({ columns, dataSource, order }) => {
                 className='flex-1 table-order-detail'
                 columns={columns}
                 dataSource={dataSource} />
-            <div className='mb-3'>
+            <div className=''>
                 <div className='flex justify-between font-bold text-[20px]'>
                     <span className='pl-5'>Tổng tiền:</span>
                     <span className='text-[#e5101d] pr-[30px]'>

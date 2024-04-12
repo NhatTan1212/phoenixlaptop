@@ -89,3 +89,19 @@
     color: #b8b8b8 !important;
     background-color: #eee !important;
 }   
+.chkbox-cart .ant-checkbox-inner{
+    background-color: #ffffff !important;
+    border-color: #FF0000 !important;
+}
+.chkbox-cart:hover .ant-checkbox-inner{
+    background-color: #ffffff !important;
+    border-color: #FF0000 !important;
+}
+
+.ant-checkbox-wrapper-checked .ant-checkbox-inner{
+    background-color: #ff0000 !important;
+}
+.ant-checkbox-wrapper-checked:hover .ant-checkbox-inner{
+    background-color: #ff8080 !important;
+    border-color: #ff8080 !important;
+}

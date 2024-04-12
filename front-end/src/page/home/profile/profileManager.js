@@ -34,6 +34,11 @@ const ProfileManager = () => {
     const [formKey, setFormKey] = useState(0);
 
     const [addressSaved, setAddressSaved] = useState(null);
+    const [detailAddress, setDetailAddress] = useState("");
+    const [provinceSelected, setProvinceSelected] = useState(null)
+    const [districtSelected, setDistrictSelected] = useState(null)
+    const [wardSelected, setWardSelected] = useState(null)
+    const [radioAddressSelected, setRadioAddressSelected] = useState(null)
     const [isAddressDeliveryChange, setIsAddressDeliveryChange] = useState(false)
     const [addNewDetailAddress, setAddNewDetailAddress] = useState("");
     const [addNewProvinceSelected, setAddNewProvinceSelected] = useState(null)
@@ -174,6 +179,7 @@ const ProfileManager = () => {
                 setIsCurrentUser(true);
                 const response = await GetUsersById(id);
                 setUserData(response);
+                setRadioAddressSelected(parseInt(response.default_address_id))
             } else {
                 setIsCurrentUser(false);
                 navigate(`/profile/${userId}`)
@@ -194,6 +200,9 @@ const ProfileManager = () => {
 
     const handleSaveUserInfo = (values) => {
         setUserData(values);
+        setRadioAddressSelected(parseInt(values.defAddressID))
+
+        console.log(values);
 
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -254,12 +263,6 @@ const ProfileManager = () => {
                             <Menu.Item key="password" icon={<KeyOutlined />} className='max-[430px]:w-[33%]'>
                                 {isScreenSmaller430 ? 'mật khẩu' : 'Thay đổi mật khẩu'}
                             </Menu.Item>
-                            <Menu.Item
-                                className='max-[430px]:w-[33%]'
-                                key="address" icon={<FontAwesomeIcon icon={faLocationDot} className='text-[#8b7878]' />}>
-                                {/* <FontAwesomeIcon icon={faLocationDot}></FontAwesomeIcon> */}
-                                Địa chỉ
-                            </Menu.Item>
                         </Menu>
                     </div>
                     <div className="w-[60%] m-auto max-[430px]:w-[90%] max-[1200px]:w-[65%]">
@@ -275,6 +278,8 @@ const ProfileManager = () => {
                                     <p className="col-span-5 text-gray-800 font-semibold">{userData.email}</p>
                                     <p className="col-span-3 text-gray-600">Số điện thoại:</p>
                                     <p className="col-span-5 text-gray-800 font-semibold">{userData.phone}</p>
+                                    <p className="col-span-3 text-gray-600">Địa chỉ hiện tại:</p>
+                                    <p className="col-span-5 text-gray-800 font-semibold">{userData.default_address}</p>
                                 </div>
                                 <div className="flex justify-end">
                                     <Button
@@ -353,94 +358,7 @@ const ProfileManager = () => {
                                 </Form>
                             </div>
                         )}
-                        {currentMenu === 'address' && (
-                            <div className="space-y-4 ">
-                                {addressSaved ?
-                                    <div className=''>
-                                        <h3 className="text-lg font-semibold mb-8 mt-3">Địa chỉ giao hàng</h3>
-                                        {/* <h3 className="text-[16px] font-normal mt-3">Địa chỉ đã lưu</h3> */}
-                                        {addressSaved.map((address, index) => (
-                                            <Row className={`pb-4`}>
-                                                <Col
-                                                    span={20}
-                                                    closeIcon={<CloseOutlined />} value={address.id}
-                                                    className={`text-[16px] pb-4`}>
-                                                    Địa chỉ {index + 1}: {address.detail_address}, {address.province}, {address.district}, {address.ward}.
-                                                </Col>
-                                                {/* <FontAwesomeIcon icon={faX} className='text-red-500' /> */}
-                                                <Col
-                                                    span={4}
-                                                    className='text-gray-500 hover:text-red-700 my-auto
-                                            hover:cursor-pointer hover:underline text-[16px] text-end'
-                                                    onClick={() => { handleRemoveAddress(address.id) }}>Xóa</Col>
-                                            </Row>
-                                        ))
-                                        }
 
-                                        <div className='bg-[#f8f8f8] p-5 border-[1px] 
-                                border-[#d4d4d4]'>
-                                            <Input
-                                                className='text-[15px]'
-                                                value={addNewDetailAddress}
-                                                onChange={(e) => {
-                                                    setAddNewDetailAddress(e.target.value)
-                                                }}
-                                                placeholder='Chi tiết tên đường, số nhà'></Input>
-                                            <div className={`items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''} `}>
-                                                <Select
-                                                    className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
-                                                    showSearch
-                                                    value={addNewProvinceSelected || "Chọn Tỉnh/Thành phố"}
-                                                    options={optionsSelectProvince}
-                                                    onChange={(e) => handleChangeAddNewProvince(e)}
-                                                    filterOption={(input, option) =>
-                                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                    }>
-
-                                                </Select>
-                                                <Select
-                                                    className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
-                                                    showSearch
-                                                    value={addNewDistrictSelected || "Chọn Quận/Huyện"}
-                                                    options={optionsSelectDistricts}
-                                                    filterOption={(input, option) =>
-                                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                    }
-                                                    onChange={(e) => handleChangeAddNewDistrict(e)}>
-
-                                                </Select>
-                                                <Select
-                                                    className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
-                                                    showSearch
-                                                    value={addNewWardSelected || "Chọn Phường/Xã"}
-                                                    options={optionsSelectWards}
-                                                    filterOption={(input, option) =>
-                                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                    }
-                                                    onChange={(e) => handleChangeAddNewWard(e)}>
-
-                                                </Select>
-                                            </div>
-                                            {
-                                                (addNewDetailAddress && addNewProvinceSelected && addNewDistrictSelected && addNewWardSelected) ?
-                                                    <Button className='mt-2' onClick={() => {
-                                                        handleAddNewAddress()
-                                                    }}>
-                                                        <FontAwesomeIcon icon={faPlus} />
-                                                        <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
-                                                    </Button >
-                                                    :
-                                                    <Button disabled className='btn-antd-disabled mt-2'>
-                                                        <FontAwesomeIcon icon={faPlus} />
-                                                        <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
-                                                    </Button >
-                                            }
-                                        </div>
-                                    </div>
-                                    : <p>Chưa có địa chỉ nào được lưu</p>
-                                }
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
@@ -451,6 +369,23 @@ const ProfileManager = () => {
                         onCancel={handleCancelEdit}
                         onSave={handleSaveUserInfo}
                         userData={userData}
+                        addressSaved={addressSaved}
+                        optionsSelectProvince={optionsSelectProvince}
+                        optionsSelectWards={optionsSelectWards}
+                        optionsSelectDistricts={optionsSelectDistricts}
+                        setDetailAddress={setDetailAddress}
+                        setProvinceSelected={setProvinceSelected}
+                        setDistrictSelected={setDistrictSelected}
+                        setWardSelected={setWardSelected}
+                        setOptionsSelectDistricts={setOptionsSelectDistricts}
+                        setOptionsSelectWards={setOptionsSelectWards}
+                        isAddressDeliveryChange={isAddressDeliveryChange}
+                        setIsAddressDeliveryChange={setIsAddressDeliveryChange}
+                        getDeliveryAddress={getDeliveryAddress}
+                        setRadioAddressSelected={setRadioAddressSelected}
+                        radioAddressSelected={radioAddressSelected}
+
+
                     /> : null
             }
 
