@@ -115,7 +115,6 @@ function Cart() {
             key: 'price',
             dataIndex: 'price',
             sortDirections: ["descend", "ascend"],
-
             render: (_, record) => (
                 <span>{record.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
             )

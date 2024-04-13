@@ -179,21 +179,27 @@ function Home() {
       </div>
       <div className="pb-[30px] home-wrap-content m-auto">
         <div
-          className={` ${
-            !isHiddenAutoCpl && !isScreenSmaller430 ? "mx-6" : ""
-          } ${isScreenSmaller430 ? "mx-0" : "mx-[30px]"}`}
+          className={` ${!isHiddenAutoCpl && !isScreenSmaller430 ? "mx-6" : ""
+            } ${isScreenSmaller430 ? "mx-0" : "mx-[30px]"}`}
         >
+          <div className="mt-[30px] relative">
+            <img
+              src="http://localhost:8000/upload/sub-banner2.png"
+              className=" inset-0 w-full h-full "
+              alt=''
+            />
+          </div>
+
           <div
             className="flex justify-between items-center
                     border-b-[2px] border-[#c8191f]  pt-[30px]"
           >
             <h2
               className={` bg-[#c8191f] text-white
-                    inline-block font-bold  rounded-t-[10px] ${
-                      !isHiddenAutoCpl
-                        ? "text-[16px] px-[8px] py-[8px]"
-                        : "text-[20px] px-[10px] py-[10px]"
-                    }`}
+                    inline-block font-bold  rounded-t-[10px] ${!isHiddenAutoCpl
+                  ? "text-[16px] px-[8px] py-[8px]"
+                  : "text-[20px] px-[10px] py-[10px]"
+                }`}
             >
               {!isHiddenAutoCpl
                 ? "KHUYẾN MÃI HOT NHẤT"
@@ -210,8 +216,8 @@ function Home() {
             {!isHiddenAutoCpl
               ? hotSaleProducts.slice(0, 2).map(renderListProduct)
               : isScreenSmaller1280
-              ? hotSaleProducts.slice(0, 4).map(renderListProduct)
-              : hotSaleProducts.map(renderListProduct)}
+                ? hotSaleProducts.slice(0, 4).map(renderListProduct)
+                : hotSaleProducts.map(renderListProduct)}
           </Card>
 
           <div
@@ -220,11 +226,10 @@ function Home() {
           >
             <h2
               className={` bg-[#c8191f] text-white
-                    inline-block font-bold  rounded-t-[10px] ${
-                      !isHiddenAutoCpl
-                        ? "text-[16px] px-[8px] py-[8px]"
-                        : "text-[20px] px-[10px] py-[10px]"
-                    }`}
+                    inline-block font-bold  rounded-t-[10px] ${!isHiddenAutoCpl
+                  ? "text-[16px] px-[8px] py-[8px]"
+                  : "text-[20px] px-[10px] py-[10px]"
+                }`}
             >
               Laptop Gaming
             </h2>
@@ -239,8 +244,8 @@ function Home() {
             {!isHiddenAutoCpl
               ? laptopGaming.slice(0, 2).map(renderListProduct)
               : isScreenSmaller1280
-              ? laptopGaming.slice(0, 4).map(renderListProduct)
-              : laptopGaming.slice(0, 5).map(renderListProduct)}
+                ? laptopGaming.slice(0, 4).map(renderListProduct)
+                : laptopGaming.slice(0, 5).map(renderListProduct)}
           </Card>
 
           <div
@@ -249,11 +254,10 @@ function Home() {
           >
             <h2
               className={` bg-[#c8191f] text-white
-                    inline-block font-bold  rounded-t-[10px] ${
-                      !isHiddenAutoCpl
-                        ? "text-[16px] px-[8px] py-[8px]"
-                        : "text-[20px] px-[10px] py-[10px]"
-                    }`}
+                    inline-block font-bold  rounded-t-[10px] ${!isHiddenAutoCpl
+                  ? "text-[16px] px-[8px] py-[8px]"
+                  : "text-[20px] px-[10px] py-[10px]"
+                }`}
             >
               Laptop Văn Phòng
             </h2>
@@ -268,8 +272,8 @@ function Home() {
             {!isHiddenAutoCpl
               ? laptopOffice.slice(0, 2).map(renderListProduct)
               : isScreenSmaller1280
-              ? laptopOffice.slice(0, 4).map(renderListProduct)
-              : laptopOffice.slice(0, 5).map(renderListProduct)}
+                ? laptopOffice.slice(0, 4).map(renderListProduct)
+                : laptopOffice.slice(0, 5).map(renderListProduct)}
           </Card>
 
           <div className="mt-[30px]">

@@ -6,120 +6,120 @@ const uuid = uuidv4();
 const jwt = require('jsonwebtoken')
 
 function categoriesList(req, res) {
-    CATEGORIES.find((err, categories) => {
-        if (!err) {
-            // res.render("management", { data: product })
-            res.json(categories)
-        }
-        else {
-            console.log(err)
+  CATEGORIES.find((err, categories) => {
+    if (!err) {
+      // res.render("management", { data: product })
+      res.json(categories)
+    }
+    else {
+      console.log(err)
 
-        }
-    });
-    // res.render("categoriesList")
+    }
+  });
+  // res.render("categoriesList")
 }
 
 function categoriesAddNew(req, res) {
-    // USERS.findById
-    // console.log(req.body)
-    CATEGORIES.find((err, categories) => {
-        if (err) {
-            res.json({ "kq": 0, "errMsg": err });
-        }
-        else {
-            // console.log(categories[0].id)
-            // res.render("editcategories", { data: categories[0] })
-            // res.json({data:categories.length})
-            if (categories.length == 0) {
-                // let category_id = 1;
-                const category = new CATEGORIES({
-                    category_id: 1,
-                    name: req.body.name,
-                    description: req.body.description
-                });
+  // USERS.findById
+  // console.log(req.body)
+  CATEGORIES.find((err, categories) => {
+    if (err) {
+      res.json({ "kq": 0, "errMsg": err });
+    }
+    else {
+      // console.log(categories[0].id)
+      // res.render("editcategories", { data: categories[0] })
+      // res.json({data:categories.length})
+      if (categories.length == 0) {
+        // let category_id = 1;
+        const category = new CATEGORIES({
+          category_id: 1,
+          name: req.body.name,
+          description: req.body.description
+        });
 
 
-                // console.log(order)
-                CATEGORIES.create(category, (err, category) => {
+        // console.log(order)
+        CATEGORIES.create(category, (err, category) => {
 
-                    if (!err) {
+          if (!err) {
 
-                        res.json({ success: true, redirectUrl: '../categories-management' });
+            res.json({ success: true, redirectUrl: '../categories-management' });
 
-                    }
+          }
 
-                })
-            }
-        }
-    })
+        })
+      }
+    }
+  })
 
 
 }
 
 function brandsList(req, res) {
-    BRANDS.find((err, brands) => {
-        if (!err) {
-            // res.render("management", { data: product })
-            res.json(brands)
-        }
-        else {
-            console.log(err)
+  BRANDS.find((err, brands) => {
+    if (!err) {
+      // res.render("management", { data: product })
+      res.json(brands)
+    }
+    else {
+      console.log(err)
 
-        }
-    });
-    // res.render("categoriesList")
+    }
+  });
+  // res.render("categoriesList")
 }
 
 function brandAddNew(req, res) {
-    const newBrand = new BRANDS({
-        name: req.body.name,
-        description: req.body.description,
-        slug: req.body.slug,
-        image: 'http://localhost:8000/upload/' + req.files.avatar[0].filename,
-    });
+  const newBrand = new BRANDS({
+    name: req.body.name,
+    description: req.body.description,
+    slug: req.body.slug,
+    image: 'http://localhost:8000/upload/brands/' + req.files.avatar[0].filename,
+  });
 
-    BRANDS.addNewBrand(newBrand, (err, data) => {
-        if (err) {
-            res.json({ success: false, message: err });
-        }
-        else {
-            res.json({ success: true, message: 'Thêm thương hiệu thành công.' });
-        }
-    })
+  BRANDS.addNewBrand(newBrand, (err, data) => {
+    if (err) {
+      res.json({ success: false, message: err });
+    }
+    else {
+      res.json({ success: true, message: 'Thêm thương hiệu thành công.' });
+    }
+  })
 }
 
 function brandEdit(req, res) {
-    console.log(req.body);
-    let file = ''
-    console.log(req.files);
-    if (req.files != null && req.files.avatar != null && req.files.avatar.length > 0) {
-        file = 'http://localhost:8000/upload/' + req.files.avatar[0].filename
-    } else {
-        file = req.body.avatar
+  console.log(req.body);
+  let file = ''
+  console.log(req.files);
+  if (req.files != null && req.files.avatar != null && req.files.avatar.length > 0) {
+    file = 'http://localhost:8000/upload/brands/' + req.files.avatar[0].filename
+  } else {
+    file = req.body.avatar
+  }
+  BRANDS.editBrandById(req.body, file, (err, brands) => {
+    if (err) {
+      res.json({ success: false, message: err });
     }
-    BRANDS.editBrandById(req.body, file, (err, brands) => {
-        if (err) {
-            res.json({ success: false, message: err });
-        }
-        else {
-            res.json({ success: true, message: 'Chỉnh sửa thương hiệu thành công.' });
-        }
-    })
+    else {
+      res.json({ success: true, message: 'Chỉnh sửa thương hiệu thành công.' });
+    }
+  })
 
 }
 
 function brandDelete(req, res) {
-    BRANDS.deleteById(req.body.brand_id, (err, brands) => {
-        if (err) {
-            res.json({ success: false, message: err });
-        }
-        else {
-            res.json({ success: true, message: 'Xóa thương hiệu thành công.' });
-        }
-    })
+  BRANDS.deleteById(req.body.brand_id, (err, brands) => {
+    if (err) {
+      res.json({ success: false, message: err });
+    }
+    else {
+      res.json({ success: true, message: 'Xóa thương hiệu thành công.' });
+    }
+  })
 }
 
 module.exports = {
-    categoriesList, categoriesAddNew,
-    brandAddNew, brandsList, brandEdit, brandDelete
+  categoriesList, categoriesAddNew,
+  brandAddNew, brandsList, brandEdit, brandDelete
 }

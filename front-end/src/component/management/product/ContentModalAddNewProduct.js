@@ -65,6 +65,33 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
 
+    const calculateDiscountPercentage = (price, cost) => {
+        // console.log("Price:", price);
+        // console.log("Cost:", cost);
+        const priceFloat = parseFloat(price);
+        const costFloat = parseFloat(cost);
+        if (priceFloat && costFloat && priceFloat < costFloat) {
+            const discountPercentage = ((costFloat - priceFloat) / costFloat) * 100;
+            // console.log("Discount Percentage:", discountPercentage);
+            setProductPercent(discountPercentage.toFixed(0) + '');
+        } else {
+            // console.log("Invalid input");
+            setProductPercent('');
+        }
+    };
+
+
+    // Gọi hàm tính phần trăm giảm giá khi có sự thay đổi trong giá bán hoặc giá chính hãng
+    const handlePriceChange = (e) => {
+        setPrice(e.target.value);
+        calculateDiscountPercentage(e.target.value, cost);
+    };
+
+    const handleCostChange = (e) => {
+        setCost(e.target.value);
+        calculateDiscountPercentage(price, e.target.value);
+    };
+
     const uploadButton = (
         <div>
             <PlusOutlined />
@@ -90,8 +117,9 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
     const handleChange = ({ fileList: newFileList }, fileListPost) => {
         // console.log(newFileList)
         // console.log("flp", fileListPost)
-        // console.log({ fileList: newFileList })
-        setFileList(newFileList)
+        console.log({ fileList: newFileList })
+        const limitedFileList = newFileList.slice(-6);
+        setFileList(limitedFileList)
     };
 
     const onFinish = (values) => {
@@ -277,7 +305,8 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                                 setCPUCoreNumber(cpuValues[5]);
                                                 setCPUThreadNumber(cpuValues[6]);
                                                 setCPUCache(cpuValues[7]);
-                                            }}></Input>
+                                            }}
+                                        ></Input>
                                     </div>
                                 </li>
                                 <li className='pl-6'>
@@ -352,24 +381,24 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newCPUSpeed = e.target.value;
                                                 setCPUSpeed(newCPUSpeed);
-                                                const cpuValues = [
-                                                    cpuBrand,
-                                                    cpuTech,
-                                                    cpuType,
-                                                    newCPUSpeed,
-                                                    cpuMaxSpeed,
-                                                    cpuCoreNumber,
-                                                    cpuThreadNumber,
-                                                    cpuCache
-                                                ];
-                                                setCPU(cpuValues.join(','));
-                                                setCPUBrand(cpuValues[0]);
-                                                setCPUTech(cpuValues[1]);
-                                                setCPUType(cpuValues[2]);
-                                                setCPUMaxSpeed(cpuValues[4]);
-                                                setCPUCoreNumber(cpuValues[5]);
-                                                setCPUThreadNumber(cpuValues[6]);
-                                                setCPUCache(cpuValues[7]);
+                                                // const cpuValues = [
+                                                //     cpuBrand,
+                                                //     cpuTech,
+                                                //     cpuType,
+                                                //     newCPUSpeed,
+                                                //     cpuMaxSpeed,
+                                                //     cpuCoreNumber,
+                                                //     cpuThreadNumber,
+                                                //     cpuCache
+                                                // ];
+                                                // setCPU(cpuValues.join(','));
+                                                // setCPUBrand(cpuValues[0]);
+                                                // setCPUTech(cpuValues[1]);
+                                                // setCPUType(cpuValues[2]);
+                                                // setCPUMaxSpeed(cpuValues[4]);
+                                                // setCPUCoreNumber(cpuValues[5]);
+                                                // setCPUThreadNumber(cpuValues[6]);
+                                                // setCPUCache(cpuValues[7]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -382,25 +411,25 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             value={cpuMaxSpeed}
                                             onChange={(e) => {
                                                 const newCPUMaxSpeed = e.target.value;
-                                                setCPUMaxSpeed(newCPUMaxSpeed);
-                                                const cpuValues = [
-                                                    cpuBrand,
-                                                    cpuTech,
-                                                    cpuType,
-                                                    cpuSpeed,
-                                                    newCPUMaxSpeed,
-                                                    cpuCoreNumber,
-                                                    cpuThreadNumber,
-                                                    cpuCache
-                                                ];
-                                                setCPU(cpuValues.join(','));
-                                                setCPUBrand(cpuValues[0]);
-                                                setCPUTech(cpuValues[1]);
-                                                setCPUType(cpuValues[2]);
-                                                setCPUSpeed(cpuValues[3]);
-                                                setCPUCoreNumber(cpuValues[5]);
-                                                setCPUThreadNumber(cpuValues[6]);
-                                                setCPUCache(cpuValues[7]);
+                                                // setCPUMaxSpeed(newCPUMaxSpeed);
+                                                // const cpuValues = [
+                                                //     cpuBrand,
+                                                //     cpuTech,
+                                                //     cpuType,
+                                                //     cpuSpeed,
+                                                //     newCPUMaxSpeed,
+                                                //     cpuCoreNumber,
+                                                //     cpuThreadNumber,
+                                                //     cpuCache
+                                                // ];
+                                                // setCPU(cpuValues.join(','));
+                                                // setCPUBrand(cpuValues[0]);
+                                                // setCPUTech(cpuValues[1]);
+                                                // setCPUType(cpuValues[2]);
+                                                // setCPUSpeed(cpuValues[3]);
+                                                // setCPUCoreNumber(cpuValues[5]);
+                                                // setCPUThreadNumber(cpuValues[6]);
+                                                // setCPUCache(cpuValues[7]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -414,24 +443,24 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newCPUCoreNumber = e.target.value;
                                                 setCPUCoreNumber(newCPUCoreNumber);
-                                                const cpuValues = [
-                                                    cpuBrand,
-                                                    cpuTech,
-                                                    cpuType,
-                                                    cpuSpeed,
-                                                    cpuMaxSpeed,
-                                                    newCPUCoreNumber,
-                                                    cpuThreadNumber,
-                                                    cpuCache
-                                                ];
-                                                setCPU(cpuValues.join(','));
-                                                setCPUBrand(cpuValues[0]);
-                                                setCPUTech(cpuValues[1]);
-                                                setCPUType(cpuValues[2]);
-                                                setCPUSpeed(cpuValues[3]);
-                                                setCPUMaxSpeed(cpuValues[4]);
-                                                setCPUThreadNumber(cpuValues[6]);
-                                                setCPUCache(cpuValues[7]);
+                                                // const cpuValues = [
+                                                //     cpuBrand,
+                                                //     cpuTech,
+                                                //     cpuType,
+                                                //     cpuSpeed,
+                                                //     cpuMaxSpeed,
+                                                //     newCPUCoreNumber,
+                                                //     cpuThreadNumber,
+                                                //     cpuCache
+                                                // ];
+                                                // setCPU(cpuValues.join(','));
+                                                // setCPUBrand(cpuValues[0]);
+                                                // setCPUTech(cpuValues[1]);
+                                                // setCPUType(cpuValues[2]);
+                                                // setCPUSpeed(cpuValues[3]);
+                                                // setCPUMaxSpeed(cpuValues[4]);
+                                                // setCPUThreadNumber(cpuValues[6]);
+                                                // setCPUCache(cpuValues[7]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -445,24 +474,24 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newCPUThreadNumber = e.target.value;
                                                 setCPUThreadNumber(newCPUThreadNumber);
-                                                const cpuValues = [
-                                                    cpuBrand,
-                                                    cpuTech,
-                                                    cpuType,
-                                                    cpuSpeed,
-                                                    cpuMaxSpeed,
-                                                    cpuCoreNumber,
-                                                    newCPUThreadNumber,
-                                                    cpuCache
-                                                ];
-                                                setCPU(cpuValues.join(','));
-                                                setCPUBrand(cpuValues[0]);
-                                                setCPUTech(cpuValues[1]);
-                                                setCPUType(cpuValues[2]);
-                                                setCPUSpeed(cpuValues[3]);
-                                                setCPUMaxSpeed(cpuValues[4]);
-                                                setCPUCoreNumber(cpuValues[5]);
-                                                setCPUCache(cpuValues[7]);
+                                                // const cpuValues = [
+                                                //     cpuBrand,
+                                                //     cpuTech,
+                                                //     cpuType,
+                                                //     cpuSpeed,
+                                                //     cpuMaxSpeed,
+                                                //     cpuCoreNumber,
+                                                //     newCPUThreadNumber,
+                                                //     cpuCache
+                                                // ];
+                                                // setCPU(cpuValues.join(','));
+                                                // setCPUBrand(cpuValues[0]);
+                                                // setCPUTech(cpuValues[1]);
+                                                // setCPUType(cpuValues[2]);
+                                                // setCPUSpeed(cpuValues[3]);
+                                                // setCPUMaxSpeed(cpuValues[4]);
+                                                // setCPUCoreNumber(cpuValues[5]);
+                                                // setCPUCache(cpuValues[7]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -476,24 +505,24 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newCPUCache = e.target.value;
                                                 setCPUCache(newCPUCache);
-                                                const cpuValues = [
-                                                    cpuBrand,
-                                                    cpuTech,
-                                                    cpuType,
-                                                    cpuSpeed,
-                                                    cpuMaxSpeed,
-                                                    cpuCoreNumber,
-                                                    cpuThreadNumber,
-                                                    newCPUCache
-                                                ];
-                                                setCPU(cpuValues.join(','));
-                                                setCPUBrand(cpuValues[0]);
-                                                setCPUTech(cpuValues[1]);
-                                                setCPUType(cpuValues[2]);
-                                                setCPUSpeed(cpuValues[3]);
-                                                setCPUMaxSpeed(cpuValues[4]);
-                                                setCPUCoreNumber(cpuValues[5]);
-                                                setCPUThreadNumber(cpuValues[6]);
+                                                // const cpuValues = [
+                                                //     cpuBrand,
+                                                //     cpuTech,
+                                                //     cpuType,
+                                                //     cpuSpeed,
+                                                //     cpuMaxSpeed,
+                                                //     cpuCoreNumber,
+                                                //     cpuThreadNumber,
+                                                //     newCPUCache
+                                                // ];
+                                                // setCPU(cpuValues.join(','));
+                                                // setCPUBrand(cpuValues[0]);
+                                                // setCPUTech(cpuValues[1]);
+                                                // setCPUType(cpuValues[2]);
+                                                // setCPUSpeed(cpuValues[3]);
+                                                // setCPUMaxSpeed(cpuValues[4]);
+                                                // setCPUCoreNumber(cpuValues[5]);
+                                                // setCPUThreadNumber(cpuValues[6]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -595,22 +624,22 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newRamSpeed = e.target.value;
                                                 setRamSpeed(newRamSpeed);
-                                                const ramValues = [
-                                                    ramCapacity,
-                                                    ramType,
-                                                    newRamSpeed,
-                                                    numRamRemovableSlots,
-                                                    numRamRemainingSlots,
-                                                    numRamOnBoard,
-                                                    maximumRAMSupport
-                                                ];
-                                                setRam(ramValues.join(','));
-                                                setRamCapacity(ramValues[0]);
-                                                setRamType(ramValues[1]);
-                                                setNumRamRemovableSlots(ramValues[3]);
-                                                setNumRamRemainingSlots(ramValues[4]);
-                                                setNumRamOnBoard(ramValues[5]);
-                                                setMaximumRAMSupport(ramValues[6]);
+                                                // const ramValues = [
+                                                //     ramCapacity,
+                                                //     ramType,
+                                                //     newRamSpeed,
+                                                //     numRamRemovableSlots,
+                                                //     numRamRemainingSlots,
+                                                //     numRamOnBoard,
+                                                //     maximumRAMSupport
+                                                // ];
+                                                // setRam(ramValues.join(','));
+                                                // setRamCapacity(ramValues[0]);
+                                                // setRamType(ramValues[1]);
+                                                // setNumRamRemovableSlots(ramValues[3]);
+                                                // setNumRamRemainingSlots(ramValues[4]);
+                                                // setNumRamOnBoard(ramValues[5]);
+                                                // setMaximumRAMSupport(ramValues[6]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -624,22 +653,22 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newNumRamRemovableSlots = e.target.value;
                                                 setNumRamRemovableSlots(newNumRamRemovableSlots);
-                                                const ramValues = [
-                                                    ramCapacity,
-                                                    ramType,
-                                                    ramSpeed,
-                                                    newNumRamRemovableSlots,
-                                                    numRamRemainingSlots,
-                                                    numRamOnBoard,
-                                                    maximumRAMSupport
-                                                ];
-                                                setRam(ramValues.join(','));
-                                                setRamCapacity(ramValues[0]);
-                                                setRamType(ramValues[1]);
-                                                setRamSpeed(ramValues[2]);
-                                                setNumRamRemainingSlots(ramValues[4]);
-                                                setNumRamOnBoard(ramValues[5]);
-                                                setMaximumRAMSupport(ramValues[6]);
+                                                // const ramValues = [
+                                                //     ramCapacity,
+                                                //     ramType,
+                                                //     ramSpeed,
+                                                //     newNumRamRemovableSlots,
+                                                //     numRamRemainingSlots,
+                                                //     numRamOnBoard,
+                                                //     maximumRAMSupport
+                                                // ];
+                                                // setRam(ramValues.join(','));
+                                                // setRamCapacity(ramValues[0]);
+                                                // setRamType(ramValues[1]);
+                                                // setRamSpeed(ramValues[2]);
+                                                // setNumRamRemainingSlots(ramValues[4]);
+                                                // setNumRamOnBoard(ramValues[5]);
+                                                // setMaximumRAMSupport(ramValues[6]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -653,22 +682,22 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newNumRamRemainingSlots = e.target.value;
                                                 setNumRamRemainingSlots(newNumRamRemainingSlots);
-                                                const ramValues = [
-                                                    ramCapacity,
-                                                    ramType,
-                                                    ramSpeed,
-                                                    numRamRemovableSlots,
-                                                    newNumRamRemainingSlots,
-                                                    numRamOnBoard,
-                                                    maximumRAMSupport
-                                                ];
-                                                setRam(ramValues.join(','));
-                                                setRamCapacity(ramValues[0]);
-                                                setRamType(ramValues[1]);
-                                                setRamSpeed(ramValues[2]);
-                                                setNumRamRemovableSlots(ramValues[3]);
-                                                setNumRamOnBoard(ramValues[5]);
-                                                setMaximumRAMSupport(ramValues[6]);
+                                                // const ramValues = [
+                                                //     ramCapacity,
+                                                //     ramType,
+                                                //     ramSpeed,
+                                                //     numRamRemovableSlots,
+                                                //     newNumRamRemainingSlots,
+                                                //     numRamOnBoard,
+                                                //     maximumRAMSupport
+                                                // ];
+                                                // setRam(ramValues.join(','));
+                                                // setRamCapacity(ramValues[0]);
+                                                // setRamType(ramValues[1]);
+                                                // setRamSpeed(ramValues[2]);
+                                                // setNumRamRemovableSlots(ramValues[3]);
+                                                // setNumRamOnBoard(ramValues[5]);
+                                                // setMaximumRAMSupport(ramValues[6]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -682,22 +711,22 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newNumRamOnBoard = e.target.value;
                                                 setNumRamOnBoard(newNumRamOnBoard);
-                                                const ramValues = [
-                                                    ramCapacity,
-                                                    ramType,
-                                                    ramSpeed,
-                                                    numRamRemovableSlots,
-                                                    numRamRemainingSlots,
-                                                    newNumRamOnBoard,
-                                                    maximumRAMSupport
-                                                ];
-                                                setRam(ramValues.join(','));
-                                                setRamCapacity(ramValues[0]);
-                                                setRamType(ramValues[1]);
-                                                setRamSpeed(ramValues[2]);
-                                                setNumRamRemovableSlots(ramValues[3]);
-                                                setNumRamRemainingSlots(ramValues[4]);
-                                                setMaximumRAMSupport(ramValues[6]);
+                                                // const ramValues = [
+                                                //     ramCapacity,
+                                                //     ramType,
+                                                //     ramSpeed,
+                                                //     numRamRemovableSlots,
+                                                //     numRamRemainingSlots,
+                                                //     newNumRamOnBoard,
+                                                //     maximumRAMSupport
+                                                // ];
+                                                // setRam(ramValues.join(','));
+                                                // setRamCapacity(ramValues[0]);
+                                                // setRamType(ramValues[1]);
+                                                // setRamSpeed(ramValues[2]);
+                                                // setNumRamRemovableSlots(ramValues[3]);
+                                                // setNumRamRemainingSlots(ramValues[4]);
+                                                // setMaximumRAMSupport(ramValues[6]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -711,22 +740,22 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                             onChange={(e) => {
                                                 const newMaximumRAMSupport = e.target.value;
                                                 setMaximumRAMSupport(newMaximumRAMSupport);
-                                                const ramValues = [
-                                                    ramCapacity,
-                                                    ramType,
-                                                    ramSpeed,
-                                                    numRamRemovableSlots,
-                                                    numRamRemainingSlots,
-                                                    numRamOnBoard,
-                                                    newMaximumRAMSupport
-                                                ];
-                                                setRam(ramValues.join(','));
-                                                setRamCapacity(ramValues[0]);
-                                                setRamType(ramValues[1]);
-                                                setRamSpeed(ramValues[2]);
-                                                setNumRamRemovableSlots(ramValues[3]);
-                                                setNumRamRemainingSlots(ramValues[4]);
-                                                setNumRamOnBoard(ramValues[5]);
+                                                // const ramValues = [
+                                                //     ramCapacity,
+                                                //     ramType,
+                                                //     ramSpeed,
+                                                //     numRamRemovableSlots,
+                                                //     numRamRemainingSlots,
+                                                //     numRamOnBoard,
+                                                //     newMaximumRAMSupport
+                                                // ];
+                                                // setRam(ramValues.join(','));
+                                                // setRamCapacity(ramValues[0]);
+                                                // setRamType(ramValues[1]);
+                                                // setRamSpeed(ramValues[2]);
+                                                // setNumRamRemovableSlots(ramValues[3]);
+                                                // setNumRamRemainingSlots(ramValues[4]);
+                                                // setNumRamOnBoard(ramValues[5]);
                                             }}></Input>
                                     </div>
                                 </li>
@@ -803,9 +832,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     className='mb-2 mt-0'
                                     name='price'
                                     value={price}
-                                    onChange={(e) => {
-                                        setPrice(e.target.value)
-                                    }}></Input>
+                                    onChange={handlePriceChange}></Input>
                             </div>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Giá chính hãng:</h3>
@@ -813,9 +840,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     className='mb-2 mt-0'
                                     name='cost'
                                     value={cost}
-                                    onChange={(e) => {
-                                        setCost(e.target.value)
-                                    }}></Input>
+                                    onChange={handleCostChange}></Input>
                             </div>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Số lượng còn lại:</h3>
@@ -832,10 +857,9 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 <Input
                                     className='mb-2 mt-0'
                                     name='prod_percent'
-                                    value={productPercent}
-                                    onChange={(e) => {
-                                        setProductPercent(e.target.value)
-                                    }}></Input>
+                                    value={(productPercent + " %") || ''}
+                                    readOnly
+                                ></Input>
                             </div>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Màn hình:</h3>
@@ -1101,6 +1125,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 onPreview={handlePreview}
                                 onChange={handleChange}
                                 beforeUpload={() => false}
+                                multiple={true}
                             >
                                 {fileList.length >= 8 ? null : uploadButton}
                             </Upload>
