@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../../store/Context';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
-import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col, Checkbox } from 'antd';
+import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col, Checkbox, Tag } from 'antd';
 import './cart.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faAngleLeft, faAngleRight, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -11,8 +11,9 @@ import { faCircleCheck, faCircleXmark } from '@fortawesome/free-regular-svg-icon
 import Instance from '../../../axiosInstance';
 import CryptoJS from 'crypto-js';
 import qs from 'qs';
-import { AddNewDeliveryAddress, GetDeliveryAddress } from '../../../callAPI/api';
-import ModalSelectAddress from '../../../component/ModalSelectAddress';
+import { AddNewDeliveryAddress, DeleteDeliveryAdress, GetDeliveryAddress, GetUsersById } from '../../../callAPI/api';
+import jwtDecode from 'jwt-decode';
+const { Option } = Select;
 
 function sortObject(obj) {
     let sorted = {};
@@ -69,6 +70,12 @@ function Cart() {
     const [idNavigateOrderDetail, setIdNavigateOrderDetail] = useState('')
     const [checked, setChecked] = useState(false);
     const [radioAddressSelected, setRadioAddressSelected] = useState(null)
+    const [userId, setUserId] = useState('');
+
+    const [addNewDetailAddress, setAddNewDetailAddress] = useState("");
+    const [addNewProvinceSelected, setAddNewProvinceSelected] = useState(null)
+    const [addNewDistrictSelected, setAddNewDistrictSelected] = useState(null)
+    const [addNewWardSelected, setAddNewWardSelected] = useState(null)
 
     //Xử lý VNPAY
     const location = useLocation();
@@ -93,14 +100,14 @@ function Cart() {
             sortDirections: ["descend", "ascend"],
 
             render: (_, record) => (
-                // console.log("record", record)
                 <div
                     className='w-[108px]'
                 >
-                    < img
+                    <img
                         src={record.avatar}
                         className='w-full h-auto border-[1px] border-[#e1dada]'
-                    ></img >
+                        alt=''
+                    ></img>
 
                 </div>
             )
@@ -112,7 +119,6 @@ function Cart() {
             sortDirections: ["descend", "ascend"],
 
             render: (_, record) => (
-                // console.log("record", record)
                 <p className='font-bold text-[17px] text-[#333]'>{record.description}</p>
             )
         },
@@ -175,10 +181,11 @@ function Cart() {
                                 <div
                                     className='w-[108px]'
                                 >
-                                    < img
+                                    <img
                                         src={record.avatar}
                                         className='w-full h-auto border-[1px] border-[#e1dada]'
-                                    ></img >
+                                        alt=''
+                                    ></img>
 
                                 </div>
                             </Col>
@@ -241,25 +248,36 @@ function Cart() {
         setCart(updatedCart);
         console.log(cart)
     };
+
     const getDeliveryAddress = () => {
         if (token) {
-            console.log('hi');
-            console.log(token);
             let requestData = {
                 token: token
-            }
+            };
+
             GetDeliveryAddress(requestData).then((data) => {
-                console.log(data.delivery_address);
-                setAddressSaved(data.delivery_address)
-            })
+                setAddressSaved(data.delivery_address);
+            });
+        }
+    };
+
+    const getUserDefaultAddress = () => {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken && decodedToken.id) {
+            setUserId(decodedToken.id);
         }
 
-    }
+        GetUsersById(decodedToken.id).then((data) => {
+            let selectedAddressId;
+            if (isAddressDeliveryChange && addressSaved.length > 0) {
+                selectedAddressId = addressSaved[addressSaved.length - 1].id;
+            } else {
+                selectedAddressId = parseInt(data.default_address_id) || null;
+            }
+            setRadioAddressSelected(selectedAddressId);
+        });
 
-    const handleSelectingDeliveryAddress = () => {
-        getDeliveryAddress()
-        setIsSelectingDeliveryAddress(true)
-    }
+    };
 
     const handleDeleteCart = (productId) => {
         // Xác định giá trị token hoặc tokenGID để sử dụng
@@ -314,7 +332,6 @@ function Cart() {
 
 
     const postToCreateNewOrder = () => {
-        console.log(isFinishAddNewOrderVNPAY);
         if (queryParams.has('vnp_ResponseCode') && !isFinishAddNewOrderVNPAY) {
             setIsFinishAddNewOrderVNPAY(true)
             console.log(isFinishAddNewOrderVNPAY);
@@ -416,7 +433,6 @@ function Cart() {
             });
 
             setOptionsSelectProvince(transformedData)
-            console.log(transformedData)
         });
     }
 
@@ -428,7 +444,6 @@ function Cart() {
                 }
             })
                 .then(response => {
-                    console.log(response.data);
                     setCart(response.data)
                     setDetailAddress(response.data[0].default_address.split(',')[0])
                     setProvinceSelected(response.data[0].default_address.split(',')[1])
@@ -456,35 +471,6 @@ function Cart() {
                     console.error('Error fetching data:', error);
                 });
         }
-    }
-
-    const handleChangeProvince = (e) => {
-        let findProvince = optionsSelectProvince.find((province) => {
-            return province.Name === e
-        })
-        console.log(findProvince)
-        setProvinceSelected(findProvince.Name)
-        setDistrictSelected(null)
-        setWardSelected(null)
-        setOptionsSelectDistricts(findProvince.Districts)
-    }
-
-    const handleChangeDistrict = (e) => {
-        let findDistrict = optionsSelectDistricts.find((district) => {
-            return district.Name === e
-        })
-        console.log(findDistrict)
-        setDistrictSelected(findDistrict.Name)
-        setWardSelected(null)
-        setOptionsSelectWards(findDistrict.Wards)
-    }
-
-    const handleChangeWard = (e) => {
-        let findWard = optionsSelectWards.find((ward) => {
-            return ward.Name === e
-        })
-        console.log(findWard)
-        setWardSelected(findWard.Name)
     }
 
     const handleOrder = () => {
@@ -517,6 +503,16 @@ function Cart() {
             });
             setListProduct(newList)
 
+
+            const address = addressSaved.find((address) => {
+                return address.id === radioAddressSelected
+            })
+
+            // setDetailAddress(address.detail_address)
+            // setProvinceSelected(address.province)
+            // setDistrictSelected(address.district)
+            // setWardSelected(address.ward)
+
             // console.log(listProduct)
             const dataOder = {
                 [authKey]: authValue,
@@ -524,7 +520,7 @@ function Cart() {
                 email: customerEmail,
                 phone: customerPhone,
                 name: customerName,
-                userAddress: valueRadioReceive === "Nhận hàng tại cửa hàng" ? "Nhận hàng tại cửa hàng" : `${detailAddress}, ${wardSelected}, ${districtSelected}, ${provinceSelected}`,
+                userAddress: valueRadioReceive === "Nhận hàng tại cửa hàng" ? "Nhận hàng tại cửa hàng" : `${address.detail_address}, ${address.ward}, ${address.district}, ${address.province}`,
                 note: note,
                 paymentMethod: valueRadioPay,
                 listProduct: newList,
@@ -609,6 +605,73 @@ function Cart() {
 
     }
 
+    const handleAddNewAddress = () => {
+        const requestData = {
+            token: token,
+            detail_address: addNewDetailAddress,
+            province: addNewProvinceSelected,
+            district: addNewDistrictSelected,
+            ward: addNewWardSelected
+        };
+
+        AddNewDeliveryAddress(requestData).then(() => {
+            context.Message('success', 'Thêm địa chỉ giao hàng thành công!');
+            setIsAddressDeliveryChange(true);
+
+            getDeliveryAddress()
+            getUserDefaultAddress()
+            setAddNewDetailAddress("");
+            setAddNewProvinceSelected(null);
+            setAddNewDistrictSelected(null);
+            setAddNewWardSelected(null);
+        }).catch((error) => {
+            console.error("Error adding new delivery address:", error);
+        });
+    };
+
+
+    const handleRemoveAddress = (address_id) => {
+        const requestData = {
+            token: token,
+            address_id: address_id
+        };
+        DeleteDeliveryAdress(requestData).then(() => {
+            context.Message('success', 'Xóa địa chỉ giao hàng thành công!');
+            setIsAddressDeliveryChange(true);
+            getUserDefaultAddress();
+            getDeliveryAddress();
+        });
+    };
+
+    const handleChangeAddNewProvince = (e) => {
+        let findProvince = optionsSelectProvince.find((province) => {
+            return province.Name === e
+        })
+        console.log(findProvince)
+        setAddNewProvinceSelected(findProvince.Name)
+        setAddNewDistrictSelected(null)
+        setAddNewWardSelected(null)
+        setOptionsSelectDistricts(findProvince.Districts)
+    }
+
+    const handleChangeAddNewDistrict = (e) => {
+        let findDistrict = optionsSelectDistricts.find((district) => {
+            return district.Name === e
+        })
+        console.log(findDistrict)
+        setAddNewDistrictSelected(findDistrict.Name)
+        setAddNewWardSelected(null)
+        setOptionsSelectWards(findDistrict.Wards)
+    }
+
+    const handleChangeAddNewWard = (e) => {
+        let findWard = optionsSelectWards.find((ward) => {
+            return ward.Name === e
+        })
+        console.log(findWard)
+        setAddNewWardSelected(findWard.Name)
+    }
+
     useEffect(() => {
         getCart();
         addClassCSS();
@@ -625,9 +688,23 @@ function Cart() {
         postToCreateNewOrder()
     }, []);
 
+    useEffect(() => {
+        getUserDefaultAddress();
+    }, [addressSaved]);
+
+    useEffect(() => {
+        if (token) {
+            getDeliveryAddress();
+        }
+    }, [isAddressDeliveryChange, userId]);
+
+    useEffect(() => {
+        setIsAddressDeliveryChange(false);
+    }, []);
+
     return (
 
-        <div className='bg-[#f0f0f0] py-3   mx-[auto] max-w-[805px]'>
+        <div className='bg-[#f0f0f0] py-3 mx-[auto] max-w-[1200px]'>
             <Modal
                 title="Xác nhận xóa sản phẩm"
                 open={showDeleteConfirmation}
@@ -640,26 +717,6 @@ function Cart() {
             >
                 <p>Bạn có chắc chắn muốn xóa sản phẩm khỏi giỏ hàng?</p>
             </Modal>
-            <ModalSelectAddress
-                addressSaved={addressSaved}
-                isSelectingDeliveryAddress={isSelectingDeliveryAddress}
-                setIsSelectingDeliveryAddress={setIsSelectingDeliveryAddress}
-                optionsSelectProvince={optionsSelectProvince}
-                optionsSelectWards={optionsSelectWards}
-                optionsSelectDistricts={optionsSelectDistricts}
-                setDetailAddress={setDetailAddress}
-                setProvinceSelected={setProvinceSelected}
-                setDistrictSelected={setDistrictSelected}
-                setWardSelected={setWardSelected}
-                setOptionsSelectDistricts={setOptionsSelectDistricts}
-                setOptionsSelectWards={setOptionsSelectWards}
-                isAddressDeliveryChange={isAddressDeliveryChange}
-                setIsAddressDeliveryChange={setIsAddressDeliveryChange}
-                getDeliveryAddress={getDeliveryAddress}
-                setRadioAddressSelected={setRadioAddressSelected}
-                radioAddressSelected={radioAddressSelected}
-            />
-
 
             <Modal
                 open={vnpayStatus}
@@ -723,7 +780,7 @@ function Cart() {
                         icon={faAngleLeft}></FontAwesomeIcon>
                     <h5>Quay lại mua thêm sản phẩm khác</h5>
                 </Link>
-                <div className='bg-[#ffffff] inline-block'>
+                <div className='bg-[#ffffff] inline-block w-full'>
                     <Table
                         className=''
                         columns={isHiddenAutoCpl ? columns : deviceColumns}
@@ -792,12 +849,6 @@ function Cart() {
                                                 ? 'rad-after relative' : 'relative'}
                                             value={"Nhận hàng tại cửa hàng"}>Nhận hàng tại cửa hàng</Radio>
                                     </div>
-                                    <div onClick={
-                                        () => handleSelectingDeliveryAddress()
-                                    }>
-                                        <FontAwesomeIcon icon={faPlus} />
-                                        <span className='text-[15px] pl-1 font-bold hover:underline hover:cursor-pointer '>Chọn địa chỉ giao hàng</span>
-                                    </div>
                                 </Row>
                             </Radio.Group>
 
@@ -809,56 +860,107 @@ function Cart() {
                                         <p className='text-[15px]'>Phoenix Technology - 362 Hoàng Diệu, Quận Hải Châu, Tp Đà Nẵng </p>
                                     </div>
                                     :
-                                    <div className='bg-[#f8f8f8] p-5 border-[1px] 
-                            border-[#d4d4d4]'>
-                                        <Input
-                                            className='text-[15px]'
-                                            value={detailAddress}
-                                            onChange={(e) => {
-                                                setDetailAddress(e.target.value)
-                                            }}
-                                            placeholder='Chi tiết tên đường, số nhà'></Input>
-                                        <div className={`${isHiddenAutoCpl ? 'flex' : ''} items-center justify-between `}>
-                                            <Select
-                                                className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
-                                                showSearch
-                                                value={provinceSelected || "Chọn Tỉnh/Thành phố"}
-                                                options={optionsSelectProvince}
-                                                onChange={(e) => handleChangeProvince(e)}
-                                                filterOption={(input, option) =>
-                                                    option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                }>
-
-                                            </Select>
-                                            <Select
-                                                className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
-                                                showSearch
-                                                value={districtSelected || "Chọn Quận/Huyện"}
-                                                options={optionsSelectDistricts}
-                                                filterOption={(input, option) =>
-                                                    option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                }
-                                                onChange={(e) => handleChangeDistrict(e)}>
-
-                                            </Select>
-                                            <Select
-                                                className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
-                                                showSearch
-                                                value={wardSelected || "Chọn Phường/Xã"}
-                                                options={optionsSelectWards}
-                                                filterOption={(input, option) =>
-                                                    option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                }
-                                                onChange={(e) => handleChangeWard(e)}>
-
-                                            </Select>
-                                        </div>
+                                    addressSaved ?
                                         <div>
-                                            <Checkbox checked={checked} onChange={onChange} className='chkbox-cart'>
-                                                Chọn làm địa chỉ giao hàng mặc định
-                                            </Checkbox>
+                                            <div className='w-full mb-5 bg-[#f8f8f8] p-5 border-[1px] border-[#d4d4d4]'>
+                                                <Select
+                                                    value={radioAddressSelected || "Chọn địa chỉ giao hàng"}
+                                                    style={{ width: "100%" }}
+                                                    dropdownRender={menu => (
+                                                        <div>
+                                                            {menu}
+                                                        </div>
+                                                    )}
+                                                    onChange={(value) => {
+                                                        console.log("select value", value);
+                                                        setRadioAddressSelected(value);
+                                                    }}
+                                                >
+                                                    {
+                                                        addressSaved.map((address, index) => (
+                                                            <Option key={address.id} value={address.id}>
+                                                                <Tag
+                                                                    closable
+                                                                    onClose={(e) => {
+                                                                        e.preventDefault();
+                                                                        handleRemoveAddress(address.id);
+                                                                    }}
+                                                                    className='hover:bg-gray-200 px-2 py-1'
+                                                                >
+                                                                    Địa chỉ {index + 1}: {address.detail_address}, {address.province}, {address.district}, {address.ward}.
+                                                                </Tag>
+                                                            </Option>
+                                                        ))
+                                                    }
+                                                </Select>
+
+                                                <Row className='items-center mt-4'>
+                                                    <Checkbox checked={checked} onChange={onChange} className='chkbox-cart mr-2'>
+                                                        Chọn làm địa chỉ giao hàng mặc định
+                                                    </Checkbox>
+                                                </Row>
+                                            </div>
+                                            <div className='bg-[#f8f8f8] p-5 border-[1px] border-[#d4d4d4]'>
+                                                <Input
+                                                    className='text-[15px]'
+                                                    value={addNewDetailAddress}
+                                                    onChange={(e) => {
+                                                        setAddNewDetailAddress(e.target.value)
+                                                    }}
+                                                    placeholder='Chi tiết tên đường, số nhà'></Input>
+                                                <div className={`items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''} `}>
+                                                    <Select
+                                                        className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
+                                                        showSearch
+                                                        value={addNewProvinceSelected || "Chọn Tỉnh/Thành phố"}
+                                                        options={optionsSelectProvince}
+                                                        onChange={(e) => handleChangeAddNewProvince(e)}
+                                                        filterOption={(input, option) =>
+                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }>
+
+                                                    </Select>
+                                                    <Select
+                                                        className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
+                                                        showSearch
+                                                        value={addNewDistrictSelected || "Chọn Quận/Huyện"}
+                                                        options={optionsSelectDistricts}
+                                                        filterOption={(input, option) =>
+                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                        onChange={(e) => handleChangeAddNewDistrict(e)}>
+
+                                                    </Select>
+                                                    <Select
+                                                        className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
+                                                        showSearch
+                                                        value={addNewWardSelected || "Chọn Phường/Xã"}
+                                                        options={optionsSelectWards}
+                                                        filterOption={(input, option) =>
+                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                        onChange={(e) => handleChangeAddNewWard(e)}>
+
+                                                    </Select>
+                                                </div>
+                                                {
+                                                    (addNewDetailAddress && addNewProvinceSelected && addNewDistrictSelected && addNewWardSelected) ?
+                                                        <Button className='mt-2' onClick={() => {
+                                                            handleAddNewAddress()
+                                                        }}>
+                                                            <FontAwesomeIcon icon={faPlus} />
+                                                            <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
+                                                        </Button>
+                                                        :
+                                                        <Button Button disabled className='btn-antd-disabled mt-2'>
+                                                            <FontAwesomeIcon icon={faPlus} />
+                                                            <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
+                                                        </Button>
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
+                                        : <p>Chưa có địa chỉ nào được lưu</p>
+
                             }
                         </div>
 
@@ -886,7 +988,7 @@ function Cart() {
                                 </Row>
                             </Radio.Group>
                             {
-                                valueRadioPay == "COD"
+                                valueRadioPay === "COD"
                                     ?
                                     <p className='px-5 py-7 bg-[#f8f8f8] text-[15px]
                             border-[1px] border-[#d4d4d4]'>Quý khách sẽ thanh toán bằng tiền mặt

@@ -97,55 +97,58 @@ BRANDS.deleteById = async (brand_id, result) => {
     try {
         const productsList = await Products.findByBrandId(brand_id);
 
-        if (!productsList) {
+        if (productsList.length === 0) {
             // Xóa thương hiệu
             await pool.request()
                 .input('brand_id', sql.Int, brand_id)
                 .query(`DELETE FROM BRANDS WHERE brand_id = @brand_id;`);
 
-            result(null, "Successfully deleted brand and related data.");
+            result(null, true);
             sql.close();
+            return;
+        } else {
+            result(null, false);
             return;
         }
 
-        // Xóa dữ liệu liên quan của từng sản phẩm
-        const deletePromises = productsList.map(async (product) => {
-            console.log('Product ID: ', product.id);
+        // // Xóa dữ liệu liên quan của từng sản phẩm
+        // const deletePromises = productsList.map(async (product) => {
+        //     console.log('Product ID: ', product.id);
 
-            const deleteImageQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM IMAGES WHERE product_id = @product_id;`);
+        //     const deleteImageQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM IMAGES WHERE product_id = @product_id;`);
 
-            const deleteCartQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM CARTS WHERE product_id = @product_id;`);
+        //     const deleteCartQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM CARTS WHERE product_id = @product_id;`);
 
-            const deleteOrderDetailQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM ORDER_DETAILS WHERE product_id = @product_id;`);
+        //     const deleteOrderDetailQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM ORDER_DETAILS WHERE product_id = @product_id;`);
 
-            const deleteReviewQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM REVIEWS WHERE product_id = @product_id;`);
+        //     const deleteReviewQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM REVIEWS WHERE product_id = @product_id;`);
 
-            // Chờ tất cả các công việc xóa dữ liệu hoàn tất trước khi tiếp tục
-            await Promise.all([deleteImageQuery, deleteCartQuery, deleteOrderDetailQuery, deleteReviewQuery]);
-        });
+        //     // Chờ tất cả các công việc xóa dữ liệu hoàn tất trước khi tiếp tục
+        //     await Promise.all([deleteImageQuery, deleteCartQuery, deleteOrderDetailQuery, deleteReviewQuery]);
+        // });
 
-        // Chờ cho tất cả công việc xóa dữ liệu liên quan của các sản phẩm hoàn tất
-        await Promise.all(deletePromises);
+        // // Chờ cho tất cả công việc xóa dữ liệu liên quan của các sản phẩm hoàn tất
+        // await Promise.all(deletePromises);
 
-        // Xóa các sản phẩm
-        await pool.request()
-            .input('brand_id', sql.Int, brand_id)
-            .query(`DELETE FROM PRODUCTS WHERE brand_id = @brand_id;`);
+        // // Xóa các sản phẩm
+        // await pool.request()
+        //     .input('brand_id', sql.Int, brand_id)
+        //     .query(`DELETE FROM PRODUCTS WHERE brand_id = @brand_id;`);
 
-        // Xóa thương hiệu
-        await pool.request()
-            .input('brand_id', sql.Int, brand_id)
-            .query(`DELETE FROM BRANDS WHERE brand_id = @brand_id;`);
+        // // Xóa thương hiệu
+        // await pool.request()
+        //     .input('brand_id', sql.Int, brand_id)
+        //     .query(`DELETE FROM BRANDS WHERE brand_id = @brand_id;`);
 
-        result(null, "Successfully deleted brand and related data.");
+        // result(null, "Successfully deleted brand and related data.");
     } catch (error) {
         console.error('Error in findByBrandId:', error);
         result(error, null);
@@ -153,6 +156,7 @@ BRANDS.deleteById = async (brand_id, result) => {
         sql.close();
     }
 };
+
 
 BRANDS.editBrandById = async (brand, file, result) => {
     const pool = await connect;

@@ -147,7 +147,9 @@ const BrandManagement = () => {
         DeleteBrand(requestData).then(response => {
             if (response.success) {
                 setIsListBrandsChanged(!isListBrandsChanged)
-                context.Message("success", "Xóa thương hiệu thành công.")
+                context.Message("success", response.message)
+            } else {
+                context.Message("error", response.message)
             }
         })
     }

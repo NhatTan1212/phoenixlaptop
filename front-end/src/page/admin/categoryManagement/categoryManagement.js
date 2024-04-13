@@ -132,8 +132,9 @@ const CategoryManagement = () => {
         DeleteCategory(requestData).then(response => {
             if (response.success) {
                 setIsListCategoriesChanged(!isListCategoriesChanged)
-                context.Message("success", "Xóa danh mục thành công.")
-
+                context.Message("success", response.message)
+            } else {
+                context.Message("error", response.message)
             }
         })
     }

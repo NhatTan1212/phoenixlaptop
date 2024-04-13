@@ -741,8 +741,10 @@ function cart(req, res) {
           console.log('cart', parseInt(user.default_address));
           DELIVERY_ADDRESS.findByAddressId(parseInt(user.default_address), (err, data) => {
             if (err) return res.json({ success: false, msg: err })
-            const default_address = `${data.detail_address}, ${data.province}, ${data.district}, ${data.ward}`
-            if (cart[0]) cart[0]["default_address"] = default_address;
+            if (data) {
+              const default_address = `${data.detail_address}, ${data.province}, ${data.district}, ${data.ward}`
+              if (cart[0]) cart[0]["default_address"] = default_address;
+            }
             console.log(cart);
             return res.json(cart)
           })
@@ -1695,30 +1697,32 @@ function updateOrderIsRated(req, res) {
 
 async function addCategory(req, res) {
   try {
-    const newCategory = new CATEGORIES({
-      name: req.body.name,
-      description: req.body.description,
-      slug: req.body.slug,
-    });
 
-    CATEGORIES.create(newCategory, (err, category) => {
-      if (err) {
-        console.log("line 1458 controllerHome: Lỗi khi thêm danh mục - ", err);
-        res.json({
-          success: false,
-          message: "Đã xảy ra lỗi khi thêm danh mục",
+    CATEGORIES.findBySlug(req.body.slug)
+      .then((data) => {
+        if (data) {
+          res.json({ success: false, message: "Mã slug đã tồn tại trong hệ thống" })
+          return;
+        }
+
+        const newCategory = new CATEGORIES({
+          name: req.body.name,
+          description: req.body.description,
+          slug: req.body.slug
         });
-        return;
-      } else {
-        res.json({ success: true, message: "Thêm danh mục thành công" });
-      }
-    });
+
+        CATEGORIES.create(newCategory, (err, category) => {
+          if (err) {
+            res.json({ success: false, message: "Đã xảy ra lỗi khi thêm danh mục" })
+            return
+          } else {
+            res.json({ success: true, message: "Thêm danh mục thành công" })
+          }
+        })
+      })
   } catch (error) {
     console.error(error);
-    return res.json({
-      success: false,
-      message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu",
-    });
+    return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
   }
 }
 
@@ -1750,21 +1754,26 @@ async function editCategory(req, res) {
 
 async function deleteCategory(req, res) {
   try {
+
     CATEGORIES.deleteById(req.body.category_id, (err, category) => {
       if (err) {
-        console.log(err);
+        console.log(err)
       } else {
-        res.json({ success: true, message: "Xóa danh mục thành công" });
+        if (category) {
+          res.json({ success: category, message: 'Xóa danh mục thành công.' })
+        } else {
+          res.json({ success: category, message: 'Không thể xóa danh mục này.' })
+        }
+
       }
-    });
+    })
+
   } catch (error) {
     console.error(error);
-    return res.json({
-      success: false,
-      message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu",
-    });
+    return res.json({ success: false, message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu" });
   }
 }
+
 async function getAllLaptop(req, res) {
   try {
     let page = parseInt(req.query.page);
