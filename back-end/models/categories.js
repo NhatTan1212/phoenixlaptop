@@ -62,60 +62,84 @@ CATEGORIES.findById = async (id) => {
     });
 };
 
+CATEGORIES.findBySlug = async (slug) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+                SELECT * FROM CATEGORIES WHERE slug = @slug
+            `;
+            const result = await pool.request()
+                .input('slug', sql.NVARCHAR(255), slug)
+                .query(sqlStringAddProduct);
+
+            resolve(result.recordset[0]);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 CATEGORIES.deleteById = async (category_id, result) => {
     const pool = await connect;
     try {
         const productsList = await Products.findByCategoryIdPromise(category_id);
 
-        if (!productsList) {
-            // Xóa danh mục
+        if (productsList.length === 0) {
+
+            // Xóa danh mục nếu không tồn tại sản phẩm nào thuộc danh mục này
             await pool.request()
                 .input('category_id', sql.Int, category_id)
                 .query(`DELETE FROM CATEGORIES WHERE category_id = @category_id;`);
 
-            result(null, "Successfully deleted categories and related data.");
+            result(null, true);
             sql.close();
+            return;
+        } else {
+
+            // Có tồn tại sản phẩm thuộc danh mục nên không thể xóa
+            result(null, false);
             return;
         }
 
-        // Xóa dữ liệu liên quan của từng sản phẩm
-        const deletePromises = productsList.map(async (product) => {
-            console.log('Product ID: ', product.id);
+        // // Xóa dữ liệu liên quan của từng sản phẩm
+        // const deletePromises = productsList.map(async (product) => {
+        //     console.log('Product ID: ', product.id);
 
-            const deleteImageQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM IMAGES WHERE product_id = @product_id;`);
+        //     const deleteImageQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM IMAGES WHERE product_id = @product_id;`);
 
-            const deleteCartQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM CARTS WHERE product_id = @product_id;`);
+        //     const deleteCartQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM CARTS WHERE product_id = @product_id;`);
 
-            const deleteOrderDetailQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM ORDER_DETAILS WHERE product_id = @product_id;`);
+        //     const deleteOrderDetailQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM ORDER_DETAILS WHERE product_id = @product_id;`);
 
-            const deleteReviewQuery = pool.request()
-                .input('product_id', sql.Int, product.id)
-                .query(`DELETE FROM REVIEWS WHERE product_id = @product_id;`);
+        //     const deleteReviewQuery = pool.request()
+        //         .input('product_id', sql.Int, product.id)
+        //         .query(`DELETE FROM REVIEWS WHERE product_id = @product_id;`);
 
-            // Chờ tất cả các công việc xóa dữ liệu hoàn tất trước khi tiếp tục
-            await Promise.all([deleteImageQuery, deleteCartQuery, deleteOrderDetailQuery, deleteReviewQuery]);
-        });
+        //     // Chờ tất cả các công việc xóa dữ liệu hoàn tất trước khi tiếp tục
+        //     await Promise.all([deleteImageQuery, deleteCartQuery, deleteOrderDetailQuery, deleteReviewQuery]);
+        // });
 
-        // Chờ cho tất cả công việc xóa dữ liệu liên quan của các sản phẩm hoàn tất
-        await Promise.all(deletePromises);
+        // // Chờ cho tất cả công việc xóa dữ liệu liên quan của các sản phẩm hoàn tất
+        // await Promise.all(deletePromises);
 
-        // Xóa các sản phẩm
-        await pool.request()
-            .input('category_id', sql.Int, category_id)
-            .query(`DELETE FROM PRODUCTS WHERE category_id = @category_id;`);
+        // // Xóa các sản phẩm
+        // await pool.request()
+        //     .input('category_id', sql.Int, category_id)
+        //     .query(`DELETE FROM PRODUCTS WHERE category_id = @category_id;`);
 
-        // Xóa danh mục
-        await pool.request()
-            .input('category_id', sql.Int, category_id)
-            .query(`DELETE FROM CATEGORIES WHERE category_id = @category_id;`);
+        // // Xóa danh mục
+        // await pool.request()
+        //     .input('category_id', sql.Int, category_id)
+        //     .query(`DELETE FROM CATEGORIES WHERE category_id = @category_id;`);
 
-        result(null, "Successfully deleted categories and related data.");
+        // result(null, "Successfully deleted categories and related data.");
     } catch (error) {
         console.error('Error in findByCategoryId:', error);
         result(error, null);

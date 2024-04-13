@@ -82,6 +82,8 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
             if (response.success) {
                 context.Message("success", response.message)
                 setIsActioning(false);
+            } else {
+                context.Message("error", response.message)
             }
         })
     };

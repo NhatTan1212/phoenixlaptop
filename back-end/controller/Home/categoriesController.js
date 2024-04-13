@@ -114,10 +114,15 @@ function brandDelete(req, res) {
             res.json({ success: false, message: err });
         }
         else {
-            res.json({ success: true, message: 'Xóa thương hiệu thành công.' });
+            if (brands) {
+                res.json({ success: brands, message: 'Xóa thương hiệu thành công.' });
+            } else {
+                res.json({ success: brands, message: 'Không thể xóa thương hiệu này.' });
+            }
         }
     })
 }
+
 
 module.exports = {
     categoriesList, categoriesAddNew,
