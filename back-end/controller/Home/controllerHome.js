@@ -355,7 +355,7 @@ async function editProductPost(req, res) {
   //Update Avata
   if (req.files.avatar) {
     updateProductData.avatar =
-      "http://localhost:8000/upload/" + req.files.avatar[0].filename;
+      "http://localhost:8000/upload/products/" + req.files.avatar[0].filename;
   } else {
     updateProductData.avatar = req.body.avatar;
   }
@@ -449,7 +449,7 @@ async function editProductPost(req, res) {
     listImage.forEach((image) => {
       const newImage = new IMAGES({
         product_id: productId,
-        url: "http://localhost:8000/upload/" + image.filename,
+        url: "http://localhost:8000/upload/products/" + image.filename,
       });
       IMAGES.create(newImage, (err, result) => {
         numCreate++;
@@ -1124,8 +1124,7 @@ async function dataOrder(req, res) {
     productList += `
         <tr style="border-bottom: 1px solid #e5e5e5">
           <td>${index + 1}</td>
-          <td style="text-align: center"><img style="height: 120px" src="${product.avatar
-      }"></td>
+          <td style="text-align: center"><img style="height: 120px" src="${product.avatar}"></td>
           <td>${product.prod_name}</td>
           <td>${product.price}</td>
           <td>${product.count}</td>

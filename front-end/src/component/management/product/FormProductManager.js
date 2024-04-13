@@ -68,6 +68,33 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
     const [detailedEvaluation, setDetailedEvaluation] = useState('');
     const editor = useRef(null);
 
+    const calculateDiscountPercentage = (price, cost) => {
+        // console.log("Price:", price);
+        // console.log("Cost:", cost);
+        const priceFloat = parseFloat(price);
+        const costFloat = parseFloat(cost);
+        if (priceFloat && costFloat && priceFloat < costFloat) {
+            const discountPercentage = ((costFloat - priceFloat) / costFloat) * 100;
+            // console.log("Discount Percentage:", discountPercentage);
+            setProductPercent(discountPercentage.toFixed(0) + '');
+        } else {
+            // console.log("Invalid input");
+            setProductPercent('');
+        }
+    };
+
+
+    // Gọi hàm tính phần trăm giảm giá khi có sự thay đổi trong giá bán hoặc giá chính hãng
+    const handlePriceChange = (e) => {
+        setPrice(e.target.value);
+        calculateDiscountPercentage(e.target.value, cost);
+    };
+
+    const handleCostChange = (e) => {
+        setCost(e.target.value);
+        calculateDiscountPercentage(price, e.target.value);
+    };
+
     const uploadButton = (
         <div>
             <PlusOutlined />
@@ -104,7 +131,8 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
     const handleChange = ({ fileList: newFileList }, fileListPost) => {
         // console.log(newFileList)
         // console.log("flp", fileListPost)
-        // console.log({ fileList: newFileList })
+        // console.log(newFileList)
+        const limitedFileList = newFileList.slice(-6);
         setFileList(newFileList)
     };
 
@@ -258,9 +286,12 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         className='w-2/3 mb-2 mt-0'
                                         name='price'
                                         value={price || actioningProduct.price}
-                                        onChange={(e) => {
-                                            setPrice(e.target.value)
-                                        }}></Input>
+                                        onChange={handlePriceChange}
+                                    // onChange={(e) => {
+                                    //     setPrice(e.target.value)
+                                    // }}
+                                    >
+                                    </Input>
                                 </div>
                                 <div className='flex'>
                                     <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Giá chính hãng:</h3>
@@ -268,9 +299,7 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         className='w-2/3 mb-2 mt-0'
                                         name='cost'
                                         value={cost || actioningProduct.cost}
-                                        onChange={(e) => {
-                                            setCost(e.target.value)
-                                        }}></Input>
+                                        onChange={handleCostChange}></Input>
                                 </div>
                                 <div className='flex'>
                                     <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Số lượng còn lại:</h3>
@@ -287,10 +316,13 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                     <Input
                                         className='w-2/3 mb-2 mt-0'
                                         name='prod_percent'
-                                        value={productPercent || actioningProduct.prod_percent}
-                                        onChange={(e) => {
-                                            setProductPercent(e.target.value)
-                                        }}></Input>
+                                        value={(productPercent + ' %') || ''}
+                                        // onChange={(e) => {   
+                                        //     setProductPercent(e.target.value)
+                                        // }
+                                        // }
+                                        readOnly
+                                    ></Input>
                                 </div>
                                 <div className='flex'>
                                     <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>CPU:</h3>
@@ -1136,6 +1168,7 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                     onPreview={handlePreview}
                                     onChange={handleChange}
                                     beforeUpload={() => false}
+                                    multiple={true}
                                 >
                                     {fileList.length >= 8 ? null : uploadButton}
                                 </Upload>
