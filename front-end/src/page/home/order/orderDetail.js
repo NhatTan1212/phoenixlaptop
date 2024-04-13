@@ -9,6 +9,7 @@ import Instance from '../../../axiosInstance';
 import DeliveryAddressOrderDetail from '../../../component/management/DeliveryAddress';
 import TableOrderDetail from '../../../component/management/TableOrderDetail';
 import Context from '../../../store/Context';
+import { Button, Modal } from 'antd';
 
 function OrderDetail() {
     const context = useContext(Context)
@@ -22,6 +23,7 @@ function OrderDetail() {
     const [orderDetail, setOrderDetail] = useState([]);
     const [products, setProducts] = useState([]);
     const [order, setOrder] = useState([]);
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     const columns = [
         {
@@ -157,8 +159,12 @@ function OrderDetail() {
 
     }
     return (
-
         <div className='bg-[#f0f0f0] py-3'>
+            <Modal
+                open={confirmDelete}
+            >
+                Bạn có chắc là muốn hủy đơn hàng này không.
+            </Modal>
             <div className='w-10/12  mx-[auto] max-[1550px]:w-full '>
                 <div className=' mx-[263px] mb-3 max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
                     <div className='flex items-center justify-between mb-3 max-[730px]:flex-col max-[730px]:items-start'>
@@ -191,6 +197,13 @@ function OrderDetail() {
                         columns={isHiddenAutoCpl ? columns : deviceColumns}
                         dataSource={dataTable}
                         order={order} />
+                </div>
+                <div className='bg-[#ffffff] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
+                    <div className='flex justify-end mr-[30px]'>
+                        <Button
+                            onClick={() => setConfirmDelete(true)}
+                            className='bg-[#cb1c22] text-white'>Hủy đơn hàng</Button>
+                    </div>
                 </div>
             </div>
         </div >

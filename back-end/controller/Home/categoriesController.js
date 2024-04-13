@@ -109,15 +109,20 @@ function brandEdit(req, res) {
 }
 
 function brandDelete(req, res) {
-  BRANDS.deleteById(req.body.brand_id, (err, brands) => {
-    if (err) {
-      res.json({ success: false, message: err });
-    }
-    else {
-      res.json({ success: true, message: 'Xóa thương hiệu thành công.' });
-    }
-  })
+    BRANDS.deleteById(req.body.brand_id, (err, brands) => {
+        if (err) {
+            res.json({ success: false, message: err });
+        }
+        else {
+            if (brands) {
+                res.json({ success: brands, message: 'Xóa thương hiệu thành công.' });
+            } else {
+                res.json({ success: brands, message: 'Không thể xóa thương hiệu này.' });
+            }
+        }
+    })
 }
+
 
 module.exports = {
   categoriesList, categoriesAddNew,
