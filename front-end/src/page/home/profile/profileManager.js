@@ -389,7 +389,7 @@ const ProfileManager = () => {
                     /> : null
             }
 
-        </div >
+        </div>
     );
 };
 

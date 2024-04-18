@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../store/Context';
 import '../header/header.scss';
-import { Link, NavLink, useLocation, useParams, useHistory, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useParams, useNavigate } from 'react-router-dom';
 import logo from '../../images/logo1000.png'
 import { AutoComplete, Input, Row, Col, Drawer, Space, Menu } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -16,9 +16,10 @@ import {
     DashboardOutlined, BoldOutlined
 } from '@ant-design/icons';
 
+
 const { Search } = Input;
 function Header() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { param } = useParams(); // Lấy tham số từ URL
     const token = Cookies.get('token');
     const context = useContext(Context)
@@ -39,8 +40,7 @@ function Header() {
     const [userId, setUserId] = useState('')
     const location = useLocation();
     const isHomePage = location.pathname === '/';
-    const isAdminHomePage = location.pathname === '/management'
-        || location.pathname.startsWith('/management/');
+    const isAdminHomePage = location.pathname === '/management' || location.pathname.startsWith('/management/');
     const [searchValue, setSearchValue] = useState('');
     //Bar responsive
     const [isBarOpen, setIsBarOpen] = useState(false);
@@ -247,7 +247,7 @@ function Header() {
 
     // console.log(token)
     const filterOptions = (inputValue, option) => {
-        const lowerCaseInput = inputValue.toLowerCase();
+        const lowerCaseInput = inputValue.toLowerCase().trim();
         return (
             (option.prod_name && option.prod_name.toLowerCase().includes(lowerCaseInput)) ||
             (option.cpu && option.cpu.toLowerCase().includes(lowerCaseInput)) ||
@@ -258,33 +258,44 @@ function Header() {
         );
     };
 
+    const handleEnterSearch = (e) => {
+        if (e.key === 'Enter') {
+            if (e.target.value.trim() !== '') {
+                navigate(`/search?q=${encodeURIComponent(e.target.value.trim())}&page=1`);
+            } else {
+                context.Message('warning', 'Vui lòng nhập từ khóa vào ô tìm kiếm')
+            }
+        }
+    }
+
 
 
     const AutoCompleteCpn = ({ isHidden }) => {
-        return (<AutoComplete
-            className={`${isHidden ? 'hidden ' : ''}my-auto header-autocpl ${!isHiddenAutoCpl ? 'pb-2' : ''} ${isAdminHomePage ? 'hidden' : ''}
-            `}
-            popupClassName="certain-category-search-dropdown"
-            popupMatchSelectWidth={300}
-            style={{
-                width: '100%'
-            }}
-            options={products.map((product) => ({
-                ...product,
-                label: renderOption(product),
-                value: product.prod_name
-            }))}
-            filterOption={filterOptions}
-            size="large"
-            onSelect={(value, option) => { }}
-
-        >
-            <Input.Search
-                className='text-white header-input-search'
-                size="large"
-                placeholder='Nhập tên sản phẩm, từ khóa cần tìm kiếm,...'
-            />
-        </AutoComplete>)
+        return (
+            <AutoComplete
+                className={`${isHidden ? 'hidden ' : ''}my-auto header-autocpl ${!isHiddenAutoCpl ? 'pb-2' : ''} ${isAdminHomePage ? 'hidden' : ''}`}
+                popupClassName="certain-category-search-dropdown"
+                popupMatchSelectWidth={300}
+                style={{
+                    width: '100%'
+                }}
+                options={products.map((product) => ({
+                    ...product,
+                    label: renderOption(product),
+                    value: product.prod_name
+                }))}
+                filterOption={filterOptions}
+                onSelect={(value, option) => { }}
+            >
+                <Input.Search
+                    className='text-white header-input-search'
+                    size="large"
+                    placeholder='Nhập tên sản phẩm, từ khóa cần tìm kiếm,...'
+                    onPressEnter={(e) => {
+                        handleEnterSearch(e)
+                    }}
+                />
+            </AutoComplete>)
     }
 
     const ListCategoriesCpn = () => {
@@ -687,7 +698,7 @@ function Header() {
                     {!isHiddenAutoCpl && <AutoCompleteCpn isHidden={false} />}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
 

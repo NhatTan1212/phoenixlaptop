@@ -770,16 +770,11 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     name='brand_id'
                                     value={brandSelected}
                                     onChange={(e) => {
-                                        const getBrand = brands.find((brand) => {
-                                            // console.log(brand.brand_id)
-                                            // console.log(actioningProduct)
-                                            return brand.brand_id === e + 1
-
-                                        });
+                                        const getBrand = brands[e]
                                         // console.log(getBrand);
                                         setBrandSelected(getBrand.name)
                                         // value ở đây là một mảng các giá trị đã được chọn
-                                        setSelectedItems(e);
+                                        setSelectedItems(getBrand.brand_id);
                                         // console.log(e + 1)
                                     }}
                                     style={{
@@ -802,16 +797,11 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     name='category_id'
                                     value={categorySelected}
                                     onChange={(e) => {
-                                        const getCategory = categories.find((category) => {
-                                            // console.log(category.brand_id)
-                                            // console.log(actioningProduct)
-                                            return category.category_id === e + 1
-
-                                        });
+                                        const getCategory = categories[e]
                                         // console.log(getBrand);
                                         setCategorySelected(getCategory.name)
                                         // value ở đây là một mảng các giá trị đã được chọn
-                                        setCategoryIDSelected(e);
+                                        setCategoryIDSelected(getCategory.category_id);
                                         // console.log(e + 1)
                                     }}
                                     style={{

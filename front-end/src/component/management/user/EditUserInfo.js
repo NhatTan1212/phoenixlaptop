@@ -16,8 +16,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
 
     const context = useContext(Context)
     const isHiddenAutoCpl = context.isHiddenAutoCpl
-    const isScreenSmaller1280 = context.isScreenSmaller1280
-    const isScreenSmaller430 = context.isScreenSmaller430
 
 
     const [form] = Form.useForm();
@@ -63,7 +61,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
         let findProvince = optionsSelectProvince.find((province) => {
             return province.Name === e
         })
-        console.log(findProvince)
         setAddNewProvinceSelected(findProvince.Name)
         setAddNewDistrictSelected(null)
         setAddNewWardSelected(null)
@@ -74,7 +71,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
         let findDistrict = optionsSelectDistricts.find((district) => {
             return district.Name === e
         })
-        console.log(findDistrict)
         setAddNewDistrictSelected(findDistrict.Name)
         setAddNewWardSelected(null)
         setOptionsSelectWards(findDistrict.Wards)
@@ -84,17 +80,13 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
         let findWard = optionsSelectWards.find((ward) => {
             return ward.Name === e
         })
-        console.log(findWard)
         setAddNewWardSelected(findWard.Name)
     }
 
     const handleRemoveAddress = (address_id) => {
-        console.log('addId:  ', address_id);
-        console.log('radioAddressSelected:  ', radioAddressSelected);
-        if (address_id + '' === radioAddressSelected + '') {
+        if (address_id + '' === defAddressID + '') {
             return context.Message('error', 'Bạn không được xóa địa chỉ mặc định.')
         }
-        console.log(address_id);
         const requestData = {
             token: token,
             address_id: address_id
@@ -136,7 +128,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                 })
 
                 const default_address = addressSaved.find(item => item.id === parseInt(radioAddressSelected))
-                console.log(default_address);
                 onSave(Object.assign(
                     values,// name, email, phone, defAddressID
                     {

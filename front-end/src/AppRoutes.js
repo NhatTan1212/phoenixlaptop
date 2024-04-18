@@ -19,6 +19,7 @@ import OrderManagement from './page/admin/orderManagement/orderManagement';
 import AllProduct from './page/home/AllProduct/AllProduct';
 import RedirectAllProduct from './component/redirectAllProduct';
 import ProfileManager from './page/home/profile/profileManager';
+import SearchPage from './page/home/searchPage/searchPage';
 
 
 
@@ -28,14 +29,11 @@ function AppRoutes() {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     useEffect(() => {
-        // if()
         let token = Cookies.get('token')
         let tokenGID = Cookies.get('tokenGID')
         const queryParams = new URLSearchParams(location.search);
         const tokenParam = queryParams.get('token');
         const username = queryParams.get('username');
-        console.log(tokenParam);
-        console.log(username);
         if (tokenParam && isHomePage) {
             localStorage.setItem('user_name', username);
             Cookies.set('token', tokenParam, { expires: 31 })
@@ -44,7 +42,6 @@ function AppRoutes() {
         if (token) {
             if (tokenGID) Cookies.remove('tokenGID');
         }
-        console.log(token);
         if (token || tokenGID) { }
         else {
             const guestId = uuidv4();
@@ -68,6 +65,7 @@ function AppRoutes() {
                 <Route path="/order" element={<><Order /></>} />
                 <Route path="/order-detail/:id" element={<><OrderDetail /></>} />
                 <Route path="/profile/:id" element={<><ProfileManager /></>} />
+                <Route path="/search" element={<SearchPage />} />
                 {/*---Management---*/}
                 <Route path="/management" element={<><AdminHome /></>} />
             </Routes>
