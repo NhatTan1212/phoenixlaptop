@@ -1472,6 +1472,47 @@ function orderDetails(req, res) {
   });
 }
 
+function orderDetails(req, res) {
+  let dataProduct = [];
+  let completedRequests = 0;
+  console.log(req.params.id);
+  ORDER_DETAILS.findById(req.params.id, (err, orderDetails) => {
+    if (err) {
+      res.json({ kq: 0, errMsg: err });
+    } else {
+      orderDetails.forEach(async (orderDetail) => {
+        const product = await Products.findById(orderDetail.product_id);
+        if (product.length === 0) {
+          return res.json({ kq: 0, errMsg: "Product not found" });
+        }
+
+        dataProduct.push(product[0]);
+
+        // console.log(product[0].id)
+        // res.render("productDetail", { data: product[0] })
+        // res.json(product[0])
+
+        completedRequests++;
+        if (completedRequests === orderDetails.length) {
+          console.log("xong");
+          res.json({ orderDetails: orderDetails, dataProduct: dataProduct });
+        }
+      });
+      // res.render("editorderDetails", { data: orderDetails[0] })
+    }
+  });
+}
+
+function cancelOrder(req, res) {
+  console.log(req.params.id);
+  let id = req.params.id
+  ORDERS.UpdateCancelById(id, 1).then((date) => {
+    res.json({ success: true })
+  }).catch((err) => {
+    res.json({ success: false, msg: err })
+  })
+}
+
 function orderManagement(req, res) {
   ORDERS.find((err, order) => {
     if (err) {
@@ -1492,6 +1533,7 @@ async function updateOrder(req, res) {
       is_being_shipped,
       is_transported,
       is_success,
+      is_cancel,
     } = req.body;
     console.log(req.body);
     ORDERS.findByOrderId(order_id, async (err, data) => {
@@ -1526,6 +1568,11 @@ async function updateOrder(req, res) {
         if (is_success !== data.is_success) {
           await ORDERS.UpdateSuccessById(order_id, is_success);
           console.log("Cập nhật trạng thái đơn hàng hoàn tất thành công");
+        }
+
+        if (is_cancel !== data.is_cancel) {
+          await ORDERS.UpdateCancelById(order_id, is_cancel);
+          console.log("Cập nhật trạng thái hủy đơn hàng thành công");
         }
 
         return res.json({ success: true });
@@ -1839,6 +1886,7 @@ module.exports = {
   createPaymentVNPAY,
   order,
   orderDetails,
+  cancelOrder,
   orderManagement,
   updateOrder,
   orderSuccess,
