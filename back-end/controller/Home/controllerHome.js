@@ -1860,6 +1860,44 @@ async function getAllLaptop(req, res) {
   }
 }
 
+async function searchLaptop(req, res) {
+  try {
+    let searchKeyword = req.query.q || '';
+    let page = req.query.page ? req.query.page : 1;
+    let sort = req.query.sort ? req.query.sort : '';
+    let limit = req.query.limit ? req.query.limit : 12;
+
+    const reqData = {
+      searchKeyword: searchKeyword,
+      pageNumber: page,
+      limit: limit,
+      sort: sort,
+    };
+
+    if (page) {
+      page = page < 1 ? 1 : page;
+      Products.searchProductsWithPagination(reqData, (err, products) => {
+        if (err) {
+          console.log(err);
+          return res.json({ error: "Internal Server Error" });
+        } else {
+          return res.json(products);
+        }
+      });
+    } else {
+      Products.find((err, data) => {
+        if (err) console.log(err);
+        else {
+          res.json(data);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.json({ error: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   home,
   laptopGaming,
@@ -1908,4 +1946,5 @@ module.exports = {
   editCategory,
   deleteCategory,
   getAllLaptop,
+  searchLaptop,
 };

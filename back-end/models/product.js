@@ -565,5 +565,84 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
     }
 };
 
+Products.searchProductsWithPagination = async (reqData, resultCallback) => {
+    try {
+        let { searchKeyword, pageNumber, limit, sort } = reqData;
+
+        const pool = await connect;
+
+        let sqlQuery = `
+            SELECT COUNT(*) as totalRecords
+            FROM PRODUCTS
+            WHERE [prod_name] LIKE '%'+ @searchKeyword + '%'
+            OR [prod_description] LIKE '%'+ @searchKeyword + '%'
+            OR [manufacturer] LIKE '%'+ @searchKeyword + '%'
+            OR [cpu] LIKE '%'+ @searchKeyword + '%'
+            OR [hard_drive] LIKE '%'+ @searchKeyword + '%'
+            OR [mux_switch] LIKE '%'+ @searchKeyword + '%'
+            OR [screen] LIKE '%'+ @searchKeyword + '%'
+            OR [webcam] LIKE '%'+ @searchKeyword + '%'
+            OR [connection] LIKE '%'+ @searchKeyword + '%'
+            OR [ram] LIKE '%'+ @searchKeyword + '%'
+            OR [graphics] LIKE '%'+ @searchKeyword + '%'
+            OR [on_board] LIKE '%'+ @searchKeyword + '%'
+            OR [detailed_evaluation] LIKE '%'+ @searchKeyword + '%'
+        `;
+
+        const resultCount = await pool.request()
+            .input('SearchKeyword', sql.NVARCHAR(255), searchKeyword)
+            .query(sqlQuery);
+        const totalRecords = resultCount.recordset[0].totalRecords;
+
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        sqlQuery = `
+            SELECT *
+            FROM PRODUCTS
+            WHERE [prod_name] LIKE '%' + @searchKeyword + '%'
+                OR [prod_description] LIKE '%' + @searchKeyword + '%'
+                OR [manufacturer] LIKE '%' + @searchKeyword + '%'
+                OR [cpu] LIKE '%' + @searchKeyword + '%'
+                OR [hard_drive] LIKE '%' + @searchKeyword + '%'
+                OR [mux_switch] LIKE '%' + @searchKeyword + '%'
+                OR [screen] LIKE '%' + @searchKeyword + '%'
+                OR [webcam] LIKE '%' + @searchKeyword + '%'
+                OR [connection] LIKE '%' + @searchKeyword + '%'
+                OR [ram] LIKE '%' + @searchKeyword + '%'
+                OR [graphics] LIKE '%' + @searchKeyword + '%'
+                OR [on_board] LIKE '%' + @searchKeyword + '%'
+                OR [detailed_evaluation] LIKE '%' + @searchKeyword + '%'
+            ORDER BY
+                CASE
+                    WHEN @sort = '' THEN [id] * -1 -- Sắp xếp theo id tăng dần
+                    WHEN @sort = 'asc' THEN [price] -- Sắp xếp theo giá tăng dần
+                    WHEN @sort = 'desc' THEN [price] * -1 -- Sắp xếp theo giá giảm dần
+                END
+            OFFSET (@pageNumber - 1) * @limit ROWS
+            FETCH NEXT @limit ROWS ONLY;
+        `;
+
+        const result = await pool.request()
+            .input('SearchKeyword', sql.NVARCHAR(255), searchKeyword)
+            .input('PageNumber', sql.INT, pageNumber)
+            .input('Limit', sql.INT, limit)
+            .input('Sort', sql.NVARCHAR(10), sort)
+            .query(sqlQuery);
+
+        const response = {
+            totalRecords,
+            totalPages,
+            currentPage: pageNumber,
+            limit: limit,
+            data: result.recordset,
+        };
+
+        resultCallback(null, response);
+    } catch (error) {
+        console.error('SQL error:', error.message);
+        resultCallback(error.message, null);
+    }
+};
+
 
 module.exports = Products;
