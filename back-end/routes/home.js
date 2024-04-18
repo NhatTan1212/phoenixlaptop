@@ -76,6 +76,7 @@ routerHome.post("/dataorder", controllerHome.dataOrder);
 routerHome.post("/order", controllerHome.order);
 routerHome.post("/create_payment_url", controllerHome.createPaymentVNPAY);
 routerHome.get("/orderdetails/:id", controllerHome.orderDetails);
+routerHome.get("/cancel-order/:id", controllerHome.cancelOrder);
 routerHome.post("/order-management", authMiddleware.isAuthAdmin, controllerHome.orderManagement);
 routerHome.post("/order-management/update/:id", authMiddleware.isAuthAdmin, controllerHome.updateOrder);
 routerHome.get("/order-success/:id", authMiddleware.isAuthAdmin, controllerHome.orderSuccess);
@@ -84,6 +85,7 @@ routerHome.get("/order-shipping/:id", authMiddleware.isAuthAdmin, controllerHome
 routerHome.get("/order-shipped/:id", authMiddleware.isAuthAdmin, controllerHome.orderShipped);
 routerHome.post("/deleteorder", authMiddleware.isAuthAdmin, controllerHome.deleteOrder);
 routerHome.post("/get-orderdetails/:id", authMiddleware.isAuth, controllerHome.orderDetails);
+
 routerHome.post("/reviews/:id", authMiddleware.isAuth, controllerHome.reviews);
 routerHome.get("/reviews-management", authMiddleware.isAuthAdmin, controllerHome.reviewsManagement);
 routerHome.get("/reviews-management-by-product/:id", authMiddleware.isAuthAdmin, controllerHome.reviewsManagementByProduct);
