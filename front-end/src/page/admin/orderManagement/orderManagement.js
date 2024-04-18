@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye } from '@fortawesome/free-regular-svg-icons';
-import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPenToSquare, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { useParams, Link } from 'react-router-dom';
 import { HomeOutlined, ShoppingOutlined, InboxOutlined, PlusOutlined, } from '@ant-design/icons';
 import {
@@ -55,7 +55,7 @@ const OrderManagement = () => {
 
         return matchedOrder ? (
             <div className='text-[#26aa5f] font-bold'>
-                {matchedOrder.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                {matchedOrder.is_cancel === 1 ? <span className='text-red-600'>Đơn hàng đã hủy</span> : matchedOrder.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
                     : matchedOrder.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                         : matchedOrder.is_transported ? 'Đơn hàng đã được giao đến nơi'
                             : matchedOrder.is_being_shipped ? 'Đơn hàng đang được giao đến bạn'
@@ -156,6 +156,7 @@ const OrderManagement = () => {
                 { text: 'Đang giao hàng', value: 'is_being_shipped' },
                 { text: 'Đã giao hàng thành công', value: 'is_transported' },
                 { text: 'Đơn hàng đã hoàn tất', value: 'is_success' },
+                { text: 'Đơn hàng đã hủy', value: 'is_cancel' },
             ],
             onFilter: (value, record) => {
                 const matchedOrder = orders.find(item => item.id === record.id);
@@ -173,6 +174,8 @@ const OrderManagement = () => {
                         return matchedOrder.is_transported === 1 && matchedOrder.is_success !== 1;
                     case 'is_success':
                         return matchedOrder.is_success === 1;
+                    case 'is_cancel':
+                        return matchedOrder.is_cancel === 1;
                     default:
                         return false;
                 }
@@ -514,6 +517,18 @@ const OrderManagement = () => {
     }
 
     const onFinish = (values) => {
+        if (orderEditing.is_cancel) {
+            return
+        }
+        if (orderEditing.is_payment === 1) {
+            context.Message('error', 'Đơn hàng đã thanh toán không được hủy')
+            return
+        }
+        if (orderEditing.is_approved === 1 || orderEditing.is_being_shipped === 1
+            || orderEditing.is_transported === 1 || orderEditing.is_success === 1) {
+            context.Message('error', 'Đơn hàng đã xác nhận không được hủy')
+            return
+        }
         console.log(values);
         const paymentStatus = values.paymentStatus
         const status = values.status
@@ -524,6 +539,7 @@ const OrderManagement = () => {
             is_transported: status === 'is_transported' ? 1 : orderEditing.is_transported,
             is_being_shipped: status === 'is_being_shipped' ? 1 : orderEditing.is_being_shipped,
             is_approved: status === 'is_approved' ? 1 : orderEditing.is_approved,
+            is_cancel: status === 'is_cancel' ? 1 : orderEditing.is_cancel,
         }
         console.log(statusOrderChanged);
         UpdateOrder(orderEditing.id, statusOrderChanged).then(response => {
@@ -538,6 +554,7 @@ const OrderManagement = () => {
     };
 
     const getStatusValue = (order) => {
+        if (order.is_cancel) return 'is_cancel'
         if (order.is_success === 1) {
             return 'is_success';
         } else if (order.is_transported === 1) {
@@ -588,7 +605,7 @@ const OrderManagement = () => {
                     <span>Mã đơn hàng: {order ? order.id : 'N/A'}</span>
                     <span className='mx-4'>|</span>
                     <span className='text-[#ed1d24] uppercase font-bold'>
-                        {order ? order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                        {order ? order.is_cancel == 1 ? 'Đơn hàng đã hủy' : order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
                             : order.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                                 : order.is_transported === 1 ? 'Đơn hàng đã được giao đến nơi'
                                     : order.is_being_shipped === 1 ? 'Đơn hàng đang được giao đến bạn'
@@ -597,6 +614,29 @@ const OrderManagement = () => {
                         }</span>
 
                 </div>
+                {
+                    (order && order.is_cancel) &&
+                    <div className='bg-[#fffbdd]  flex flex-col ml-4 mr-0 mt-2 border-[2px] 
+                border-[#8f7f00] mb-0 w-auto'>
+                        <div className='flex p-4'>
+                            <div>
+                                <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
+                            </div>
+                            <div>
+                                <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
+                                <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
+
+                                    <span className='pl-1 font-bold text-[#8f7f00]'>
+                                        {new Date(order.cancel_at).toLocaleDateString()}
+                                    </span>
+                                    <span className='pl-1 font-bold text-[#8f7f00]'>
+                                        {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
+                                    </span>
+                                </Col>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <div className='bg-[#fff]'>
                     <DeliveryAddressOrderDetail order={order} />
                     <div className='bg-[#ffffff] flex flex-col'>
@@ -667,6 +707,7 @@ const OrderManagement = () => {
                             <Option value="is_being_shipped">Đang giao hàng</Option>
                             <Option value="is_transported">Đã giao hàng thành công</Option>
                             <Option value="is_success">Đơn hàng đã hoàn tất</Option>
+                            <Option value="is_cancel">Hủy đơn hàng</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item className='text-end'>
@@ -677,7 +718,7 @@ const OrderManagement = () => {
                             Đóng
                         </Button>
                         <Button
-                            className='ml-3'
+                            className={`ml-3 ${orderEditing && orderEditing.is_cancel == 1 ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}
                             type="primary" htmlType="submit">
                             Cập nhật
                         </Button>

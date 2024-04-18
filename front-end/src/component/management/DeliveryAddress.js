@@ -19,6 +19,18 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                         </ul>
 
                         <ul>
+                            {order.is_cancel === 1 ? <li>
+                                <span>
+                                    {order.cancel_at.slice(11, 19)}
+                                </span>
+                                <span className='ml-2'>
+                                    {new Date(order.cancel_at).toLocaleDateString()}
+                                </span>
+                                <span className='ml-3 text-red-600 font-bold'>
+                                    Đơn hàng đã hủy
+                                </span>
+                            </li>
+                                : null}
                             {order.user_address === 'Nhận hàng tại cửa hàng'
                                 ? <li>
                                     <span>
@@ -30,6 +42,7 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                                     <span className='ml-3 active-status font-bold'>Đặt hàng thành công</span>
                                 </li>
                                 : null}
+
                             {order.is_success === 1 ? <li>
                                 <span>
                                     {order.successful_at.slice(11, 19)}

@@ -100,6 +100,7 @@ routerHome.post("/dataorder", controllerHome.dataOrder);
 routerHome.post("/order", controllerHome.order);
 routerHome.post("/create_payment_url", controllerHome.createPaymentVNPAY);
 routerHome.get("/orderdetails/:id", controllerHome.orderDetails);
+routerHome.get("/cancel-order/:id", controllerHome.cancelOrder);
 routerHome.post(
   "/order-management",
   authMiddleware.isAuthAdmin,
