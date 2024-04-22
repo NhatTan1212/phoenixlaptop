@@ -3,13 +3,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faAngleLeft, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import './orderDetail.scss'
 import Instance from '../../../axiosInstance';
 import DeliveryAddressOrderDetail from '../../../component/management/DeliveryAddress';
 import TableOrderDetail from '../../../component/management/TableOrderDetail';
 import Context from '../../../store/Context';
-import { Button, Modal } from 'antd';
+import { Button, Col, Modal, Row } from 'antd';
 
 function OrderDetail() {
     const context = useContext(Context)
@@ -24,6 +24,10 @@ function OrderDetail() {
     const [products, setProducts] = useState([]);
     const [order, setOrder] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [orderDetailChange, setorderDetailChange] = useState(false);
+    const isDisableDeleteOrder = (order.is_payment === 1 || order.is_cancel
+        || order.is_approved === 1 || order.is_being_shipped === 1
+        || order.is_transported === 1 || order.is_success === 1) ? true : false
 
     const columns = [
         {
@@ -119,7 +123,7 @@ function OrderDetail() {
     useEffect(() => {
         getorderDetail();
         getOrder()
-    }, []);
+    }, [orderDetailChange]);
     const getorderDetail = () => {
 
         Instance.get(`/orderdetails/${id}`)
@@ -158,14 +162,68 @@ function OrderDetail() {
             });
 
     }
+
+    const handleOkButtonDeleteOrder = () => {
+        Instance.get(`/cancel-order/${id}`)
+            .then(response => {
+                console.log(response.data);
+                context.Message("success", "Hủy đơn hàng thành công")
+                setConfirmDelete(false)
+                setorderDetailChange(true)
+                // console.log(productDetail)
+            })
+            .catch(error => {
+                context.Message("error", "Hủy đơn hàng thất bại")
+                console.error('Error fetching data:', error);
+            });
+    }
+
+    const handleDeleteButton = () => {
+        if (order.is_cancel) return
+        isDisableDeleteOrder && order.is_payment ? context.Message("error", "Đơn hàng đã thanh toán không thể hủy.")
+            : (isDisableDeleteOrder && order.is_approved || isDisableDeleteOrder && order.is_being_shipped
+                || isDisableDeleteOrder && order.is_transported || isDisableDeleteOrder && order.is_success)
+                ? context.Message("error", "Đơn hàng đã được chấp nhận không thể hủy")
+                : setConfirmDelete(true)
+    }
+
     return (
         <div className='bg-[#f0f0f0] py-3'>
             <Modal
                 open={confirmDelete}
+                onCancel={() => setConfirmDelete(false)}
+                onOk={handleOkButtonDeleteOrder}
             >
-                Bạn có chắc là muốn hủy đơn hàng này không.
+                {
+
+                    'Bạn có chắc là muốn hủy đơn hàng này không.'
+                }
             </Modal>
+
             <div className='w-10/12  mx-[auto] max-[1550px]:w-full '>
+                {
+                    order.is_cancel &&
+                    <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
+                border-[#8f7f00] mb-3'>
+                        <div className='flex p-4'>
+                            <div>
+                                <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
+                            </div>
+                            <div>
+                                <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
+                                <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
+
+                                    <span className='pl-1 font-bold text-[#8f7f00]' >
+                                        {new Date(order.cancel_at).toLocaleDateString()}
+                                    </span>
+                                    <span className='pl-1 font-bold text-[#8f7f00]'>
+                                        {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
+                                    </span>
+                                </Col>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <div className=' mx-[263px] mb-3 max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
                     <div className='flex items-center justify-between mb-3 max-[730px]:flex-col max-[730px]:items-start'>
                         <Link to={'/order'} className='flex items-center '>
@@ -177,7 +235,7 @@ function OrderDetail() {
                         <div className='max-[435px]:flex max-[435px]:flex-col'>
                             <span>Mã đơn hàng: {order ? order.id : 'N/A'} |</span>
                             <span className='text-[#ed1d24] uppercase font-bold ml-4 max-[435px]:ml-0'>
-                                {order ? order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                                {order ? order.is_cancel === 1 ? 'Đơn hàng đã hủy' : order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
                                     : order.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                                         : order.is_transported === 1 ? 'Đơn hàng đã được giao đến nơi'
                                             : order.is_being_shipped === 1 ? 'Đơn hàng đang được giao đến bạn'
@@ -189,6 +247,7 @@ function OrderDetail() {
                     </div>
                     <div className='bg-[#fff]'>
                         <DeliveryAddressOrderDetail order={order} />
+
                     </div>
 
                 </div>
@@ -201,8 +260,10 @@ function OrderDetail() {
                 <div className='bg-[#ffffff] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
                     <div className='flex justify-end mr-[30px]'>
                         <Button
-                            onClick={() => setConfirmDelete(true)}
-                            className='bg-[#cb1c22] text-white'>Hủy đơn hàng</Button>
+                            onClick={handleDeleteButton}
+                            className={`bg-[#cb1c22]  ${isDisableDeleteOrder ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}>
+                            Hủy đơn hàng
+                        </Button>
                     </div>
                 </div>
             </div>

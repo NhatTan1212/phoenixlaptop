@@ -24,7 +24,7 @@ function Order() {
 
         return matchedOrder ? (
             <div className='text-[#26aa5f] font-bold'>
-                {matchedOrder.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                {matchedOrder.is_cancel === 1 ? <span className='text-red-600'>Đơn hàng đã hủy</span> : matchedOrder.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
                     : matchedOrder.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                         : matchedOrder.is_transported ? 'Đơn hàng đã được giao đến nơi'
                             : matchedOrder.is_being_shipped ? 'Đơn hàng đang được giao đến bạn'
@@ -126,6 +126,7 @@ function Order() {
                 { text: 'Đang giao hàng', value: 'is_being_shipped' },
                 { text: 'Đã giao hàng thành công', value: 'is_transported' },
                 { text: 'Đơn hàng đã hoàn tất', value: 'is_success' },
+                { text: 'Đơn hàng đã hủy', value: 'is_cancel' },
             ],
             onFilter: (value, record) => {
                 const matchedOrder = order.find(item => item.id === record.id);
@@ -143,6 +144,8 @@ function Order() {
                         return matchedOrder.is_transported === 1 && matchedOrder.is_success !== 1;
                     case 'is_success':
                         return matchedOrder.is_success === 1;
+                    case 'is_cancel':
+                        return matchedOrder.is_cancel === 1;
                     default:
                         return false;
                 }

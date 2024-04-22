@@ -321,8 +321,16 @@ const SignInFb = () => {
         });
 }
 
+const SearchQuery = (query) => {
+    return Instance.get(`/search${query}`)
+        .then((res) => res.data)
+        .catch(error => {
+            console.error('Loi call api GetProductByQuery:', error);
+        });
+}
+
 export {
     GetUsers, GetUsersById, GetDeliveryAddress, DeleteDeliveryAdress, GetProducts, GetBrands, AddNewBrand, DeleteBrand, EditBrand, GetLaptopGaming, GetProductsByQuery, EditUser, EditUserInfoById, ChangeUserPasswordById, AddNewUser, DeleteUser, GetCategories, GetImages,
     EditProduct, AddNewProduct, DeleteProduct, GetOrder, UpdateOrder, DeleteOrder, AddNewDeliveryAddress, AddNewCategory, EditCategory, DeleteCategory,
-    SignInFb
+    SignInFb, SearchQuery
 };

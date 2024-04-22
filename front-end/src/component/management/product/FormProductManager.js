@@ -850,16 +850,11 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         name='brand_id'
                                         value={brandSelected || brandDefault}
                                         onChange={(e) => {
-                                            const getBrand = brands.find((brand) => {
-                                                // console.log(brand.brand_id)
-                                                // console.log(actioningProduct)
-                                                return brand.brand_id === e + 1
-
-                                            });
+                                            const getBrand = brands[e]
                                             // console.log(getBrand);
                                             setBrandSelected(getBrand.name)
                                             // value ở đây là một mảng các giá trị đã được chọn
-                                            setSelectedItems(e + 1);
+                                            setSelectedItems(getBrand.brand_id);
                                             // console.log(e + 1)
                                         }}
                                         style={{
@@ -882,11 +877,16 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         name='category_id'
                                         value={categorySelected || categoryDefault}
                                         onChange={(e) => {
+
                                             // console.log(categories);
                                             const getCategory = categories[e]
                                             // console.log(getCategory);
                                             // console.log(getBrand);
                                             // console.log(categories.brand_id);
+
+                                            console.log('>> Check category: ', categories);
+                                            const getCategory = categories[e]
+
                                             setCategorySelected(getCategory.name)
                                             // console.log(getCategory);
                                             // value ở đây là một mảng các giá trị đã được chọn

@@ -798,7 +798,9 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     value={categorySelected}
                                     onChange={(e) => {
                                         const getCategory = categories[e]
-                                        // console.log(categories[e]);
+
+                                    
+
                                         setCategorySelected(getCategory.name)
                                         // value ở đây là một mảng các giá trị đã được chọn
                                         setCategoryIDSelected(getCategory.category_id);

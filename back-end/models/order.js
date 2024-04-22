@@ -20,11 +20,13 @@ const ORDERS = function (order) {
     this.is_being_shipped = order.is_being_shipped;
     this.is_transported = order.is_transported;
     this.is_success = order.is_success;
+    this.is_cancel = order.is_cancel;
     this.paid_at = order.paid_at;
     this.approved_at = order.approved_at;
     this.being_shipped_at = order.being_shipped_at;
     this.transported_at = order.transported_at;
     this.successful_at = order.successful_at;
+    this.cancel_at = order.cancel_at;
     this.vnp_BankCode = order.vnp_BankCode;
     this.vnp_CardType = order.vnp_CardType;
     this.vnp_OrderInfo = order.vnp_OrderInfo;
@@ -512,6 +514,30 @@ ORDERS.UpdateSuccessById = async (id, is_success) => {
             const data = await pool.request()
                 .input('id', sql.Int, id)
                 .input('is_success', sql.Int, is_success)
+                .query(sqlStringAddProduct);
+
+            resolve(data.recordset);
+        } catch (err) {
+            console.log(err);
+            reject(err);
+        }
+    });
+}
+
+ORDERS.UpdateCancelById = async (id, is_cancel) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+            UPDATE ORDERS
+            SET is_cancel = @is_cancel,
+            cancel_at = CURRENT_TIMESTAMP
+            WHERE id = @id;
+            `;
+
+            const data = await pool.request()
+                .input('id', sql.Int, id)
+                .input('is_cancel', sql.Int, is_cancel)
                 .query(sqlStringAddProduct);
 
             resolve(data.recordset);

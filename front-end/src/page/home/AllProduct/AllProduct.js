@@ -38,7 +38,7 @@ function AllProduct() {
     })
     useEffect(() => {
 
-        setCurrentPage(pagination.currentPage)//a hiển thử đi
+        setCurrentPage(pagination.currentPage)
 
     }, [query])
 
@@ -141,7 +141,6 @@ function AllProduct() {
                 totalProducts: response.totalProducts,
                 limit: response.limit,
             })
-            console.log('>>> Check call api:', response);
         })
     }
 
@@ -391,7 +390,6 @@ function AllProduct() {
                                     <List.Item className='h-full'>
                                         <Card className=' w-[100%] h-[100%] overflow-hidden'>
                                             {renderListProduct(item, brands)}
-
                                         </Card>
                                     </List.Item>
                                 )}
