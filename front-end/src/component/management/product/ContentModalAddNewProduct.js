@@ -127,8 +127,8 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
         values.preventDefault();
         const formData = new FormData();
         formData.append('token', token);
-        formData.append('brand_id', selectedItems + 1);
-        formData.append('category_id', categoryIDSelected + 1);
+        formData.append('brand_id', selectedItems);
+        formData.append('category_id', categoryIDSelected);
         formData.append('prod_name', productName);
         formData.append('prod_description', productDescription);
         formData.append('price', price);
@@ -798,7 +798,9 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     value={categorySelected}
                                     onChange={(e) => {
                                         const getCategory = categories[e]
-                                        // console.log(getBrand);
+
+                                    
+
                                         setCategorySelected(getCategory.name)
                                         // value ở đây là một mảng các giá trị đã được chọn
                                         setCategoryIDSelected(getCategory.category_id);

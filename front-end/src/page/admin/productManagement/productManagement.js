@@ -269,7 +269,6 @@ const ProductManagement = () => {
 
   const getCategories = () => {
     GetCategories().then(response => {
-      // console.log("categories: \n", response.data);
       setCategories(response);
       setCategorySelect(response.map((category) => {
         return category.name
