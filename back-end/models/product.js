@@ -534,7 +534,7 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
 
             query += ` ORDER BY price ${sort.toUpperCase()}`;
         } else {
-            query += ` ORDER BY id`;
+            query += ` ORDER BY id * -1`;
         }
 
         query += ` OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
