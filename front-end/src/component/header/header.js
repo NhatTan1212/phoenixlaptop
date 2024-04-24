@@ -280,7 +280,7 @@ function Header() {
                 options={products.map((product) => ({
                     ...product,
                     label: renderOption(product),
-                    value: product.prod_name
+                    value: product.id
                 }))}
                 filterOption={filterOptions}
                 onSelect={(value, option) => { }}

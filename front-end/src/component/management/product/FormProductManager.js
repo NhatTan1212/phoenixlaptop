@@ -20,8 +20,8 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
     const isScreenSmaller430 = context.isScreenSmaller430
 
     const [productName, setProductName] = useState('')
-    const [price, setPrice] = useState('')
-    const [cost, setCost] = useState('')
+    const [price, setPrice] = useState(actioningProduct.price)
+    const [cost, setCost] = useState(actioningProduct.cost)
     const [productDescription, setProductDescription] = useState('')
     const [quantity, setQuantity] = useState('')
     const [productPercent, setProductPercent] = useState('')
@@ -94,6 +94,10 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
         setCost(e.target.value);
         calculateDiscountPercentage(price, e.target.value);
     };
+
+    useEffect(() => {
+        calculateDiscountPercentage(actioningProduct.price, actioningProduct.cost)
+    }, [])
 
     const uploadButton = (
         <div>
@@ -873,9 +877,16 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         name='category_id'
                                         value={categorySelected || categoryDefault}
                                         onChange={(e) => {
-                                            console.log('>> Check category: ', categories);
+
+                                            // console.log(categories);
                                             const getCategory = categories[e]
+                                            // console.log(getCategory);
+                                            // console.log(getBrand);
+                                            // console.log(categories.brand_id);
+
+
                                             setCategorySelected(getCategory.name)
+                                            // console.log(getCategory);
                                             // value ở đây là một mảng các giá trị đã được chọn
                                             setCategoryIDSelected(getCategory.category_id);
                                             // console.log(e + 1)
