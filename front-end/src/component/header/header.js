@@ -259,12 +259,10 @@ function Header() {
     };
 
     const handleEnterSearch = (e) => {
-        if (e.key === 'Enter') {
-            if (e.target.value.trim() !== '') {
-                navigate(`/search?q=${encodeURIComponent(e.target.value.trim())}&page=1`);
-            } else {
-                context.Message('warning', 'Vui lòng nhập từ khóa vào ô tìm kiếm')
-            }
+        if (e.trim() !== '') {
+            navigate(`/search?q=${encodeURIComponent(e.trim())}&page=1`);
+        } else {
+            context.Message('warning', 'Vui lòng nhập từ khóa vào ô tìm kiếm')
         }
     }
 
@@ -291,8 +289,11 @@ function Header() {
                     className='text-white header-input-search'
                     size="large"
                     placeholder='Nhập tên sản phẩm, từ khóa cần tìm kiếm,...'
-                    onPressEnter={(e) => {
+                    onSearch={(e) => {
                         handleEnterSearch(e)
+                    }}
+                    onPressEnter={(e) => {
+                        handleEnterSearch(e.target.value)
                     }}
                 />
             </AutoComplete>)
