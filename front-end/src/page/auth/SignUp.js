@@ -111,6 +111,13 @@ const SignUp = () => {
         const regexPassword = /^.{6,}$/;
         const isPasswordValid = regexPassword.test(newPassword);
         setPasswordInvalid(!isPasswordValid);
+        if ((newPassword === retypePassword)  ) {
+            setRePasswordInvalid(false);
+        } else {
+            if ((retypePassword === '')) return
+            setRePasswordInvalid(true);
+            setErrMassage(' Mật khẩu không trùng khớp')
+        }
     };
 
     const onChangeRetypePassword = (e) => {
@@ -121,7 +128,7 @@ const SignUp = () => {
             setRePasswordInvalid(false);
         } else {
             setRePasswordInvalid(true);
-
+            setErrMassage(' Mật khẩu không trùng khớp')
         }
 
     };
