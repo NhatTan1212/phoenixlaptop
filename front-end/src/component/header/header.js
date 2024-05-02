@@ -290,6 +290,13 @@ function Header() {
                     size="large"
                     placeholder='Nhập tên sản phẩm, từ khóa cần tìm kiếm,...'
                     onSearch={(e) => {
+                        if (e.trim() !== '') {
+                            navigate(`/search?q=${encodeURIComponent(e.trim())}&page=1`);
+                        } else {
+                            context.Message('warning', 'Vui lòng nhập từ khóa vào ô tìm kiếm')
+                        }
+                    }}
+                    onPressEnter={(e) => {
                         handleEnterSearch(e)
                     }}
                     onPressEnter={(e) => {

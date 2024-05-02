@@ -108,7 +108,7 @@ function SearchPage() {
                                         }
                                         onClick={() => { handleSort('') }}
                                     >
-                                        Mới nhập
+                                        Sản phẩm mới
                                     </span>
                                     <span
                                         className={
