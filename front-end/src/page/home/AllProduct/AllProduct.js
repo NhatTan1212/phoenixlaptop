@@ -358,7 +358,7 @@ function AllProduct() {
                                     }
                                     onClick={() => { handleChangeSort() }}
                                 >
-                                    Mới nhập
+                                    Sản phẩm mới
                                 </span>
                                 <span
                                     className={

@@ -534,7 +534,7 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
 
             query += ` ORDER BY price ${sort.toUpperCase()}`;
         } else {
-            query += ` ORDER BY id * -1`;
+            query += ` ORDER BY id DESC`;
         }
 
         query += ` OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
@@ -614,7 +614,7 @@ Products.searchProductsWithPagination = async (reqData, resultCallback) => {
                 OR [detailed_evaluation] LIKE '%' + @searchKeyword + '%'
             ORDER BY
                 CASE
-                    WHEN @sort = '' THEN [id] * -1 -- Sắp xếp theo id tăng dần
+                    WHEN @sort = '' THEN [id] * -1 -- Sắp xếp theo id giảm dần
                     WHEN @sort = 'asc' THEN [price] -- Sắp xếp theo giá tăng dần
                     WHEN @sort = 'desc' THEN [price] * -1 -- Sắp xếp theo giá giảm dần
                 END

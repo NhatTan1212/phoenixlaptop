@@ -12,13 +12,12 @@ function Footer() {
   return (
     <div
       className={`${isAdminHomePage ? 'hidden' : 'block'}`}
-      style={{ backgroundColor: 'rgb(206, 229, 233)' }}
+      style={{ backgroundColor: '#000' }}
     >
       <div
-        className={`m-auto w-10/12 pt-[15px] pb-[20px] ${!isHiddenAutoCpl ? '' : 'flex'
-          }`}
+        className={`m-auto w-10/12 pt-[15px] pb-[20px] ${!isHiddenAutoCpl ? '' : 'flex justify-between'}`}
       >
-        <div className={`${!isHiddenAutoCpl ? "w-full" : "w-[20%]"}`}>
+        <div className={`${!isHiddenAutoCpl ? "w-full" : "w-[20%]"} text-zinc-300`}>
           <h3 className="text-[18px] font-bold my-[15px]">Thông tin chung</h3>
           <ul>
             <li>Giới thiệu về Phoniex</li>
@@ -29,7 +28,7 @@ function Footer() {
             <li>Khách hàng doanh nghiệp</li>
           </ul>
         </div>
-        <div className={`${!isHiddenAutoCpl ? 'w-full' : 'w-[20%]'}`}>
+        <div className={`${!isHiddenAutoCpl ? 'w-full' : 'w-[20%]'} text-zinc-300`}>
           <h3 className='text-[18px] font-bold my-[15px]'>Hỗ trợ khách hàng</h3>
           <ul>
             <li>Tìm hiểu về mua trả góp</li>
@@ -40,7 +39,7 @@ function Footer() {
             <li>Bảo mật thông tin khách hàng</li>
           </ul>
         </div>
-        <div className={`${!isHiddenAutoCpl ? 'w-full' : 'w-[25%]'}`}>
+        <div className={`${!isHiddenAutoCpl ? 'w-full' : 'w-[25%]'} text-zinc-300`}>
           <h3 className='text-[18px] font-bold my-[15px]'>
             <b className='text-[#ed1d24]'>Phoenix</b> Đà Nẵng
           </h3>
@@ -57,7 +56,7 @@ function Footer() {
             <li><strong>Email: </strong> websitebanlaptop1212@gmail.com</li>
           </ul>
         </div>
-        <div className={`${!isHiddenAutoCpl ? 'w-full' : 'w-[35%]'}`}>
+        <div className={`${!isHiddenAutoCpl ? 'w-full' : 'w-[30%]'} text-zinc-300`}>
           <h3 className='text-[18px] font-bold my-[15px]'>
             Chăm sóc khách hàng
           </h3>

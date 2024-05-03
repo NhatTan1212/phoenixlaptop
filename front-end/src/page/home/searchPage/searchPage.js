@@ -57,6 +57,7 @@ function SearchPage() {
         }
 
         let newSearch = location.search;
+        console.log(location);
 
         if (!newSortParam) {
             newSearch = newSearch.replace(/([?&])sort=[^&]+(&|$)/i, '');
@@ -107,7 +108,7 @@ function SearchPage() {
                                         }
                                         onClick={() => { handleSort('') }}
                                     >
-                                        Mới nhập
+                                        Sản phẩm mới
                                     </span>
                                     <span
                                         className={
