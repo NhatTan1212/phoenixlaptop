@@ -44,7 +44,7 @@ const UserManagement = () => {
             sorter: (record1, record2) => { return record1.id - record2.id }
         },
         {
-            title: 'Name',
+            title: 'Tên',
             dataIndex: 'name',
             width: '25%',
         },
@@ -70,7 +70,7 @@ const UserManagement = () => {
             }
         },
         {
-            title: 'Action',
+            title: 'Hành động',
             dataIndex: 'action',
             width: '150px',
             render: (text, record) => {

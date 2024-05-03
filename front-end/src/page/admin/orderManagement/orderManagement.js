@@ -42,6 +42,7 @@ const OrderManagement = () => {
     const [id, setId] = useState([]);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [orderIdToDelete, setOrderIdToDelete] = useState(null);
+    const [orderStatusDelete, setOrderStatusDelete] = useState(null);
 
 
 
@@ -255,6 +256,8 @@ const OrderManagement = () => {
                     p-1 px-2 mt-2 w-[97px] max-[1281px]:w-[auto]'
                         onClick={(e) => {
                             setOrderIdToDelete(record.id)
+                            setOrderStatusDelete(record.is_payment)
+                            // console.log(record);
                             setShowDeleteConfirmation(true)
                         }}>
                         {!isScreenSmaller1280 ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
@@ -509,8 +512,15 @@ const OrderManagement = () => {
 
     const filterOrders = () => {
         const filteredOrders = orders.filter((order) => {
+            // console.log(order.created_at);
             const orderId = order.id + '';
-            return orderId.includes(searchText);
+            const orderAdd = order.user_address.toString().toLowerCase();
+            // const orderDate = order.created_at.toString();
+            console.log(searchText);
+            const date = new Date(order.created_at).toLocaleDateString();
+            const created_at = date;
+            // console.log(created_at);
+            return orderId.includes(searchText) || orderAdd.includes(searchText) || created_at.includes(searchText);
         });
         // console.log(orders, filteredOrders)
         setFilteredOrders(filteredOrders);
@@ -568,19 +578,33 @@ const OrderManagement = () => {
         }
     }
 
-    const handleDeleteOrder = (order_id) => {
+    const handleDeleteOrder = (order_id, order_status) => {
+        if (order_status !== 1) {
+            console.log(order);
+            const requestData = {
+                token: token,
+                order_id: order_id,
+            };
 
-        const requestData = {
-            token: token,
-            order_id: order_id,
-        };
-
-        DeleteOrder(requestData).then(response => {
-            if (response.success) {
-                context.Message("success", "Xóa order thành công.")
-
-            }
-        })
+            DeleteOrder(requestData).then(response => {
+                if (response.success) {
+                    context.Message("success", "Xóa đơn hàng thành công.");
+                    // Cập nhật danh sách đơn hàng sau khi xóa thành công (nếu cần)
+                    // Ví dụ: fetchData();
+                } else {
+                    // Xử lý trường hợp không thành công
+                    context.Message("error", "Không thể xóa order. Vui lòng thử lại sau.");
+                }
+            }).catch(error => {
+                // Xử lý lỗi từ yêu cầu xóa đơn hàng
+                console.error("Lỗi khi xóa đơn hàng:", error);
+                context.Message("error", "Đã xảy ra lỗi khi xóa đơn hàng. Vui lòng thử lại sau.");
+            });
+        } else {
+            // Nếu trạng thái không phù hợp, hiển thị thông báo cho người dùng
+            context.Message("error", "Không thể xóa đơn hàng với trạng thái này.");
+            console.log(order_status);
+        }
     }
 
 
@@ -651,13 +675,13 @@ const OrderManagement = () => {
                 title="Xác nhận xóa sản phẩm"
                 open={showDeleteConfirmation}
                 onOk={() => {
-                    handleDeleteOrder(orderIdToDelete); // Gọi hàm xóa sau khi xác nhận
+                    handleDeleteOrder(orderIdToDelete, orderStatusDelete); // Gọi hàm xóa sau khi xác nhận
                     setShowDeleteConfirmation(false); // Đóng modal
                 }}
                 onCancel={() => setShowDeleteConfirmation(false)} // Đóng modal khi bấm hủy
                 className='model-cart'
             >
-                <p>Bạn có chắc chắn muốn xóa sản phẩm khỏi cửa hàng?</p>
+                <p>Bạn có chắc chắn muốn xóa đơn hàng khỏi cửa hàng?</p>
             </Modal>
             <Modal
                 className='edit-modal-orderManagement'

@@ -885,6 +885,10 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                             // console.log(categories.brand_id);
 
 
+                                            console.log('>> Check category: ', categories);
+                                            // const getCategory = categories[e]
+
+
                                             setCategorySelected(getCategory.name)
                                             // console.log(getCategory);
                                             // value ở đây là một mảng các giá trị đã được chọn

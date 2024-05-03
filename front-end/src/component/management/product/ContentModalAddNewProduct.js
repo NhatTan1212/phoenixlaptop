@@ -205,7 +205,8 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                 <Input
                     className='fpm-input-file mb-2 mt-0' type="file" name="avatar" hidden
                     onChange={(e) => {
-                        if (e.target.files&&e.target.files[0]) {
+
+                        if (e.target.files && e.target.files[0]) {
                              // console.log(e.target.files[0])
                         setAvatar(e.target.files[0])
                         // Update the image preview here
@@ -220,6 +221,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                         }
                        
                     }} />
+
             </div>
 
             <div>
@@ -814,7 +816,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     onChange={(e) => {
                                         const getCategory = categories[e]
 
-                                    
+
 
                                         setCategorySelected(getCategory.name)
                                         // value ở đây là một mảng các giá trị đã được chọn

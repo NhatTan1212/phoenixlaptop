@@ -185,6 +185,15 @@ function laptopOffice(req, res) {
     }
   });
 }
+function laptopLuxury(req, res) {
+  Products.findByCategoryId(3, (err, product) => {
+    if (!err) {
+      // console.log(req.session)
+      // res.render("home", { data: product })
+      res.json(product);
+    }
+  });
+}
 
 function getLaptopsByQuery(req, res) {
   const { query } = req.params;
@@ -1902,6 +1911,7 @@ module.exports = {
   home,
   laptopGaming,
   laptopOffice,
+  laptopLuxury,
   getLaptopsByQuery,
   listImage,
   management,
