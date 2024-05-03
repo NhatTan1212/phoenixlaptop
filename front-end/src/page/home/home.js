@@ -27,6 +27,7 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [laptopGaming, setLaptopGaming] = useState([]);
   const [laptopOffice, setLaptopOffice] = useState([]);
+  const [laptopLuxury, setLaptopLuxury] = useState([]);
   const [hotSaleProducts, setHotSaleProducts] = useState([]);
   const [brands, setBrands] = useState([]);
 
@@ -35,6 +36,7 @@ function Home() {
     getProducts();
     getLaptopGaming();
     getLaptopOffice();
+    getLaptopLuxury();
     getBrands();
   }, [isScreenSmaller1280]);
 
@@ -67,6 +69,17 @@ function Home() {
       });
   };
 
+  const getLaptopLuxury = () => {
+    Instance.get("/laptop-caocap-sangtrong")
+      .then((res) => {
+        setLaptopLuxury(res.data);
+        sortLaptopLuxury(res.data)
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const getBrands = () => {
     Instance.get("/brands-list")
       .then((response) => {
@@ -85,6 +98,15 @@ function Home() {
     );
     setHotSaleProducts(sortedProducts.slice(0, 5));
   };
+
+  const sortLaptopLuxury = (data) => {
+    const sortedProducts = [...data].sort(
+      (a, b) => b.price - a.price
+    );
+    setLaptopLuxury(sortedProducts.slice(0, 5));
+  };
+
+
 
   const formatPriceWithCommas = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -206,7 +228,7 @@ function Home() {
                 : "SẢN PHẨM KHUYẾN MÃI HOT NHẤT"}
             </h2>
             <Link
-              to={"/laptop?page=1"} //từ em thử cái
+              to={"/laptop?page=1"}
               className="font-bold text-[#c8191f]"
             >
               {"xem tất cả >>"}
@@ -218,6 +240,33 @@ function Home() {
               : isScreenSmaller1280
                 ? hotSaleProducts.slice(0, 4).map(renderListProduct)
                 : hotSaleProducts.map(renderListProduct)}
+          </Card>
+          <div
+            className="flex justify-between items-center
+                    border-b-[2px] border-[#c8191f]  mt-[30px]"
+          >
+            <h2
+              className={` bg-[#c8191f] text-white
+                    inline-block font-bold  rounded-t-[10px] ${!isHiddenAutoCpl
+                  ? "text-[16px] px-[8px] py-[8px]"
+                  : "text-[20px] px-[10px] py-[10px]"
+                }`}
+            >
+              Laptop Cao Cấp - Sang Trọng
+            </h2>
+            <Link
+              to={"/laptop/category=laptop-caocap-sangtrong&page=1"}
+              className="font-bold text-[#c8191f]"
+            >
+              {"xem tất cả >>"}
+            </Link>
+          </div>
+          <Card className=" w-[100%] h-auto">
+            {!isHiddenAutoCpl
+              ? laptopLuxury.slice(0, 2).map(renderListProduct)
+              : isScreenSmaller1280
+                ? laptopLuxury.slice(0, 4).map(renderListProduct)
+                : laptopLuxury.slice(0, 5).map(renderListProduct)}
           </Card>
 
           <div
@@ -275,6 +324,8 @@ function Home() {
                 ? laptopOffice.slice(0, 4).map(renderListProduct)
                 : laptopOffice.slice(0, 5).map(renderListProduct)}
           </Card>
+
+
 
           <div className="mt-[30px]">
             <img src="http://localhost:8000/upload/sub-banner.png"></img>

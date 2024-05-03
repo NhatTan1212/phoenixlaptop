@@ -25,10 +25,12 @@ function OrderDetail() {
     const [order, setOrder] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [orderDetailChange, setorderDetailChange] = useState(false);
-    const isDisableDeleteOrder = (order.is_payment === 1 || order.is_cancel
-        || order.is_approved === 1 || order.is_being_shipped === 1
-        || order.is_transported === 1 || order.is_success === 1) ? true : false
-
+    const [isDisableDeleteOrder, setIsDisableDeleteOrder] = useState(false);
+    useEffect(() => {
+        (order.length > 0) && setIsDisableDeleteOrder((order.is_payment === 1 || order.is_cancel
+            || order.is_approved === 1 || order.is_being_shipped === 1
+            || order.is_transported === 1 || order.is_success === 1) ? true : false)
+    }, [])
     const columns = [
         {
             title: 'Hình sản phẩm',
@@ -202,7 +204,7 @@ function OrderDetail() {
 
             <div className='w-10/12  mx-[auto] max-[1550px]:w-full '>
                 {
-                    order.is_cancel &&
+                    order && order.is_cancel &&
                     <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
                 border-[#8f7f00] mb-3'>
                         <div className='flex p-4'>

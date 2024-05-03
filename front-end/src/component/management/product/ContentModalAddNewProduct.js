@@ -194,17 +194,30 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                     className='fpm-input-file mb-2 mt-0' type="file" name="avatar" hidden
                     onChange={(e) => {
                         // console.log(e.target.files[0])
-                        setAvatar(e.target.files[0])
-                        // Update the image preview here
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            // Set the preview image source
-                            document.querySelector('.avatar-modal-view').src = event.target.result;
-                            document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
-                            document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
-                        };
-                        reader.readAsDataURL(e.target.files[0]);
-                    }} />
+                        if (e.target.files && e.target.files[0]) {
+                            setAvatar(e.target.files[0])
+                            // Update the image preview here
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                // Set the preview image source
+                                document.querySelector('.avatar-modal-view').src = event.target.result;
+                                document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
+                                document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
+                            };
+                            reader.readAsDataURL(e.target.files[0]);
+                        }
+                        // setAvatar(e.target.files[0])
+                        // // Update the image preview here
+                        // const reader = new FileReader();
+                        // reader.onload = (event) => {
+                        //     // Set the preview image source
+                        //     document.querySelector('.avatar-modal-view').src = event.target.result;
+                        //     document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
+                        //     document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
+                        // };
+                        // reader.readAsDataURL(e.target.files[0]);
+                    }
+                    } />
             </div>
 
             <div>
@@ -799,7 +812,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     onChange={(e) => {
                                         const getCategory = categories[e]
 
-                                    
+
 
                                         setCategorySelected(getCategory.name)
                                         // value ở đây là một mảng các giá trị đã được chọn

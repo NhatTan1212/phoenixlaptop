@@ -63,7 +63,7 @@ const BrandManagement = () => {
             }
         },
         {
-            title: 'Action',
+            title: 'Hành động',
             dataIndex: 'action',
             width: '10%',
             render: (text, record) => {

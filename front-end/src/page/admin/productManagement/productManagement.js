@@ -48,7 +48,7 @@ const ProductManagement = () => {
       sorter: (record1, record2) => { return record1.id - record2.id }
     },
     {
-      title: 'Brand',
+      title: 'Tên thương hiệu',
       dataIndex: 'brand_id',
       sortDirections: ["descend", "ascend"],
       responsive: ["xxl"],
@@ -69,7 +69,7 @@ const ProductManagement = () => {
       // defaultFiltered
     },
     {
-      title: 'Category',
+      title: 'Danh mục',
       dataIndex: 'category_id',
       sortDirections: ["descend", "ascend"],
       responsive: ["xxl"],
@@ -90,21 +90,21 @@ const ProductManagement = () => {
     },
 
     {
-      title: 'Avatar',
+      title: 'Hình sản phẩm',
       dataIndex: 'avatar',
       render: (dataIndex) => {
         return <img src={dataIndex} className='max-h-[110px] min-w-[100px]'></img>
       }
     },
     {
-      title: 'Name',
+      title: 'Tên sản phẩm',
       dataIndex: 'prod_name',
       render: (_, record) => {
         return <div className='max-[1510px]:max-w-[200px] max-[1190px]:max-w-[150px] max-h-[3em] overflow-hidden'>{record.prod_name}</div>
       }
     },
     {
-      title: 'Price',
+      title: 'Giá bán',
       dataIndex: 'price',
       sorter: (record1, record2) => { return record1.price - record2.price },
       render: (_, record) => (
@@ -112,7 +112,7 @@ const ProductManagement = () => {
       ),
     },
     {
-      title: 'Cost',
+      title: 'Giá chính hãng',
       dataIndex: 'cost',
       sorter: (record1, record2) => { return record1.cost - record2.cost },
       render: (_, record) => (
@@ -120,12 +120,12 @@ const ProductManagement = () => {
       ),
     },
     {
-      title: 'Quantity',
+      title: 'Số lượng',
       dataIndex: 'quantity',
       sorter: (record1, record2) => { return record1.quantity - record2.quantity }
     },
     {
-      title: 'Action',
+      title: 'Hành động',
       dataIndex: 'action',
       width: '135px',
       render: (text, record) => {
@@ -333,7 +333,6 @@ const ProductManagement = () => {
     });
     setCategoryDefault(getCategory.name)
   }
-
   const addNewProduct = () => {
     setIsOpenedModalAddNew(true)
   }

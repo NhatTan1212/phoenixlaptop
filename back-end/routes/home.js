@@ -56,6 +56,7 @@ routerHome.get("/home", controllerHome.home);
 routerHome.get("/list-image", controllerHome.listImage);
 routerHome.get("/laptop-gaming", controllerHome.laptopGaming);
 routerHome.get("/laptop-vanphong", controllerHome.laptopOffice);
+routerHome.get("/laptop-caocap-sangtrong", controllerHome.laptopLuxury);
 routerHome.get("/laptops/:query", controllerHome.getLaptopsByQuery);
 routerHome.post("/newuser", authMiddleware.isAuthAdmin, controllerHome.addUser);
 routerHome.post("/edituser", authMiddleware.isAuthAdmin, controllerHome.editUserManagement);
