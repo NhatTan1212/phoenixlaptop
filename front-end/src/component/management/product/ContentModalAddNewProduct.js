@@ -122,9 +122,21 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
         setFileList(limitedFileList)
     };
 
-    const onFinish = (values) => {
-        // if (avatar === '') 
-        values.preventDefault();
+    const onFinish = (e) => {
+        e.preventDefault();
+        console.log(avatar);
+        if (avatar === null||productName === ''||selectedItems === ''||categoryIDSelected === ''||
+            productDescription === ''||price === ''||cost === ''||quantity === ''||productPercent === ''||
+            pin === ''||operationSystem === ''||graphics === ''||onBoard === ''||
+            cpu === ''||hardDrive === ''||screen === ''||webcam === ''||connection === ''||prodWeight === '') {
+            context.Message('error','Vui lòng nhập đầy đủ thông tin.')
+            return
+        }
+        if(fileList.length===0){
+            context.Message('error','Vui lòng thêm hình ảnh cho sản phẩm.')
+            return
+        }
+
         const formData = new FormData();
         formData.append('token', token);
         formData.append('brand_id', selectedItems);
@@ -193,7 +205,8 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                 <Input
                     className='fpm-input-file mb-2 mt-0' type="file" name="avatar" hidden
                     onChange={(e) => {
-                        // console.log(e.target.files[0])
+                        if (e.target.files&&e.target.files[0]) {
+                             // console.log(e.target.files[0])
                         setAvatar(e.target.files[0])
                         // Update the image preview here
                         const reader = new FileReader();
@@ -204,6 +217,8 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                             document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
                         };
                         reader.readAsDataURL(e.target.files[0]);
+                        }
+                       
                     }} />
             </div>
 
@@ -1126,8 +1141,12 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                     </Row>
 
                     <div className='inline-block'>
-                        <Input type='submit' defaultValue={"Thêm sản phẩm"}
-                            className='bg-[#c8191f] text-white'>
+                        <Input 
+                        type='submit'
+                         defaultValue={"Thêm sản phẩm"}
+                            className='bg-[#c8191f] text-white'
+                            // onClick={(e)=>{onFinish(e)}}
+                            >
                         </Input>
                     </div>
                 </form>

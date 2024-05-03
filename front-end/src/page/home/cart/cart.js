@@ -3,7 +3,7 @@ import Context from '../../../store/Context';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
-import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col, Checkbox, Tag } from 'antd';
+import { Button, InputNumber, Space, Table, Input, Radio, Row, Select, Modal, Col, Checkbox, Tag, Alert } from 'antd';
 import './cart.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faAngleLeft, faAngleRight, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -58,7 +58,9 @@ function Cart() {
     const [wardSelected, setWardSelected] = useState(null)
     const [customerName, setCustomerName] = useState('')
     const [customerPhone, setCustomerPhone] = useState('')
-    const [customerEmail, setCustomerEmail] = useState('')
+    const [customerPhoneError, setCustomerPhoneError] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('')    
+    const [customerEmailError, setCustomerEmailError] = useState('');
     const [note, setNote] = useState('')
     const [listProduct, setListProduct] = useState([])
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -87,7 +89,7 @@ function Cart() {
         const antInput = document.querySelector('.ant-input')
         antInput.classList.add('ant-input-cart')
     }
-    const onChange = (e) => {
+    const onChangeDefAddressCheckbox = (e) => {
         console.log('checked = ', e.target.checked);
         setChecked(e.target.checked);
     };
@@ -143,7 +145,7 @@ function Cart() {
                     <InputNumber
                         min={1}
                         max={record.is_possible_to_order}
-                        value={record.count}
+                        value={record.count? record.count : 1}
                         onChange={(newQuantity) => handleQuantityChange(record.id, newQuantity)} />
                     : <span className='text-[#e6101d] font-bold'>Hết hàng</span>
             )
@@ -235,6 +237,8 @@ function Cart() {
     }));
 
     const handleQuantityChange = (productId, newQuantity) => {
+        newQuantity = newQuantity === null ? 1 : newQuantity
+
         const updatedCart = cart.map(item => {
             if (item.id === productId) {
                 // Update the quantity for the specific item
@@ -245,7 +249,6 @@ function Cart() {
         });
 
         setCart(updatedCart);
-        console.log(cart)
     };
 
     const getDeliveryAddress = () => {
@@ -483,14 +486,18 @@ function Cart() {
                 return;
             }
             if (valueRadioReceive === "Giao hàng tận nơi") {
-                if (detailAddress === "") {
+                if (detailAddress === "" || radioAddressSelected === null) {
                     context.Message("error", "Quý khách vui lòng nhập địa chỉ giao hàng.");
+                    return
                 } else if (provinceSelected === null) {
                     context.Message("error", "Quý khách vui lòng chọn tỉnh/thành phố nhận hàng.");
+                    return
                 } else if (districtSelected === null) {
                     context.Message("error", "Quý khách vui lòng chọn quận/huyện nhận hàng.");
+                    return
                 } else if (wardSelected === null) {
                     context.Message("error", "Quý khách vui lòng chọn phường/xã nhận hàng.");
+                    return
                 }
 
             }
@@ -797,33 +804,70 @@ function Cart() {
                         <h3 className='font-bold text-[18px] text-[#333333]'>1. Thông tin khách hàng</h3>
                         <div className='px-5 '>
                             <Input
-                                className='my-3 text-[15px]' type='text'
+                                className='my-3 text-[15px]'
+                                type='text'
                                 placeholder='Họ và tên'
                                 value={customerName}
                                 onChange={(e) => {
                                     setCustomerName(e.target.value)
-                                }} />
+                                }}
+                            />
                             <Input
-                                className='my-3 text-[15px]' type='text'
+                                className='my-3 text-[15px]'
+                                type='text'
                                 placeholder='Số điện thoại'
                                 value={customerPhone}
                                 onChange={(e) => {
-                                    setCustomerPhone(e.target.value)
-                                }} />
+                                    const value = e.target.value;
+                                    setCustomerPhone(value);
+                                    if (!/^0/.test(value)) {
+                                        setCustomerPhoneError('Số điện thoại phải bắt đầu bằng 0.');
+                                    }
+                                    else if (!/^0[1-9]/.test(value)) {
+                                        setCustomerPhoneError('Số điện thoại sai định dạng. Ví dụ: 035xxxxxxx.');
+                                    }
+                                    else if (value.length === 10) {
+                                        setCustomerPhoneError('Số điện thoại bao gồm 10 chữ số.');
+                                    }
+                                     else {
+                                        setCustomerPhoneError('');
+                                    }
+                                }}
+                                title="Số điện thoại phải gồm 10 chữ số"
+                            />
+                            {customerPhoneError && (
+                                <Alert className='text-red-300' message={customerPhoneError} type="error"/>
+                            )}
                             <Input
-                                className='my-3 text-[15px]' type='text'
+                                className='my-3 text-[15px]'
+                                type='text'
                                 placeholder='Email (Để nhận thông tin đơn hàng)'
                                 value={customerEmail}
                                 onChange={(e) => {
-                                    setCustomerEmail(e.target.value)
-                                }} />
+                                    const value = e.target.value;
+                                    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+                                    setCustomerEmail(value);
+                                    if (!emailRegex.test(value)) {
+                                        setCustomerEmailError('Email phải là địa chỉ @gmail.com');
+                                    } else {
+                                        setCustomerEmailError('');
+                                    }
+                                }}
+                                pattern="[a-zA-Z0-9._%+-]+@gmail.com"
+                                title="Email phải là địa chỉ @gmail.com"
+                            />
+                            {customerEmailError && (
+                                <Alert className='text-red-300' message={customerEmailError} type="error"/>
+                            )}
                             <Input
-                                className='mt-3 text-[15px]' type='text'
+                                className='mt-3 text-[15px]'
+                                type='text'
                                 placeholder='Ghi chú'
                                 value={note}
                                 onChange={(e) => {
                                     setNote(e.target.value)
-                                }} />
+                                }}
+                            />
                         </div>
 
                         <h3 className='font-bold mt-5 text-[18px] text-[#333333]'>2. Chọn cách thức nhận hàng</h3>
@@ -894,7 +938,7 @@ function Cart() {
                                                 </Select>
 
                                                 <Row className='items-center mt-4'>
-                                                    <Checkbox checked={checked} onChange={onChange} className='chkbox-cart mr-2'>
+                                                    <Checkbox checked={checked} onChange={onChangeDefAddressCheckbox} className='chkbox-cart mr-2'>
                                                         Chọn làm địa chỉ giao hàng mặc định
                                                     </Checkbox>
                                                 </Row>
