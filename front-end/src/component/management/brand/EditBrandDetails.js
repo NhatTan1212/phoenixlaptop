@@ -15,7 +15,6 @@ const EditBrandDetails = ({ isActioning, setIsActioning, setActioningCategory, a
     const [name, setName] = useState(actioningBrand.name)
     const [description, setDescription] = useState(actioningBrand.description)
     const [image, setImage] = useState(actioningBrand.image)
-    const [slug, setSlug] = useState(actioningBrand.slug)
 
     const onFinish = (values) => {
         values.preventDefault();
@@ -24,7 +23,6 @@ const EditBrandDetails = ({ isActioning, setIsActioning, setActioningCategory, a
         formData.append('brand_id', actioningBrand.brand_id);
         formData.append('name', name);
         formData.append('description', description);
-        formData.append('slug', slug);
         formData.append('avatar', image);
 
         EditBrand(formData).then(response => {
@@ -106,27 +104,6 @@ const EditBrandDetails = ({ isActioning, setIsActioning, setActioningCategory, a
                                         setDescription(e.target.value)
                                     }}
                                 />
-
-                                <h3><span className='text-red-500'>* </span>Slug:</h3>
-                                <Tooltip
-                                    placement='bottomLeft'
-                                    title={
-                                        <div>
-                                            <div>- Nhập tiếng việt không dấu</div>
-                                            <div>- Ngăn cách bằng dấu gạch ngang</div>
-                                            <div>- Không chứa khoảng trống</div>
-                                        </div>
-                                    }
-                                >
-                                    <Input
-                                        className='mb-2 mt-0'
-                                        name='slug'
-                                        onChange={(e) => {
-                                            setSlug(e.target.value)
-                                        }}
-                                        value={slug || actioningBrand.slug}
-                                    />
-                                </Tooltip>
                             </Col>
 
                         </Row>
