@@ -64,6 +64,24 @@ BRANDS.findByProductId = async (brand_id, result) => {
         })
 }
 
+BRANDS.findBySlug = async (slug) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+                SELECT * FROM BRANDS WHERE slug = @slug
+            `;
+            const result = await pool.request()
+                .input('slug', sql.NVARCHAR(255), slug)
+                .query(sqlStringAddProduct);
+
+            resolve(result.recordset[0]);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 BRANDS.addNewBrand = async (newBrand, result) => {
     const pool = await connect;
     const sqlStringAddBrand = `
