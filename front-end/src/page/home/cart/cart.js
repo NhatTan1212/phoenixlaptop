@@ -59,7 +59,7 @@ function Cart() {
     const [customerName, setCustomerName] = useState('')
     const [customerPhone, setCustomerPhone] = useState('')
     const [customerPhoneError, setCustomerPhoneError] = useState('');
-    const [customerEmail, setCustomerEmail] = useState('')    
+    const [customerEmail, setCustomerEmail] = useState('')
     const [customerEmailError, setCustomerEmailError] = useState('');
     const [note, setNote] = useState('')
     const [listProduct, setListProduct] = useState([])
@@ -145,7 +145,7 @@ function Cart() {
                     <InputNumber
                         min={1}
                         max={record.is_possible_to_order}
-                        value={record.count? record.count : 1}
+                        value={record.count ? record.count : 1}
                         onChange={(newQuantity) => handleQuantityChange(record.id, newQuantity)} />
                     : <span className='text-[#e6101d] font-bold'>Hết hàng</span>
             )
@@ -486,20 +486,10 @@ function Cart() {
                 return;
             }
             if (valueRadioReceive === "Giao hàng tận nơi") {
-                if (detailAddress === "" || radioAddressSelected === null) {
+                if (radioAddressSelected === null) {
                     context.Message("error", "Quý khách vui lòng nhập địa chỉ giao hàng.");
                     return
-                } else if (provinceSelected === null) {
-                    context.Message("error", "Quý khách vui lòng chọn tỉnh/thành phố nhận hàng.");
-                    return
-                } else if (districtSelected === null) {
-                    context.Message("error", "Quý khách vui lòng chọn quận/huyện nhận hàng.");
-                    return
-                } else if (wardSelected === null) {
-                    context.Message("error", "Quý khách vui lòng chọn phường/xã nhận hàng.");
-                    return
                 }
-
             }
 
             let newList = []
@@ -626,10 +616,12 @@ function Cart() {
 
             getDeliveryAddress()
             getUserDefaultAddress()
+
             setAddNewDetailAddress("");
             setAddNewProvinceSelected(null);
             setAddNewDistrictSelected(null);
             setAddNewWardSelected(null);
+
         }).catch((error) => {
             console.error("Error adding new delivery address:", error);
         });
@@ -826,17 +818,17 @@ function Cart() {
                                     else if (!/^0[1-9]/.test(value)) {
                                         setCustomerPhoneError('Số điện thoại sai định dạng. Ví dụ: 035xxxxxxx.');
                                     }
-                                    else if (value.length === 10) {
+                                    else if (value.length !== 10) {
                                         setCustomerPhoneError('Số điện thoại bao gồm 10 chữ số.');
                                     }
-                                     else {
+                                    else {
                                         setCustomerPhoneError('');
                                     }
                                 }}
                                 title="Số điện thoại phải gồm 10 chữ số"
                             />
                             {customerPhoneError && (
-                                <Alert className='text-red-300' message={customerPhoneError} type="error"/>
+                                <Alert className='text-red-300' message={customerPhoneError} type="error" />
                             )}
                             <Input
                                 className='my-3 text-[15px]'
@@ -857,7 +849,7 @@ function Cart() {
                                 title="Email phải là địa chỉ @gmail.com"
                             />
                             {customerEmailError && (
-                                <Alert className='text-red-300' message={customerEmailError} type="error"/>
+                                <Alert className='text-red-300' message={customerEmailError} type="error" />
                             )}
                             <Input
                                 className='mt-3 text-[15px]'
