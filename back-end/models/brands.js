@@ -165,8 +165,7 @@ BRANDS.editBrandById = async (brand, file, result) => {
         name = @name, 
         description = @description,
         updated_at = CURRENT_TIMESTAMP,
-        image = @image,
-        slug = @slug
+        image = @image
         WHERE brand_id = @brand_id
     `;
 
@@ -175,7 +174,6 @@ BRANDS.editBrandById = async (brand, file, result) => {
         .input('name', sql.NVARCHAR(100), brand.name)
         .input('description', sql.NVARCHAR(255), brand.description)
         .input('image', sql.NVARCHAR(255), file)
-        .input('slug', sql.NVARCHAR(255), brand.slug)
         .query(sqlStringAddProduct, (err, data) => {
             if (err) {
                 console.log(err)

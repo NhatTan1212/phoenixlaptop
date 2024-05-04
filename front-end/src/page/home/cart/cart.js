@@ -930,7 +930,12 @@ function Cart() {
                                                 </Select>
 
                                                 <Row className='items-center mt-4'>
-                                                    <Checkbox checked={checked} onChange={onChangeDefAddressCheckbox} className='chkbox-cart mr-2'>
+                                                    <Checkbox
+                                                        checked={checked}
+                                                        onChange={onChangeDefAddressCheckbox}
+                                                        className='chkbox-cart mr-2'
+                                                        disabled={!radioAddressSelected}
+                                                    >
                                                         Chọn làm địa chỉ giao hàng mặc định
                                                     </Checkbox>
                                                 </Row>
