@@ -212,8 +212,8 @@ USERS.resetPasswordById = async (id, password, result) => {
 USERS.addNewUser = async (newUser, result) => {
     const pool = await connect;
     const sqlStringAddUser = `
-        insert into USERS(name, password, email, role, confirmation_status) 
-        values( @name, @password, @email, @role, 1)
+        insert into USERS(name, password, email, role, confirmation_status, created_at) 
+        values( @name, @password, @email, @role, 1, GETDATE())
     `;
     await pool.request()
         .input('name', sql.NVARCHAR(100), newUser.name)
@@ -230,6 +230,7 @@ USERS.addNewUser = async (newUser, result) => {
             sql.close();
         })
 }
+
 
 USERS.deleteByUserId = async (id, result) => {
     const pool = await connect;
@@ -317,7 +318,7 @@ USERS.deleteByUserId = async (id, result) => {
 USERS.editByUserId = async (editUser, result) => {
     const pool = await connect;
     const sqlStringAddUser = `
-        UPDATE USERS SET name = @name, password = @password, role = @role WHERE id = @id
+        UPDATE USERS SET name = @name, password = @password, role = @role, updated_at = GETDATE() WHERE id = @id
     `;
     await pool.request()
         .input('name', sql.NVARCHAR(100), editUser.name)

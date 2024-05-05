@@ -14,17 +14,60 @@ const EditUserDetails = ({ setIsActioning, setActioningUser, actioningUser }) =>
     const context = useContext(Context)
 
     const [name, setName] = useState(actioningUser.name)
+
     const [password, setPassword] = useState('')
+    const [hasPasswordChanged, setHasPasswordChanged] = useState(false);
+    const [passwordInValid, setPasswordInvalid] = useState(false);
+
     const [rePassword, setRePassword] = useState('')
-    const [isRePassword, setIsRePassword] = useState(false)
+    const [hasRePasswordChanged, setHasRePasswordChanged] = useState(false);
+    const [rePasswordInValid, setRePasswordInvalid] = useState(false);
+
     const [role, setRole] = useState(actioningUser.role)
+
+    const onChangePassword = (e) => {
+        const newPassword = e.target.value;
+        setHasPasswordChanged(true);
+        setPassword(newPassword);
+        if (newPassword !== '') {
+            const regexPassword = /^.{6,}$/;
+            const isPasswordValid = regexPassword.test(newPassword);
+            setPasswordInvalid(!isPasswordValid);
+        } else {
+            setPasswordInvalid(false);
+        }
+    };
+
+    const onChangeRePassword = (e) => {
+        const newPassword = e.target.value;
+        setHasRePasswordChanged(true);
+        setRePassword(newPassword);
+        if (newPassword !== '') {
+            const regexPassword = /^.{6,}$/;
+            const isPasswordValid = regexPassword.test(newPassword);
+            setRePasswordInvalid(!isPasswordValid);
+        } else {
+            setRePasswordInvalid(false);
+        }
+    };
 
     const onFinish = (values) => {
         values.preventDefault();
-        if (rePassword !== password) {
-            context.Message("error", "Mật khẩu nhập lại không trùng khớp.")
-            return
+
+        let hasError = false;
+        if (passwordInValid) {
+            setPasswordInvalid(true);
+            hasError = true;
         }
+        if (rePasswordInValid) {
+            setRePasswordInvalid(true);
+            hasError = true;
+        }
+        if (hasError || (password !== rePassword)) {
+            context.Message("warning", "Vui lòng kiểm tra lại thông tin.");
+            return;
+        }
+
         const formData = {
             token: token,
             id: actioningUser.id,
@@ -37,7 +80,6 @@ const EditUserDetails = ({ setIsActioning, setActioningUser, actioningUser }) =>
             console.log(response);
             if (response.success) {
                 setIsActioning(false);
-                // setActioningUser(null);
                 context.Message("success", "Cập nhật tài khoản thành công.")
 
             }
@@ -73,25 +115,34 @@ const EditUserDetails = ({ setIsActioning, setActioningUser, actioningUser }) =>
                                 <h3><span className='text-red-500'>* </span>Mật khẩu:</h3>
                                 <Input.Password
                                     className='mb-2 mt-0 input-password-edituserdetails'
-                                    placeholder="nhập mật khẩu mới"
                                     iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                                     value={password}
-                                    onChange={(e) => {
-                                        setPassword(e.target.value)
-                                    }}
+                                    onChange={(e) => { onChangePassword(e) }}
                                 />
+
+                                <div className='wrap-err-mess'>
+                                    {(hasPasswordChanged && passwordInValid)
+                                        ? <p className='err-mess'>Mật khẩu phải có ít nhất 6 ký tự</p> : password.length > 255
+                                            ? <p className='err-mess'>Mật khẩu không được vượt quá 255 ký tự</p> : null
+                                    }
+                                </div>
 
                                 <h3><span className='text-red-500'>* </span>Nhập lại mật khẩu:</h3>
                                 <Input.Password
                                     className='mb-2 mt-0 input-password-edituserdetails'
-                                    placeholder="nhập lại mật khẩu"
                                     iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                                     value={rePassword}
-                                    onChange={(e) => {
-                                        setRePassword(e.target.value)
-                                        setIsRePassword(true)
-                                    }}
+                                    onChange={(e) => { onChangeRePassword(e) }}
                                 />
+
+                                <div className='wrap-err-mess'>
+                                    {(hasRePasswordChanged && rePasswordInValid)
+                                        ? <p className='err-mess'>Mật khẩu phải có ít nhất 6 ký tự</p> : rePassword.length > 255
+                                            ? <p className='err-mess'>Mật khẩu không được vượt quá 255 ký tự</p> : (rePassword !== password && hasRePasswordChanged)
+                                                ? <p className='err-mess'>Mật khẩu không trùng khớp</p> :
+                                                null
+                                    }
+                                </div>
 
                                 <h3><span className='text-red-500'>* </span>Vai trò:</h3>
                                 <Select
@@ -105,17 +156,10 @@ const EditUserDetails = ({ setIsActioning, setActioningUser, actioningUser }) =>
                                         width: '100%',
                                     }}
 
-                                    options={
-                                        [{
-                                            value: 'admin',
-                                            label: 'admin'
-                                        },
-                                        {
-                                            value: 'user',
-                                            label: 'user'
-                                        }]
-
-                                    }
+                                    options={[
+                                        { value: 'admin', label: 'admin' },
+                                        { value: 'user', label: 'user' }
+                                    ]}
                                 />
                             </Col>
 

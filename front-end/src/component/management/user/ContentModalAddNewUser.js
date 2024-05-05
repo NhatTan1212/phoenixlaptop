@@ -13,21 +13,26 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
     let token = Cookies.get('token');
     const context = useContext(Context);
     const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
-    const [rePassword, setRePassword] = useState('');
-    const [email, setEmail] = useState('');
-    const [role, setRole] = useState('admin');
     const [hasNameChanged, setHasNameChanged] = useState(false);
-    const [hasEmailChanged, setHasEmailChanged] = useState(false);
-    const [hasPasswordChanged, setHasPasswordChanged] = useState(false);
-    const [hasRePasswordChanged, setHasRePasswordChanged] = useState(false);
-    const [emailInvalid, setEmailInvalid] = useState(false);
-    const [passwordInValid, setPasswordInvalid] = useState(false);
-    const [rePasswordInValid, setRePasswordInvalid] = useState(false);
-    const [newUserFailed, setNewUserFailed] = useState(false);
     const [nameIsNull, setNameIsNull] = useState(false);
+
+    const [password, setPassword] = useState('');
+    const [hasPasswordChanged, setHasPasswordChanged] = useState(false);
+    const [passwordInValid, setPasswordInvalid] = useState(false);
     const [passwordIsNull, setPasswordIsNull] = useState(false);
+
+    const [rePassword, setRePassword] = useState('');
+    const [hasRePasswordChanged, setHasRePasswordChanged] = useState(false);
+    const [rePasswordInValid, setRePasswordInvalid] = useState(false);
+    const [rePasswordIsNull, setRePasswordIsNull] = useState(false);
+
+    const [email, setEmail] = useState('');
+    const [hasEmailChanged, setHasEmailChanged] = useState(false);
+    const [emailInvalid, setEmailInvalid] = useState(false);
     const [emailIsNull, setEmailIsNull] = useState(false);
+
+    const [role, setRole] = useState('user');
+    const [newUserFailed, setNewUserFailed] = useState(false);
 
     const onChangeName = (e) => {
         setName(e.target.value);
@@ -36,39 +41,47 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
     }
 
     const onChangePassword = (e) => {
-        setPassword(e.target.value)
         const newPassword = e.target.value;
         setHasPasswordChanged(true);
         setPassword(newPassword);
         const regexPassword = /^.{6,}$/;
         const isPasswordValid = regexPassword.test(newPassword);
         setPasswordInvalid(!isPasswordValid);
-        setPasswordIsNull(false);
+        if (!e.target.value)
+            setPasswordIsNull(true);
+        else
+            setPasswordIsNull(false);
     };
+
     const onChangeRePassword = (e) => {
-        setRePassword(e.target.value)
         const newPassword = e.target.value;
         setHasRePasswordChanged(true);
         setRePassword(newPassword);
         const regexPassword = /^.{6,}$/;
         const isPasswordValid = regexPassword.test(newPassword);
         setRePasswordInvalid(!isPasswordValid);
-        // setPasswordIsNull(false);
+        if (!e.target.value)
+            setRePasswordIsNull(true);
+        else
+            setRePasswordIsNull(false);
     };
 
     const onChangeEmail = (e) => {
         const newEmail = e.target.value;
         setHasEmailChanged(true);
         setEmail(newEmail);
-        const regexEmail = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/;
+        const regexEmail = /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@gmail.com$/;
         const isEmailValid = regexEmail.test(newEmail) && newEmail.length <= 255;
         setEmailInvalid(!isEmailValid);
-        setEmailIsNull(false);
+        if (!e.target.value)
+            setEmailIsNull(true);
+        else
+            setEmailIsNull(false);
     };
 
     const onFinish = (values) => {
-
         values.preventDefault();
+
         const formData = {
             token: token,
             name: name,
@@ -86,14 +99,30 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
             setEmailIsNull(true);
             hasError = true;
         }
+        if (emailInvalid) {
+            setEmailInvalid(true);
+            hasError = true;
+        }
         if (!password) {
             setPasswordIsNull(true);
             hasError = true;
         }
+        if (passwordInValid) {
+            setPasswordInvalid(true);
+            hasError = true;
+        }
+        if (!rePassword) {
+            setRePasswordIsNull(true);
+            hasError = true;
+        }
+        if (rePasswordInValid) {
+            setRePasswordInvalid(true);
+            hasError = true;
+        }
 
-        if (hasError) {
+        if (hasError || (password !== rePassword)) {
             setNewUserFailed(true);
-            context.Message("warning", "Vui lòng điền đầy đủ thông tin");
+            context.Message("warning", "Vui lòng kiểm tra lại thông tin.");
             return;
         }
 
@@ -147,7 +176,7 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
                                 }}></Input.Password>
 
                             <div className='wrap-err-mess'>
-                                {(hasPasswordChanged && password === '') || (newUserFailed && passwordIsNull)
+                                {(hasPasswordChanged && password === '') || passwordIsNull
                                     ? <p className='err-mess'>Mật khẩu không được để trống</p> : passwordInValid
                                         ? <p className='err-mess'>Mật khẩu phải có ít nhất 6 ký tự</p> : password.length > 255
                                             ? <p className='err-mess'>Mật khẩu không được vượt quá 255 ký tự</p> : null
@@ -165,14 +194,11 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
                                 }}></Input.Password>
 
                             <div className='wrap-err-mess'>
-                                {(rePassword === '' && hasRePasswordChanged) ?
-                                    <p className='err-mess'>Mật khẩu không được để trống</p> :
-                                    rePasswordInValid ?
-                                        <p className='err-mess'>Mật khẩu phải có ít nhất 6 ký tự</p> :
-                                        rePassword.length > 255 ?
-                                            <p className='err-mess'>Mật khẩu không được vượt quá 255 ký tự</p> :
-                                            (rePassword !== password && hasRePasswordChanged) ?
-                                                <p className='err-mess'>Mật khẩu nhập lại không trùng khớp</p> :
+                                {(rePassword === '' && hasRePasswordChanged) || rePasswordIsNull
+                                    ? <p className='err-mess'>Nhập lại mật khẩu không được để trống</p> : rePasswordInValid
+                                        ? <p className='err-mess'>Mật khẩu phải có ít nhất 6 ký tự</p> : rePassword.length > 255
+                                            ? <p className='err-mess'>Mật khẩu không được vượt quá 255 ký tự</p> : (rePassword !== password && hasRePasswordChanged)
+                                                ? <p className='err-mess'>Mật khẩu không trùng khớp</p> :
                                                 null
                                 }
                             </div>
@@ -187,7 +213,7 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
                                     onChangeEmail(e)
                                 }}></Input>
                             <div className='wrap-err-mess'>
-                                {(hasEmailChanged && email == '') || (newUserFailed && emailIsNull)
+                                {(hasEmailChanged && email === '') || emailIsNull
                                     ? <p className='err-mess'>Email không được để trống</p> : emailInvalid
                                         ? <p className='err-mess'>Email không đúng định dạng</p> : null
                                 }
@@ -197,7 +223,7 @@ const ContentModalAddNewUser = ({ isActioning, setIsActioning }) => {
                             <Select
                                 className='mb-2 mt-0'
                                 name='role'
-                                defaultValue="admin"
+                                defaultValue="user"
                                 onChange={(e) => {
                                     setRole(e)
                                 }}
