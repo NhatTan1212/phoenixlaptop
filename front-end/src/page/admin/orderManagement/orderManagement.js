@@ -43,7 +43,14 @@ const OrderManagement = () => {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [orderIdToDelete, setOrderIdToDelete] = useState(null);
     const [orderStatusDelete, setOrderStatusDelete] = useState(null);
+    const [orderStatus, setOrderStatus] = useState('')
 
+    const [spendingStatus, setSpendingStatus] = useState(false)
+    const [approvedStatus, setApprovedStatus] = useState(false)
+    const [beingShippedStatus, setBeingShippedStatus] = useState(false)
+    const [transportedStatus, setTransportedStatus] = useState(false)
+    const [successStatus, setSuccessStatus] = useState(false)
+    const [isPaidStatus, setIsPaidStatus] = useState(false)
 
 
 
@@ -482,6 +489,37 @@ const OrderManagement = () => {
         filterOrders();
     }, [searchText, orders]);
 
+    useEffect(() => {
+
+        if (orderEditing) {
+            setIsPaidStatus(orderEditing.is_payment)
+            if (orderEditing.is_cancel) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+                setBeingShippedStatus(true)
+                setTransportedStatus(true)
+                setSuccessStatus(true)
+                return
+            }
+            if (orderEditing.is_success) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+                setBeingShippedStatus(true)
+                setTransportedStatus(true)
+            } else if (orderEditing.is_transported) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+                setBeingShippedStatus(true)
+            } else if (orderEditing.is_being_shipped) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+            } else if (orderEditing.is_approved) {
+                setSpendingStatus(true)
+            }
+
+        }
+    }, [isEditing])
+
     const getOrders = () => {
         const reqData = { token: token }
         GetOrder(reqData).then(response => {
@@ -530,18 +568,10 @@ const OrderManagement = () => {
         if (orderEditing.is_cancel) {
             return
         }
-        if (orderEditing.is_payment === 1) {
-            context.Message('error', 'Đơn hàng đã thanh toán không được hủy')
-            return
-        }
-        if (orderEditing.is_approved === 1 || orderEditing.is_being_shipped === 1
-            || orderEditing.is_transported === 1 || orderEditing.is_success === 1) {
-            context.Message('error', 'Đơn hàng đã xác nhận không được hủy')
-            return
-        }
-        console.log(values);
+
         const paymentStatus = values.paymentStatus
         const status = values.status
+
         const statusOrderChanged = {
             token: token,
             is_payment: paymentStatus === 'Chưa thanh toán' ? 0 : paymentStatus === '0' ? 0 : 1,
@@ -551,9 +581,11 @@ const OrderManagement = () => {
             is_approved: status === 'is_approved' ? 1 : orderEditing.is_approved,
             is_cancel: status === 'is_cancel' ? 1 : orderEditing.is_cancel,
         }
-        console.log(statusOrderChanged);
+
+
+        // console.log('>>>>>statusOrderChanged', statusOrderChanged);
         UpdateOrder(orderEditing.id, statusOrderChanged).then(response => {
-            console.log(response);
+            // console.log('>>>>>>response', response);
             context.Message("success", "Cập nhật đơn hàng thành công.")
             setIsEditing(false);
             setOrderEditing(null);
@@ -714,7 +746,7 @@ const OrderManagement = () => {
                             onChange={(e) => { console.log(e); setPaymentStatus(e) }}
                             allowClear
                         >
-                            <Option value="0">Chưa thanh toán</Option>
+                            <Option disabled={isPaidStatus ? true : false} value="0">Chưa thanh toán</Option>
                             <Option value="1">Đã thanh toán</Option>
                         </Select>
                     </Form.Item>
@@ -723,15 +755,15 @@ const OrderManagement = () => {
                         label="Trạng thái đơn hàng"
                     >
                         <Select
-                            onChange={(e) => { console.log(e) }}
+                            onChange={(e) => { console.log(e); setOrderStatus(e) }}
                             allowClear
                         >
-                            <Option value="is_pending_approval">Đang chờ phê duyệt</Option>
-                            <Option value="is_approved">Đã xác nhận</Option>
-                            <Option value="is_being_shipped">Đang giao hàng</Option>
-                            <Option value="is_transported">Đã giao hàng thành công</Option>
-                            <Option value="is_success">Đơn hàng đã hoàn tất</Option>
-                            <Option value="is_cancel">Hủy đơn hàng</Option>
+                            <Option disabled={spendingStatus} value="is_pending_approval">Đang chờ phê duyệt</Option>
+                            <Option disabled={approvedStatus} value="is_approved">Đã xác nhận</Option>
+                            <Option disabled={beingShippedStatus} value="is_being_shipped">Đang giao hàng</Option>
+                            <Option disabled={transportedStatus} value="is_transported">Đã giao hàng thành công</Option>
+                            <Option disabled={successStatus} value="is_success">Đơn hàng đã hoàn tất</Option>
+                            <Option disabled={isPaidStatus ? true : false} value="is_cancel">Hủy đơn hàng</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item className='text-end'>
