@@ -69,8 +69,6 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
     const editor = useRef(null);
 
     const calculateDiscountPercentage = (price, cost) => {
-        // console.log("Price:", price);
-        // console.log("Cost:", cost);
         const priceFloat = parseFloat(price);
         const costFloat = parseFloat(cost);
         if (priceFloat && costFloat && priceFloat < costFloat) {
@@ -78,7 +76,6 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
             // console.log("Discount Percentage:", discountPercentage);
             setProductPercent(discountPercentage.toFixed(0) + '');
         } else {
-            // console.log("Invalid input");
             setProductPercent('');
         }
     };
@@ -137,8 +134,10 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
         // console.log("flp", fileListPost)
         // console.log(newFileList)
         const limitedFileList = newFileList.slice(-6);
-        setFileList(newFileList)
+        setFileList(limitedFileList)
     };
+
+
 
     const onFinish = (values) => {
         // if (avatar === '') 
