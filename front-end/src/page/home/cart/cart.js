@@ -1062,11 +1062,8 @@ function Cart() {
                                         :
                                         <p className='flex flex-col px-5 py-7 bg-[#f8f8f8] text-[15px]
                                 border-[1px] border-[#d4d4d4]'>
-                                            <span>
-                                                HO NHAT TAN - Ngân Hàng Ngoại Thương Việt Nam (Vietcombank) - CN Quảng Nam STK: 1014391411
-
-                                            </span>
-                                            <span>Vui lòng bấm nút "Đặt hàng" để hoàn tất. Hoặc liên hệ Hotline: 0359.973.209 để được tư vấn.</span>
+                                            <span>Quý khách vui lòng bấm nút "Đặt hàng" để thực hiện Thanh toán qua chuyển khoản qua tài ngân hàng.</span>
+                                            <span>Hoặc liên hệ Hotline: 0359.973.209 để được tư vấn.</span>
                                         </p>
                             }
                         </div>

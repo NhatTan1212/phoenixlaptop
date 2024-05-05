@@ -43,10 +43,10 @@ function OrderDetail() {
                 return (
                     // console.log("record", record)
                     <div className='w-[108px] '>
-                        < img
+                        <img
                             src={product.avatar}
                             className='w-full h-auto border-[1px] border-[#e1dada]'
-                        ></img >
+                        ></img>
 
                     </div>
                 )
@@ -97,10 +97,10 @@ function OrderDetail() {
                     <div >
                         <div className='flex max-[650px]:flex-col'>
                             <div className='mr-4 w-[108px] min-w-[108px]'>
-                                < img
+                                <img
                                     src={product.avatar}
                                     className='w-full h-auto border-[1px] border-[#e1dada]'
-                                ></img >
+                                ></img>
                             </div>
                             <p className='font-bold text-[17px] text-[#333]   max-[470px]:max-w-[300px]'>{product.prod_description}</p>
 
@@ -190,86 +190,105 @@ function OrderDetail() {
     }
 
     return (
-        <div className='bg-[#f0f0f0] py-3'>
+        <div className='bg-[#f0f0f0] py-3 flex'>
             <Modal
                 open={confirmDelete}
                 onCancel={() => setConfirmDelete(false)}
                 onOk={handleOkButtonDeleteOrder}
             >
                 {
-
                     'Bạn có chắc là muốn hủy đơn hàng này không.'
                 }
             </Modal>
 
-            <div className='w-10/12  mx-[auto] max-[1550px]:w-full '>
-                {
-                    order && order.is_cancel &&
-                    <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
+            <div className='w-10/12 mx-[auto] max-[1550px]:w-full flex'>
+                <div className='flex-1 mr-5'>
+                    {
+                        order && order.is_cancel &&
+                        <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
                 border-[#8f7f00] mb-3'>
-                        <div className='flex p-4'>
-                            <div>
-                                <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
-                            </div>
-                            <div>
-                                <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
-                                <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
+                            <div className='flex p-4'>
+                                <div>
+                                    <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
+                                </div>
+                                <div>
+                                    <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
+                                    <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
 
-                                    <span className='pl-1 font-bold text-[#8f7f00]' >
-                                        {new Date(order.cancel_at).toLocaleDateString()}
-                                    </span>
-                                    <span className='pl-1 font-bold text-[#8f7f00]'>
-                                        {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
-                                    </span>
-                                </Col>
+                                        <span className='pl-1 font-bold text-[#8f7f00]' >
+                                            {new Date(order.cancel_at).toLocaleDateString()}
+                                        </span>
+                                        <span className='pl-1 font-bold text-[#8f7f00]'>
+                                            {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
+                                        </span>
+                                    </Col>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div className='mb-3 max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
+                        <div className='flex items-center justify-between mb-3 max-[730px]:flex-col max-[730px]:items-start'>
+                            <Link to={'/order'} className='flex items-center '>
+                                <FontAwesomeIcon
+                                    className='text-[gray] pr-2'
+                                    icon={faAngleLeft}></FontAwesomeIcon>
+                                <h5 className=''>Quay lại các đơn đặt hàng của bạn</h5>
+                            </Link>
+                            <div className='max-[435px]:flex max-[435px]:flex-col'>
+                                <span>Mã đơn hàng: {order ? order.id : 'N/A'} |</span>
+                                <span className='text-[#ed1d24] uppercase font-bold ml-4 max-[435px]:ml-0'>
+                                    {order ? order.is_cancel === 1 ? 'Đơn hàng đã hủy' : order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                                        : order.is_success === 1 ? 'Đơn hàng đã hoàn tất'
+                                            : order.is_transported === 1 ? 'Đơn hàng đã được giao đến nơi'
+                                                : order.is_being_shipped === 1 ? 'Đơn hàng đang được giao đến bạn'
+                                                    : order.is_approved === 1 ? 'Đơn hàng đã được xác nhận. (Đang chuẩn bị hàng)'
+                                                        : 'Đang chờ phê duyệt' : ''
+                                    }</span>
+
+                            </div>
+                        </div>
+                        <div className='bg-[#fff]'>
+                            <DeliveryAddressOrderDetail order={order} />
+
+                        </div>
+
+                    </div>
+                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
+                        <TableOrderDetail
+                            columns={isHiddenAutoCpl ? columns : deviceColumns}
+                            dataSource={dataTable}
+                            order={order} />
+                    </div>
+                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
+                        <div className='flex justify-end mr-[30px]'>
+                            <Button
+                                onClick={handleDeleteButton}
+                                className={`bg-[#cb1c22]  ${isDisableDeleteOrder ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}>
+                                Hủy đơn hàng
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                {
+                    (order.paymentMethods === 'BANK' && !order.is_payment) &&
+                    <div className='w-[400px] h-[max-content] mt-9 bg-white p-6'>
+                        <div className='italic'>* Quét mã QR Code để thanh toán.</div>
+                        <div className='flex flex-col justify-center items-center mt-6'>
+                            <img className='w-80' src={`https://img.vietqr.io/image/mb-0354086520-compact.png?amount=${order.total}&addInfo=DH${order.id}&accountName=HO%20THANH%20HIEN`} alt='qr'></img>
+
+                            <div className='flex flex-col justify-center items-center mt-6 text-[#214e89] text-lg'>
+                                <div>Số tiền: {order ? order.total ? order.total.toLocaleString('vi-VN') + ' VND' : '' : ''}</div>
+                                <div>Nội dung CK: DH{order ? order.id : 'N/A'}</div>
+                                <div>Tên chủ tài khoản: HO THANH HIEN</div>
+                                <div>Số TK: <span className='font-bold'> 0354086520</span></div>
+                                <div>Ngân hàng TMCP Quân Đội</div>
                             </div>
                         </div>
                     </div>
                 }
-                <div className=' mx-[263px] mb-3 max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
-                    <div className='flex items-center justify-between mb-3 max-[730px]:flex-col max-[730px]:items-start'>
-                        <Link to={'/order'} className='flex items-center '>
-                            <FontAwesomeIcon
-                                className='text-[gray] pr-2'
-                                icon={faAngleLeft}></FontAwesomeIcon>
-                            <h5 className=''>Quay lại các đơn đặt hàng của bạn</h5>
-                        </Link>
-                        <div className='max-[435px]:flex max-[435px]:flex-col'>
-                            <span>Mã đơn hàng: {order ? order.id : 'N/A'} |</span>
-                            <span className='text-[#ed1d24] uppercase font-bold ml-4 max-[435px]:ml-0'>
-                                {order ? order.is_cancel === 1 ? 'Đơn hàng đã hủy' : order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
-                                    : order.is_success === 1 ? 'Đơn hàng đã hoàn tất'
-                                        : order.is_transported === 1 ? 'Đơn hàng đã được giao đến nơi'
-                                            : order.is_being_shipped === 1 ? 'Đơn hàng đang được giao đến bạn'
-                                                : order.is_approved === 1 ? 'Đơn hàng đã được xác nhận. (Đang chuẩn bị hàng)'
-                                                    : 'Đang chờ phê duyệt' : ''
-                                }</span>
-
-                        </div>
-                    </div>
-                    <div className='bg-[#fff]'>
-                        <DeliveryAddressOrderDetail order={order} />
-
-                    </div>
-
-                </div>
-                <div className='bg-[#ffffff] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
-                    <TableOrderDetail
-                        columns={isHiddenAutoCpl ? columns : deviceColumns}
-                        dataSource={dataTable}
-                        order={order} />
-                </div>
-                <div className='bg-[#ffffff] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
-                    <div className='flex justify-end mr-[30px]'>
-                        <Button
-                            onClick={handleDeleteButton}
-                            className={`bg-[#cb1c22]  ${isDisableDeleteOrder ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}>
-                            Hủy đơn hàng
-                        </Button>
-                    </div>
-                </div>
             </div>
-        </div >
+        </div>
 
     );
 }

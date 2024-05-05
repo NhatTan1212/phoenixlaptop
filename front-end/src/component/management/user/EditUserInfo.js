@@ -55,6 +55,11 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
         AddNewDeliveryAddress(requestData).then(() => {
             context.Message('success', 'Thêm địa chỉ giao hàng thành công!')
             setIsAddressDeliveryChange(true)
+
+            setAddNewDetailAddress('')
+            setAddNewProvinceSelected(null)
+            setAddNewDistrictSelected(null)
+            setAddNewWardSelected(null)
         })
     }
     const handleChangeAddNewProvince = (e) => {
@@ -103,6 +108,7 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
             getDeliveryAddress();
         }
     }, [isAddressDeliveryChange]);
+
     useEffect(() => {
         setIsAddressDeliveryChange(false)
     }, [isAddressDeliveryChange]);
@@ -118,7 +124,30 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
 
                 const newUserInfo = {
                     id: userData.id,
-                    ...values
+                    name: values.name,
+                    email: values.email,
+                    phone: values.phone,
+                    defAddressID: radioAddressSelected
+                }
+
+                const default_address = addressSaved.find(item => item.id === parseInt(radioAddressSelected))
+                if (default_address?.detail_address) {
+                    onSave(Object.assign(
+                        newUserInfo,
+                        {
+                            id: userData.id,
+                            default_address: default_address.detail_address + ', ' + default_address.province + ', ' + default_address.district + ', ' + default_address.ward
+
+                        }))
+                        .then(() => {
+                            setLoading(false);
+                            form.resetFields();
+                            onCancel();
+                        });
+                } else {
+                    setLoading(false);
+                    context.Message('error', 'Vui lòng kiểm tra lại thông tin.')
+                    return
                 }
 
                 EditUserInfoById(newUserInfo).then((data) => {
@@ -126,20 +155,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                         context.Message("success", "Cập nhật thông tin thành công.")
                     }
                 })
-
-                const default_address = addressSaved.find(item => item.id === parseInt(radioAddressSelected))
-                onSave(Object.assign(
-                    values,// name, email, phone, defAddressID
-                    {
-                        id: userData.id,
-                        default_address: default_address.detail_address + ', ' + default_address.province + ', ' + default_address.district + ', ' + default_address.ward
-
-                    }))
-                    .then(() => {
-                        setLoading(false);
-                        form.resetFields();
-                        onCancel();
-                    });
             });
         }
     };
@@ -161,11 +176,10 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
         >
             <Form
                 form={form}
-                layout="vertical"
                 initialValues={{ name, email, phone, defAddressID }}
+                layout="vertical"
             >
                 <Row gutter={[24, 24]}>
-                    {/* Column for personal info (name, email, phone) */}
                     <Col span={8}>
                         <Form.Item
                             name="name"
@@ -202,15 +216,10 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                                 onChange={handleChangePhone}
                             />
                         </Form.Item>
-
-
                     </Col>
 
 
                     <Col span={16}>
-
-                        {/* Column for address information */}
-
                         <Form.Item
                             name="defAddressID"
                             label="Địa chỉ hiện tại"
@@ -222,7 +231,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                                     <Radio.Group
                                         className='mb-3'
                                         onChange={(e) => {
-                                            console.log("radio checked", e.target.value);
                                             setRadioAddressSelected(e.target.value);
                                         }}
                                         value={radioAddressSelected || defAddressID}
@@ -307,7 +315,7 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                 </Row>
             </Form>
 
-        </Modal >
+        </Modal>
     );
 };
 
