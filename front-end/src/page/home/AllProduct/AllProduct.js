@@ -1,7 +1,7 @@
 import { HomeOutlined, LaptopOutlined } from '@ant-design/icons';
 import { Breadcrumb, Card, Checkbox, Col, List, Pagination, Radio, Row } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { GetBrands, GetCategories, GetProductsByQuery } from '../../../callAPI/api';
 import CheckBoxGroup from '../../../component/CheckBoxGroup';
 import renderListProduct from '../../../component/ListProducts';
@@ -62,6 +62,7 @@ function AllProduct() {
         getSortSelected();
         setCheckBoxSelected();
     }, [query]);
+
     const setCheckBoxSelected = () => {
         if (query === 'page=1') {
             setIsCheckedAllBrands(true)
@@ -295,7 +296,7 @@ function AllProduct() {
                             type={categories}
                             isCheckedAll={isCheckedAllCategories}
                         />
-
+                        
                         <h3 className='font-bold my-4'>Mức giá</h3>
                         <Row>
                             {priceRange.map((item) => {
