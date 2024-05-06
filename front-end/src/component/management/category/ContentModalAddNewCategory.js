@@ -1,7 +1,7 @@
 import { AddNewCategory } from '../../../callAPI/api';
 import React, { useState, useContext } from 'react';
 import {
-    Input, Select, Row, Col, Tooltip
+    Input, Select, Row, Col, Tooltip, Spin
 } from 'antd';
 import '../../management/product/modalFPM.scss'
 import Cookies from 'js-cookie';
@@ -23,6 +23,7 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
     const [nameIsNull, setNameIsNull] = useState(false);
     const [slugIsNull, setSlugIsNull] = useState(false);
     const [descriptionIsNull, setDescriptionIsNull] = useState(false);
+    const [loading, setLoading] = useState(false)
 
     const onChangeName = (e) => {
         setName(e.target.value);
@@ -48,8 +49,9 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
     };
 
     const onFinish = (values) => {
-
         values.preventDefault();
+        setLoading(true)
+
         const formData = {
             token: token,
             name: name,
@@ -74,95 +76,100 @@ const ContentModalAddNewCategory = ({ setIsActioning }) => {
         if (hasError) {
             setNewCategoryFailed(true);
             context.Message("warning", "Vui lòng điền đầy đủ thông tin");
+            setLoading(false)
             return;
         }
 
-        AddNewCategory(formData).then(response => {
-            console.log(response)
-            if (response.success) {
-                context.Message("success", response.message)
-                setIsActioning(false);
-            } else {
-                context.Message("error", response.message)
-            }
-        })
+        setTimeout(() => {
+            AddNewCategory(formData).then(response => {
+                console.log(response)
+                if (response.success) {
+                    context.Message("success", response.message)
+                    setIsActioning(false);
+                } else {
+                    context.Message("error", response.message)
+                }
+            })
+        }, Math.floor(Math.random() * (1000 - 500 + 1)) + 500);
     };
 
     return (
-        <div className='wrap-modal-fpm w-full'>
-            <div>
-                <form
-                    onSubmit={onFinish}
-                    method="post"
-                    encType="multipart/form-data"
-                    className='text-end'
-                >
+        <Spin spinning={loading} size='large'>
+            <div className='wrap-modal-fpm w-full'>
+                <div>
+                    <form
+                        onSubmit={onFinish}
+                        method="post"
+                        encType="multipart/form-data"
+                        className='text-end'
+                    >
 
-                    <Row className='mt-[15px]'>
-                        <Col span={24} className='text-start px-[15px] pl-0'>
+                        <Row className='mt-[15px]'>
+                            <Col span={24} className='text-start px-[15px] pl-0'>
 
-                            <h3><span className='text-red-500'>* </span>Tên danh mục:</h3>
-                            <Input
-                                className='mb-2 mt-0'
-                                name='name'
-                                autoComplete="off"
-                                onChange={(e) => { onChangeName(e) }}
-                                value={name}
-                            />
-
-                            <div className='wrap-err-mess'>
-                                {(hasNameChanged && name === '') || (newCategoryFailed && nameIsNull)
-                                    ? <p className='err-mess'>Tên danh mục không được để trống</p> : null}
-                            </div>
-
-                            <h3><span className='text-red-500'>* </span>Mô tả:</h3>
-                            <TextArea
-                                rows={5}
-                                className='mb-2 mt-0 input-description-edituserdetails'
-                                name='description'
-                                value={description}
-                                onChange={(e) => {
-                                    onChangeDescription(e)
-                                }} />
-                            <div className='wrap-err-mess'>
-                                {(hasDescriptionChanged && description === '') || (newCategoryFailed && descriptionIsNull)
-                                    ? <p className='err-mess'>Mô tả không được để trống</p> : null
-                                }
-                            </div>
-                            <h3><span className='text-red-500'>* </span>Mã danh mục (slug):</h3>
-                            <Tooltip
-                                className='bg-white text-black'
-                                placement='topRight'
-                                title={
-                                    <div>
-                                        <div>- Nhập tiếng việt không dấu</div>
-                                        <div>- Ngăn cách bằng dấu gạch ngang</div>
-                                        <div>- Không chứa khoảng trống</div>
-                                    </div>
-                                }>
+                                <h3><span className='text-red-500'>* </span>Tên danh mục:</h3>
                                 <Input
                                     className='mb-2 mt-0'
-                                    name='slug'
-                                    onChange={(e) => { onChangeSlug(e) }}
-                                    value={slug}
+                                    name='name'
+                                    autoComplete="off"
+                                    onChange={(e) => { onChangeName(e) }}
+                                    value={name}
                                 />
-                            </Tooltip>
 
-                            <div className='wrap-err-mess'>
-                                {(hasSlugChanged && slug === '') || (newCategoryFailed && slugIsNull)
-                                    ? <p className='err-mess'>Mã danh mục không được để trống</p> : null}
-                            </div>
-                        </Col>
-                    </Row>
+                                <div className='wrap-err-mess'>
+                                    {(hasNameChanged && name === '') || (newCategoryFailed && nameIsNull)
+                                        ? <p className='err-mess'>Tên danh mục không được để trống</p> : null}
+                                </div>
 
-                    <div className='inline-block mt-5'>
-                        <Input type='submit' defaultValue={"Thêm danh mục"}
-                            className='bg-[#c8191f] text-white'>
-                        </Input>
-                    </div>
-                </form>
+                                <h3><span className='text-red-500'>* </span>Mô tả:</h3>
+                                <TextArea
+                                    rows={5}
+                                    className='mb-2 mt-0 input-description-edituserdetails'
+                                    name='description'
+                                    value={description}
+                                    onChange={(e) => {
+                                        onChangeDescription(e)
+                                    }} />
+                                <div className='wrap-err-mess'>
+                                    {(hasDescriptionChanged && description === '') || (newCategoryFailed && descriptionIsNull)
+                                        ? <p className='err-mess'>Mô tả không được để trống</p> : null
+                                    }
+                                </div>
+                                <h3><span className='text-red-500'>* </span>Mã danh mục (slug):</h3>
+                                <Tooltip
+                                    className='bg-white text-black'
+                                    placement='topRight'
+                                    title={
+                                        <div>
+                                            <div>- Nhập tiếng việt không dấu</div>
+                                            <div>- Ngăn cách bằng dấu gạch ngang</div>
+                                            <div>- Không chứa khoảng trống</div>
+                                        </div>
+                                    }>
+                                    <Input
+                                        className='mb-2 mt-0'
+                                        name='slug'
+                                        onChange={(e) => { onChangeSlug(e) }}
+                                        value={slug}
+                                    />
+                                </Tooltip>
+
+                                <div className='wrap-err-mess'>
+                                    {(hasSlugChanged && slug === '') || (newCategoryFailed && slugIsNull)
+                                        ? <p className='err-mess'>Mã danh mục không được để trống</p> : null}
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <div className='inline-block mt-5'>
+                            <Input type='submit' defaultValue={"Thêm danh mục"}
+                                className='bg-[#c8191f] text-white'>
+                            </Input>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </Spin>
     )
 }
 
