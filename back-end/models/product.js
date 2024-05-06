@@ -490,6 +490,7 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
         let sort = reqData.sort;
         let brand = reqData.brand;
         let category = reqData.category;
+        let range = reqData.range;
 
         if (brand.includes(',')) {
             brand = brand.split(',').join(',').replace(/,/g, "','")
@@ -524,6 +525,23 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
             totalProductFilter = await pool.request().query(query);
         }
 
+        if (range === 'duoi-10-trieu') {
+            query += ` AND price < 10000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tu-10-den-20-trieu') {
+            query += ` AND price >= 10000000 AND price < 20000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tu-20-den-30-trieu') {
+            query += ` AND price >= 20000000 AND price < 30000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tu-30-den-40-trieu') {
+            query += ` AND price >= 30000000 AND price < 40000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tren-40-trieu') {
+            query += ` AND price >= 40000000`;
+            totalProductFilter = await pool.request().query(query);
+        }
+
         if (sort === 'gia-thap-den-cao' || sort === 'gia-cao-den-thap') {
             const tableSortConvert = {
                 "gia-thap-den-cao": "asc",
@@ -540,15 +558,14 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
         query += ` OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
 
         const result = await pool.request().query(query);
-        console.log(totalProductFilter);
         const data = {
             products: result.recordset,
             currentPage: parseInt(page),
             totalPages:
-                (brand || category)
+                (brand || category || range)
                     ? Math.ceil(totalProductFilter.recordset.length / parseInt(limit))
                     : totalPages,
-            totalProducts: (brand || category) ? totalProductFilter.recordset.length : totalCount,
+            totalProducts: (brand || category || range) ? totalProductFilter.recordset.length : totalCount,
             limit: parseInt(limit),
         };
 

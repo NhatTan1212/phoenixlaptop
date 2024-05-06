@@ -1836,6 +1836,7 @@ async function getAllLaptop(req, res) {
     let limit = req.query.limit ? req.query.limit : 12;
     let brand = req.query.brand ? req.query.brand : "";
     let category = req.query.category ? req.query.category : "";
+    let range = req.query.range ? req.query.range : "";
 
     const reqData = {
       page: page,
@@ -1843,6 +1844,7 @@ async function getAllLaptop(req, res) {
       limit: limit,
       brand: brand,
       category: category,
+      range: range
     };
 
     if (page) {

@@ -1,7 +1,7 @@
 import { AddNewBrand, AddNewCategory } from '../../../callAPI/api';
 import React, { useState, useContext } from 'react';
 import {
-    Input, Select, Row, Col, Tooltip
+    Input, Select, Row, Col, Tooltip, Spin
 } from 'antd';
 import '../../management/product/modalFPM.scss'
 import Cookies from 'js-cookie';
@@ -29,6 +29,7 @@ const ContentModalAddNewBrand = ({ setIsActioning }) => {
     const [imageIsNull, setImageIsNull] = useState(false);
 
     const [newBrandFailed, setNewBrandFailed] = useState(false);
+    const [loading, setLoading] = useState(false)
 
     const onChangeName = (e) => {
         setName(e.target.value);
@@ -66,6 +67,7 @@ const ContentModalAddNewBrand = ({ setIsActioning }) => {
 
     const onFinish = (values) => {
         values.preventDefault();
+        setLoading(true)
 
         const formData = new FormData();
         formData.append('token', token);
@@ -92,134 +94,137 @@ const ContentModalAddNewBrand = ({ setIsActioning }) => {
             hasError = true;
         }
 
-        console.log(formData);
         if (hasError) {
             setNewBrandFailed(true);
             context.Message("warning", "Vui lòng điền đầy đủ thông tin");
+            setLoading(false)
             return;
         }
 
-
-        AddNewBrand(formData).then(response => {
-            console.log(response)
-            if (response.success) {
-                context.Message("success", response.message)
-                setIsActioning(false);
-            } else {
-                context.Message("error", response.message)
-            }
-        })
+        setTimeout(() => {
+            AddNewBrand(formData).then(response => {
+                console.log(response)
+                if (response.success) {
+                    context.Message("success", response.message)
+                    setIsActioning(false);
+                } else {
+                    context.Message("error", response.message)
+                }
+            })
+        }, Math.floor(Math.random() * (1000 - 500 + 1)) + 500);
     };
 
     return (
-        <div className='wrap-modal-fpm w-full'>
-            <div>
-                <form
-                    onSubmit={onFinish}
-                    method="post"
-                    encType="multipart/form-data"
-                    className='text-end'
-                >
+        <Spin spinning={loading} size='large'>
+            <div className='wrap-modal-fpm w-full'>
+                <div>
+                    <form
+                        onSubmit={onFinish}
+                        method="post"
+                        encType="multipart/form-data"
+                        className='text-end'
+                    >
 
-                    <Row className='mt-[15px]'>
-                        <Col span={24} className='text-start px-[15px] pl-0'>
+                        <Row className='mt-[15px]'>
+                            <Col span={24} className='text-start px-[15px] pl-0'>
 
-                            <h3><span className='text-red-500'>* </span>Tên thương hiệu:</h3>
-                            <Input
-                                className='mb-2 mt-0'
-                                name='name'
-                                autoComplete="off"
-                                onChange={(e) => { onChangeName(e) }}
-                                value={name}
-                            />
-
-                            <div className='wrap-err-mess'>
-                                {(hasNameChanged && name === '') || (newBrandFailed && nameIsNull)
-                                    ? <p className='err-mess'>Tên thương hiệu không được để trống</p> : null}
-                            </div>
-
-                            <h3><span className='text-red-500'>* </span>Mô tả:</h3>
-                            <TextArea
-                                rows={4}
-                                className='mb-2 mt-0 input-description-edituserdetails'
-                                name='description'
-                                value={description}
-                                onChange={(e) => {
-                                    onChangeDescription(e)
-                                }} />
-                            <div className='wrap-err-mess'>
-                                {(hasDescriptionChanged && description === '') || (newBrandFailed && descriptionIsNull)
-                                    ? <p className='err-mess'>Mô tả không được để trống</p> : null
-                                }
-                            </div>
-                            <h3><span className='text-red-500'>* </span>Mã thương hiệu (slug):</h3>
-                            <Tooltip
-                                className='bg-white text-black'
-                                placement='topRight'
-                                title={
-                                    <div>
-                                        <div>- Nhập tiếng việt không dấu</div>
-                                        <div>- Ngăn cách bằng dấu gạch ngang</div>
-                                        <div>- Không chứa khoảng trống</div>
-                                    </div>
-                                }>
+                                <h3><span className='text-red-500'>* </span>Tên thương hiệu:</h3>
                                 <Input
                                     className='mb-2 mt-0'
-                                    name='slug'
-                                    onChange={(e) => { onChangeSlug(e) }}
-                                    value={slug}
+                                    name='name'
+                                    autoComplete="off"
+                                    onChange={(e) => { onChangeName(e) }}
+                                    value={name}
                                 />
-                            </Tooltip>
 
-                            <div className='wrap-err-mess'>
-                                {(hasSlugChanged && slug === '') || (newBrandFailed && slugIsNull)
-                                    ? <p className='err-mess'>Mã thương hiệu không được để trống</p> : null}
-                            </div>
-
-                            <h3><span className='text-red-500'>* </span>Hình ảnh thương hiệu:</h3>
-                            <Tooltip
-                                placement='topRight'
-                                title='Click để đổi ảnh đại diện cho thương hiệu'
-                            >
-                                <div
-                                    className='fpm-wrap-input-file cursor-pointer min-h-[200px]'
-                                    onClick={() => {
-                                        let fpmInputFile = document.querySelector(".fpm-input-file")
-                                        fpmInputFile.click()
-                                    }}
-                                    onMouseEnter={() => {
-                                        document.querySelector('.avatar-modal-view').classList.add('hide-image');
-                                    }}
-                                    onMouseLeave={() => {
-                                        document.querySelector('.avatar-modal-view').classList.remove('hide-image');
-                                    }}
-                                >
-                                    <img
-                                        id='image-preview'
-                                        src={image}
-                                        className='avatar-modal-view max-w-[337px] object-contain'
-                                    />
-                                    <Input
-                                        className='fpm-input-file mb-2 mt-0' type="file" name="avatar" hidden
-                                        onChange={(e) => { onChangeImage(e) }} />
+                                <div className='wrap-err-mess'>
+                                    {(hasNameChanged && name === '') || (newBrandFailed && nameIsNull)
+                                        ? <p className='err-mess'>Tên thương hiệu không được để trống</p> : null}
                                 </div>
-                            </Tooltip>
 
-                            <div className='wrap-err-mess pt-2'>
-                                {(hasImageChanged && image === '') || (newBrandFailed && imageIsNull)
-                                    ? <p className='err-mess'>Hình ảnh thương hiệu không được để trống</p> : null}
-                            </div>
-                        </Col>
-                    </Row>
+                                <h3><span className='text-red-500'>* </span>Mô tả:</h3>
+                                <TextArea
+                                    rows={4}
+                                    className='mb-2 mt-0 input-description-edituserdetails'
+                                    name='description'
+                                    value={description}
+                                    onChange={(e) => {
+                                        onChangeDescription(e)
+                                    }} />
+                                <div className='wrap-err-mess'>
+                                    {(hasDescriptionChanged && description === '') || (newBrandFailed && descriptionIsNull)
+                                        ? <p className='err-mess'>Mô tả không được để trống</p> : null
+                                    }
+                                </div>
+                                <h3><span className='text-red-500'>* </span>Mã thương hiệu (slug):</h3>
+                                <Tooltip
+                                    className='bg-white text-black'
+                                    placement='topRight'
+                                    title={
+                                        <div>
+                                            <div>- Nhập tiếng việt không dấu</div>
+                                            <div>- Ngăn cách bằng dấu gạch ngang</div>
+                                            <div>- Không chứa khoảng trống</div>
+                                        </div>
+                                    }>
+                                    <Input
+                                        className='mb-2 mt-0'
+                                        name='slug'
+                                        onChange={(e) => { onChangeSlug(e) }}
+                                        value={slug}
+                                    />
+                                </Tooltip>
 
-                    <div className='inline-block mt-5'>
-                        <Input type='submit' defaultValue={"Thêm thương hiệu"}
-                            className='bg-[#c8191f] text-white'>
-                        </Input>
-                    </div>
-                </form>
+                                <div className='wrap-err-mess'>
+                                    {(hasSlugChanged && slug === '') || (newBrandFailed && slugIsNull)
+                                        ? <p className='err-mess'>Mã thương hiệu không được để trống</p> : null}
+                                </div>
+
+                                <h3><span className='text-red-500'>* </span>Hình ảnh thương hiệu:</h3>
+                                <Tooltip
+                                    placement='topRight'
+                                    title='Click để đổi ảnh đại diện cho thương hiệu'
+                                >
+                                    <div
+                                        className='fpm-wrap-input-file cursor-pointer min-h-[200px]'
+                                        onClick={() => {
+                                            let fpmInputFile = document.querySelector(".fpm-input-file")
+                                            fpmInputFile.click()
+                                        }}
+                                        onMouseEnter={() => {
+                                            document.querySelector('.avatar-modal-view').classList.add('hide-image');
+                                        }}
+                                        onMouseLeave={() => {
+                                            document.querySelector('.avatar-modal-view').classList.remove('hide-image');
+                                        }}
+                                    >
+                                        <img
+                                            id='image-preview'
+                                            src={image}
+                                            className='avatar-modal-view max-w-[337px] object-contain'
+                                        />
+                                        <Input
+                                            className='fpm-input-file mb-2 mt-0' type="file" name="avatar" hidden
+                                            onChange={(e) => { onChangeImage(e) }} />
+                                    </div>
+                                </Tooltip>
+
+                                <div className='wrap-err-mess pt-2'>
+                                    {(hasImageChanged && image === '') || (newBrandFailed && imageIsNull)
+                                        ? <p className='err-mess'>Hình ảnh thương hiệu không được để trống</p> : null}
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <div className='inline-block mt-5'>
+                            <Input type='submit' defaultValue={"Thêm thương hiệu"}
+                                className='bg-[#c8191f] text-white'>
+                            </Input>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </Spin>
     )
 }
 

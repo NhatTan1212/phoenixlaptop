@@ -1,7 +1,7 @@
 import { EditCategory } from '../../../callAPI/api';
 import React, { useState, useContext } from 'react';
 import {
-    Input, Row, Col
+    Input, Row, Col, Spin
 } from 'antd';
 import Cookies from 'js-cookie';
 import Context from '../../../store/Context';
@@ -15,8 +15,11 @@ const EditCategoryDetails = ({ setIsActioning, setActioningCategory, actioningCa
     const [name, setName] = useState(actioningCategory.name)
     const [description, setDescription] = useState(actioningCategory.description)
 
+    const [loading, setLoading] = useState(false)
+
     const onFinish = (values) => {
         values.preventDefault();
+        setLoading(true)
 
         const formData = {
             token: token,
@@ -25,62 +28,66 @@ const EditCategoryDetails = ({ setIsActioning, setActioningCategory, actioningCa
             description: description
         };
 
-        EditCategory(formData).then(response => {
-            console.log(response);
-            if (response.success) {
-                setIsActioning(false);
-                context.Message("success", response.message)
-            }
-        })
+        setTimeout(() => {
+            EditCategory(formData).then(response => {
+                console.log(response);
+                if (response.success) {
+                    setIsActioning(false);
+                    context.Message("success", response.message)
+                }
+            })
+        }, Math.floor(Math.random() * (1000 - 500 + 1)) + 500);
     };
 
     return (
-        <div className='wrap-modal-fpm w-full'>
-            {actioningCategory &&
-                <div>
-                    <form
-                        onSubmit={onFinish}
-                        method="post"
-                        encType="multipart/form-data"
-                        className='text-end'
-                    >
-                        <Input type="hidden" name="id"
-                            value={actioningCategory.id} />
-                        <Row className='mt-[15px]'>
-                            <Col span={24} className='text-start px-[15px] pl-0'>
-                                <h3><span className='text-red-500'>* </span>Tên danh mục:</h3>
-                                <Input
-                                    className='mb-2 mt-0'
-                                    name='name'
-                                    onChange={(e) => {
-                                        setName(e.target.value)
-                                    }}
-                                    value={name || actioningCategory.name}
-                                />
+        <Spin spinning={loading} size='large'>
+            <div className='wrap-modal-fpm w-full'>
+                {actioningCategory &&
+                    <div>
+                        <form
+                            onSubmit={onFinish}
+                            method="post"
+                            encType="multipart/form-data"
+                            className='text-end'
+                        >
+                            <Input type="hidden" name="id"
+                                value={actioningCategory.id} />
+                            <Row className='mt-[15px]'>
+                                <Col span={24} className='text-start px-[15px] pl-0'>
+                                    <h3><span className='text-red-500'>* </span>Tên danh mục:</h3>
+                                    <Input
+                                        className='mb-2 mt-0'
+                                        name='name'
+                                        onChange={(e) => {
+                                            setName(e.target.value)
+                                        }}
+                                        value={name || actioningCategory.name}
+                                    />
 
-                                <h3><span className='text-red-500'>* </span>Mô tả:</h3>
-                                <TextArea
-                                    rows={5}
-                                    className='mb-2 mt-0 input-description-edituserdetails'
-                                    name='description'
-                                    value={description || actioningCategory.description}
-                                    onChange={(e) => {
-                                        setDescription(e.target.value)
-                                    }}
-                                />
-                            </Col>
+                                    <h3><span className='text-red-500'>* </span>Mô tả:</h3>
+                                    <TextArea
+                                        rows={5}
+                                        className='mb-2 mt-0 input-description-edituserdetails'
+                                        name='description'
+                                        value={description || actioningCategory.description}
+                                        onChange={(e) => {
+                                            setDescription(e.target.value)
+                                        }}
+                                    />
+                                </Col>
 
-                        </Row>
+                            </Row>
 
-                        <div className='inline-block mt-5'>
-                            <Input type='submit' defaultValue={"Lưu thay đổi"}
-                                className='bg-[#c8191f] text-white'>
-                            </Input>
-                        </div>
-                    </form>
-                </div>
-            }
-        </div>
+                            <div className='inline-block mt-5'>
+                                <Input type='submit' defaultValue={"Lưu thay đổi"}
+                                    className='bg-[#c8191f] text-white'>
+                                </Input>
+                            </div>
+                        </form>
+                    </div>
+                }
+            </div>
+        </Spin>
     )
 }
 

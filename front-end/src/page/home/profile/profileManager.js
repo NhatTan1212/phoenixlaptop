@@ -6,7 +6,7 @@ import { AddNewDeliveryAddress, ChangeUserPasswordById, DeleteDeliveryAdress, Ge
 import jwtDecode from 'jwt-decode';
 import Cookies from 'js-cookie';
 import Context from '../../../store/Context';
-import { Button, Col, Form, Input, Menu, Row, Select } from 'antd';
+import { Button, Col, Form, Input, Menu, Row, Select, Spin } from 'antd';
 import { UserOutlined, KeyOutlined, CloseOutlined } from '@ant-design/icons';
 import '../profile/profileManager.scss'
 import EditUserInfo from '../../../component/management/user/EditUserInfo';
@@ -47,7 +47,7 @@ const ProfileManager = () => {
     const [optionsSelectProvince, setOptionsSelectProvince] = useState(null)
     const [optionsSelectDistricts, setOptionsSelectDistricts] = useState(null)
     const [optionsSelectWards, setOptionsSelectWards] = useState(null)
-
+    const [loading, setLoading] = useState(false)
     useEffect(() => {
         if (token) {
             getDeliveryAddress();
@@ -215,8 +215,11 @@ const ProfileManager = () => {
     };
 
     const onFinishChangePassword = (values) => {
+        setLoading(true)
+
         if (values.oldPassword && values.newPassword && values.confirmNewPassword) {
             console.log('Received values:', values)
+
 
             const newUserInfo = {
                 id: id,
@@ -224,19 +227,23 @@ const ProfileManager = () => {
                 newPassword: values.newPassword
             }
 
-            ChangeUserPasswordById(newUserInfo).then((data) => {
-                if (data.success) {
-                    context.Message("success", data.message)
-                    setFormValues({
-                        oldPassword: '',
-                        newPassword: '',
-                        confirmNewPassword: '',
-                    });
-                    setFormKey((prevKey) => prevKey + 1);
-                } else {
-                    context.Message("error", data.message)
-                }
-            })
+            setTimeout(() => {
+                ChangeUserPasswordById(newUserInfo).then((data) => {
+                    if (data.success) {
+                        context.Message("success", data.message)
+                        setFormValues({
+                            oldPassword: '',
+                            newPassword: '',
+                            confirmNewPassword: '',
+                        });
+                        setFormKey((prevKey) => prevKey + 1);
+                        setLoading(false)
+                    } else {
+                        context.Message("error", data.message)
+                        setLoading(false)
+                    }
+                })
+            }, Math.floor(Math.random() * (1000 - 500 + 1)) + 500);
         }
     };
 
@@ -291,72 +298,85 @@ const ProfileManager = () => {
                             </div>
                         )}
                         {currentMenu === 'password' && (
-                            <div className="space-y-4">
-                                <p className="text-lg font-semibold mb-8 mt-3">Thay đổi mật khẩu</p>
-                                <Form
-                                    key={formKey}
-                                    layout="vertical"
-                                    onFinish={onFinishChangePassword}
-                                >
-                                    <Form.Item
-                                        name="oldPassword"
-                                        label="Mật khẩu cũ"
-                                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu cũ' }]}
+                            <Spin spinning={loading} size="large">
+                                <div className="space-y-4">
+                                    <p className="text-lg font-semibold mb-8 mt-3">Thay đổi mật khẩu</p>
+                                    <Form
+                                        key={formKey}
+                                        layout="vertical"
+                                        onFinish={onFinishChangePassword}
                                     >
-                                        <Input.Password
-                                            className="w-full user-info-input"
-                                            value={formValues.oldPassword}
-                                            onChange={(e) => handleInputChange('oldPassword', e.target.value)}
-                                            placeholder="Nhập mật khẩu cũ"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item
-                                        name="newPassword"
-                                        label="Mật khẩu mới"
-                                        rules={[
-                                            { required: true, message: 'Vui lòng nhập mật khẩu mới' },
+                                        <Form.Item
+                                            name="oldPassword"
+                                            label="Mật khẩu cũ"
+                                            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu cũ' },
                                             { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
-                                        ]}
-                                    >
-                                        <Input.Password
-                                            className="w-full user-info-input"
-                                            value={formValues.newPassword}
-                                            onChange={(e) => handleInputChange('newPassword', e.target.value)}
-                                            placeholder="Nhập mật khẩu mới"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item
-                                        name="confirmNewPassword"
-                                        label="Xác nhận mật khẩu mới"
-                                        dependencies={['newPassword']}
-                                        rules={[
-                                            { required: true, message: 'Vui lòng xác nhận mật khẩu mới' },
-                                            ({ getFieldValue }) => ({
-                                                validator(_, value) {
-                                                    if (!value || getFieldValue('newPassword') === value) {
-                                                        return Promise.resolve();
-                                                    }
-                                                    return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
-                                                },
-                                            }),
-                                        ]}
-                                    >
-                                        <Input.Password
-                                            className="w-full user-info-input"
-                                            value={formValues.confirmNewPassword}
-                                            onChange={(e) => handleInputChange('confirmNewPassword', e.target.value)}
-                                            placeholder="Xác nhận mật khẩu mới"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item className="flex justify-end">
-                                        <Button>Hủy</Button>
-                                        <Button className="ml-2" type="primary" htmlType="submit">
-                                            Xác nhận
-                                        </Button>
-                                    </Form.Item>
+                                            ]}
+                                        >
+                                            <Input.Password
+                                                className="w-full user-info-input"
+                                                value={formValues.oldPassword}
+                                                onChange={(e) => handleInputChange('oldPassword', e.target.value)}
+                                                placeholder="Nhập mật khẩu cũ"
+                                            />
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="newPassword"
+                                            label="Mật khẩu mới"
+                                            rules={[
+                                                { required: true, message: 'Vui lòng nhập mật khẩu mới' },
+                                                { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
+                                                ({ getFieldValue }) => ({
+                                                    validator(_, value) {
+                                                        if (!value || getFieldValue('oldPassword') !== value) {
+                                                            return Promise.resolve();
+                                                        }
+                                                        return Promise.reject(new Error('Mật khẩu mới không được trùng với mật khẩu cũ'));
+                                                    },
+                                                }),
+                                            ]}
+                                        >
+                                            <Input.Password
+                                                className="w-full user-info-input"
+                                                value={formValues.newPassword}
+                                                onChange={(e) => handleInputChange('newPassword', e.target.value)}
+                                                placeholder="Nhập mật khẩu mới"
+                                            />
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="confirmNewPassword"
+                                            label="Xác nhận mật khẩu mới"
+                                            dependencies={['newPassword']}
+                                            rules={[
+                                                { required: true, message: 'Vui lòng xác nhận mật khẩu mới' },
+                                                ({ getFieldValue }) => ({
+                                                    validator(_, value) {
+                                                        if (!value || getFieldValue('newPassword') === value) {
+                                                            return Promise.resolve();
+                                                        }
+                                                        return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
+                                                    },
+                                                }),
+                                            ]}
+                                        >
+                                            <Input.Password
+                                                className="w-full user-info-input"
+                                                value={formValues.confirmNewPassword}
+                                                onChange={(e) => handleInputChange('confirmNewPassword', e.target.value)}
+                                                placeholder="Xác nhận mật khẩu mới"
+                                            />
+                                        </Form.Item>
+                                        <Form.Item className="flex justify-end">
+                                            <Button>Hủy</Button>
+                                            <Button className="ml-2" type="primary" htmlType="submit">
+                                                Xác nhận
+                                            </Button>
+                                        </Form.Item>
 
-                                </Form>
-                            </div>
+                                    </Form>
+                                </div>
+                            </Spin>
+
                         )}
 
                     </div>
