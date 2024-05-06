@@ -79,6 +79,9 @@ function Cart() {
     const [addNewDistrictSelected, setAddNewDistrictSelected] = useState(null)
     const [addNewWardSelected, setAddNewWardSelected] = useState(null)
 
+    const [emailInvalid, setEmailInvalid] = useState(false)
+    const [phoneInvalid, setPhoneInvalid] = useState(false)
+
     //Xử lý VNPAY
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -480,11 +483,11 @@ function Cart() {
             const authValue = token ? token : tokenGID;
             const authKey = token ? 'token' : 'tokenGID';
 
-            // Kiểm tra xem tất cả thông tin cần thiết đã được điền đầy đủ
-            if (!customerName || !customerPhone || !customerEmail) {
-                context.Message("error", "Vui lòng điền đầy đủ thông tin khách hàng.");
+            if (emailInvalid || phoneInvalid || !customerName || !customerPhone || !customerEmail) {
+                context.Message("error", "Vui lòng kiểm tra lại thông tin khách hàng.");
                 return;
             }
+
             if (valueRadioReceive === "Giao hàng tận nơi") {
                 if (radioAddressSelected === null) {
                     context.Message("error", "Quý khách vui lòng nhập địa chỉ giao hàng.");
@@ -813,15 +816,19 @@ function Cart() {
                                     const value = e.target.value;
                                     setCustomerPhone(value);
                                     if (!/^0/.test(value)) {
+                                        setPhoneInvalid(true)
                                         setCustomerPhoneError('Số điện thoại phải bắt đầu bằng 0.');
                                     }
-                                    else if (!/^0[1-9]/.test(value)) {
+                                    else if (!/^0[1-9][0-9]{8}/.test(value)) {
+                                        setPhoneInvalid(true)
                                         setCustomerPhoneError('Số điện thoại sai định dạng. Ví dụ: 035xxxxxxx.');
                                     }
                                     else if (value.length !== 10) {
+                                        setPhoneInvalid(true)
                                         setCustomerPhoneError('Số điện thoại bao gồm 10 chữ số.');
                                     }
                                     else {
+                                        setPhoneInvalid(false)
                                         setCustomerPhoneError('');
                                     }
                                 }}
@@ -840,8 +847,10 @@ function Cart() {
                                     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
                                     setCustomerEmail(value);
                                     if (!emailRegex.test(value)) {
+                                        setEmailInvalid(true)
                                         setCustomerEmailError('Email phải là địa chỉ @gmail.com');
                                     } else {
+                                        setEmailInvalid(false)
                                         setCustomerEmailError('');
                                     }
                                 }}

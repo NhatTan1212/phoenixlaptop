@@ -225,7 +225,7 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                                             if (!/^0/.test(value)) {
                                                 setPhoneInvalid(true)
                                                 return Promise.reject('Số điện thoại phải bắt đầu bằng 0.');
-                                            } else if (!/^0[1-9]/.test(value)) {
+                                            } else if (!/^0[1-9][0-9]{8}/.test(value)) {
                                                 setPhoneInvalid(true)
                                                 return Promise.reject('Số điện thoại sai định dạng. Ví dụ: 035xxxxxxx.');
                                             } else if (value.length !== 10) {
