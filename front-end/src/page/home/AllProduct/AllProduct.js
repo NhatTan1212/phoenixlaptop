@@ -214,7 +214,8 @@ function AllProduct() {
 
         let newQuery = query.replace(/([?&])range=[^&]*/, '') + (query.includes('?') ? '&' : '&') + 'range=' + newPriceRangeParam
 
-        if (priceRange === 'tat-ca') {
+        if (priceRange === 'tat-ca' || (priceRange === checkedPriceRange)) {
+            setCheckedPriceRange('tat-ca');
             newQuery = newQuery.replace(/([?&])range=[^&]+&?/, '$1').replace(/&$/, '');
         }
 
@@ -296,7 +297,7 @@ function AllProduct() {
                             type={categories}
                             isCheckedAll={isCheckedAllCategories}
                         />
-                        
+
                         <h3 className='font-bold my-4'>Mức giá</h3>
                         <Row>
                             {priceRange.map((item) => {

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Modal, Form, Button, Input, Radio, Row, Select, Col, Spin } from 'antd';
+import { Modal, Form, Button, Input, Radio, Row, Select, Col, Spin, Alert } from 'antd';
 import 'tailwindcss/tailwind.css';
 import { AddNewDeliveryAddress, DeleteDeliveryAdress, EditUserInfoById } from '../../../callAPI/api'
 import { faPlus, faX } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +17,6 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
     const context = useContext(Context)
     const isHiddenAutoCpl = context.isHiddenAutoCpl
 
-
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -31,6 +30,8 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
     const [addNewDistrictSelected, setAddNewDistrictSelected] = useState(null)
     const [addNewWardSelected, setAddNewWardSelected] = useState(null)
 
+    const [phoneInvalid, setPhoneInvalid] = useState(false)
+
     const token = Cookies.get('token');
 
     const handleChangeName = (e) => {
@@ -38,7 +39,8 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
     };
 
     const handleChangePhone = (e) => {
-        setPhone(e.target.value);
+        const value = e.target.value;
+        setPhone(value);
     };
 
     const handleAddNewAddress = () => {
@@ -115,6 +117,13 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
 
     const handleSave = () => {
         setLoading(true);
+
+        if (phoneInvalid) {
+            setLoading(false);
+            context.Message('error', 'Vui lòng kiểm tra lại thông tin.')
+            return
+        }
+
         if (!name || !phone) {
             context.Message("warning", "Vui lòng điền đầy đủ thông tin.")
             form.validateFields()
@@ -145,6 +154,7 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                         });
                 } else {
                     context.Message('error', 'Vui lòng kiểm tra lại thông tin.')
+                    setLoading(false);
                     return
                 }
 
@@ -208,7 +218,26 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                             <Form.Item
                                 name="phone"
                                 label="Số điện thoại"
-                                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+                                rules={[
+                                    { required: true, message: '' },
+                                    {
+                                        validator: (_, value) => {
+                                            if (!/^0/.test(value)) {
+                                                setPhoneInvalid(true)
+                                                return Promise.reject('Số điện thoại phải bắt đầu bằng 0.');
+                                            } else if (!/^0[1-9]/.test(value)) {
+                                                setPhoneInvalid(true)
+                                                return Promise.reject('Số điện thoại sai định dạng. Ví dụ: 035xxxxxxx.');
+                                            } else if (value.length !== 10) {
+                                                setPhoneInvalid(true)
+                                                return Promise.reject('Số điện thoại bao gồm 10 chữ số.');
+                                            } else {
+                                                setPhoneInvalid(false)
+                                                return Promise.resolve();
+                                            }
+                                        }
+                                    }
+                                ]}
                             >
                                 <Input
                                     placeholder="Nhập Số điện thoại của bạn"
@@ -316,7 +345,7 @@ const EditUserInfo = ({ detailAddress, wardSelected, districtSelected, provinceS
                 </Form>
             </Spin>
 
-        </Modal>
+        </Modal >
     );
 };
 
