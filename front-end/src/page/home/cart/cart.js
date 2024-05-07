@@ -742,7 +742,11 @@ function Cart() {
                                 className='text-[#4ea722] text-[60px]'
                                 icon={faCircleCheck}></FontAwesomeIcon>
                             <p className='text-[#4ea722] text-[20px] my-6'>Đặt hàng thành công!</p>
+                            {
+                                valueRadioPay === 'BANK' ? 
+                            <p className='text-[#000000] text-[17px] my-6'>Vui lòng nhấn xem chi tiết đơn hàng để tiến hành thanh toán.</p> : 
                             <p className='text-[#000000] text-[17px] my-6'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>
+                            }
                             <div className=''>
                                 <Button
                                     className='w-[180px] mr-6'
