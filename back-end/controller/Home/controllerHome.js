@@ -1516,7 +1516,9 @@ function cancelOrder(req, res) {
   console.log(req.params.id);
   let id = req.params.id
   ORDERS.UpdateCancelById(id, 1).then((date) => {
-    res.json({ success: true })
+    ORDERS.RefundProductQuantity(id).then((data) => {
+      res.json({ success: true })
+    })
   }).catch((err) => {
     res.json({ success: false, msg: err })
   })
