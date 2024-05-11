@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Col, Divider, Row } from 'antd';
+import { Col, Divider, Row, } from 'antd';
 import CardTop from '../../../component/management/DashBoard/CardTop';
 import ChartNewOrders from '../../../component/management/DashBoard/ChartNewOrder';
 import ChartTotal from '../../../component/management/DashBoard/ChartTotal';
@@ -12,6 +12,8 @@ import TableFavoriteLaptops from '../../../component/management/DashBoard/TableF
 import Context from '../../../store/Context';
 
 const Dashboard = () => {
+
+
     let token = Cookies.get('token')
     const context = useContext(Context)
     const isHiddenAutoCpl = context.isHiddenAutoCpl
@@ -225,77 +227,29 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container flex-1 mt-1 mx-3">
             <Row gutter={16}>
-                <Col xl={{ span: 10 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
+                <Col xl={{ span: 8 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
-                            daysOrderSuccessSelected === 7 ? {
+                            {
                                 tittleCard: "Tổng doanh thu",
-                                valueCard: totalOrderSuccess7Days,
-                                percentCard: Math.abs(percentSuccess7Days),
-                                upOrDown: percentSuccess7Days > 0 ? 'up' : 'down',
-                                setDaysOrderSuccessSelected: setDaysOrderSuccessSelected
-                            } : daysOrderSuccessSelected === 30 ? {
-                                tittleCard: "Tổng doanh thu",
-                                valueCard: totalOrderSuccess30Days,
-                                percentCard: Math.abs(percentSuccess30Days),
-                                upOrDown: percentSuccess30Days > 0 ? 'up' : 'down',
-                                setDaysOrderSuccessSelected: setDaysOrderSuccessSelected
-                            } : {
-                                tittleCard: "Tổng doanh thu",
-                                valueCard: totalOrderSuccess365Days,
-                                percentCard: Math.abs(percentSuccess365Days),
-                                upOrDown: percentSuccess365Days > 0 ? 'up' : 'down',
-                                setDaysOrderSuccessSelected: setDaysOrderSuccessSelected
                             }
                         }
                     />
                 </Col>
-                <Col xl={{ span: 7 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
+                <Col xl={{ span: 8 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
-                            daysNewOrderSelected === 7 ? {
+                            {
                                 tittleCard: "Đơn hàng mới",
-                                valueCard: totalNewOrder7Days,
-                                percentCard: Math.abs(percentNewOrder7Days),
-                                upOrDown: percentNewOrder7Days > 0 ? 'up' : 'down',
-                                setDaysNewOrderSelected: setDaysNewOrderSelected
-                            } : daysNewOrderSelected === 30 ? {
-                                tittleCard: "Đơn hàng mới",
-                                valueCard: totalNewOrder30Days,
-                                percentCard: Math.abs(percentNewOrder30Days),
-                                upOrDown: percentNewOrder30Days > 0 ? 'up' : 'down',
-                                setDaysNewOrderSelected: setDaysNewOrderSelected
-                            } : {
-                                tittleCard: "Đơn hàng mới",
-                                valueCard: totalNewOrder365Days,
-                                percentCard: Math.abs(percentNewOrder365Days),
-                                upOrDown: percentNewOrder365Days > 0 ? 'up' : 'down',
-                                setDaysNewOrderSelected: setDaysNewOrderSelected
                             }
                         }
                     />
                 </Col>
-                <Col xl={{ span: 7 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
+                <Col xl={{ span: 8 }} lg={{ span: 12 }} md={{ span: 12 }} sm={{ span: 24 }} xs={{ span: 24 }}>
                     <CardTop
                         cardInfo={
-                            daysNewUserSelected === 7 ? {
+                            {
                                 tittleCard: "Khách hàng mới",
-                                valueCard: totalNewUser7Days,
-                                percentCard: Math.abs(percentNewUser7Days),
-                                upOrDown: percentNewUser7Days > 0 ? 'up' : 'down',
-                                setDaysNewUserSelected: setDaysNewUserSelected
-                            } : daysNewUserSelected === 30 ? {
-                                tittleCard: "Khách hàng mới",
-                                valueCard: totalNewUser30Days,
-                                percentCard: Math.abs(percentNewUser30Days),
-                                upOrDown: percentNewUser30Days > 0 ? 'up' : 'down',
-                                setDaysNewUserSelected: setDaysNewUserSelected
-                            } : {
-                                tittleCard: "Khách hàng mới",
-                                valueCard: totalNewUser365Days,
-                                percentCard: Math.abs(percentNewUser365Days),
-                                upOrDown: percentNewUser365Days > 0 ? 'up' : 'down',
-                                setDaysNewUserSelected: setDaysNewUserSelected
                             }
                         }
                     />

@@ -1,23 +1,77 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { subDays, format, set } from 'date-fns';
-import { Select } from 'antd';
+import dayjs from 'dayjs';
+import { Select, DatePicker } from 'antd';
 
 import {
     Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, TimeScale, PointElement, defaults, Title, ArcElement
 } from 'chart.js';
+import { GetFavoriteBrandsByDays } from '../../../callAPI/management/apiDashBoard';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, TimeScale, Tooltip, Legend, PointElement, Title, ArcElement
 )
+const { RangePicker } = DatePicker;
 
 defaults.maintainAspectRatio = false
 defaults.responsive = true
 
 const ChartFavoriteBrands = ({ data }) => {
-    const labels = data.favoriteDataBrands.map(item => {
+    const [startDate, setStartDate] = useState(dayjs().add(-7, 'd').toISOString().slice(0, 10))
+    const [endDate, setEndDate] = useState(dayjs().toISOString().slice(0, 10))
+    const [isDateChanged, setIsDateChanged] = useState(false)
+    const [listOrder, setListOrder] = useState([])
+
+    const getFavoriteBrandsByDays = () => {
+        let rangeDate = [startDate, endDate]
+        GetFavoriteBrandsByDays(rangeDate).then((data) => {
+            console.log(data);
+            if (data.success) {
+                setListOrder(data.listFavoriteBrands)
+            }
+        })
+    }
+    const onRangeChange = (dates, dateStrings) => {
+        if (dates) {
+            console.log('From: ', dates[0], ', to: ', dates[1]);
+            console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+
+            setStartDate(dateStrings[0])
+            setEndDate(dateStrings[1])
+
+            setIsDateChanged(!isDateChanged)
+        } else {
+            console.log('Clear');
+        }
+    };
+    const rangePresets = [
+        {
+            label: 'Last 7 Days',
+            value: [dayjs().add(-7, 'd'), dayjs()],
+        },
+        {
+            label: 'Last 14 Days',
+            value: [dayjs().add(-14, 'd'), dayjs()],
+        },
+        {
+            label: 'Last 30 Days',
+            value: [dayjs().add(-30, 'd'), dayjs()],
+        },
+        {
+            label: 'Last 90 Days',
+            value: [dayjs().add(-90, 'd'), dayjs()],
+        },
+    ];
+
+
+    useEffect(() => {
+        getFavoriteBrandsByDays()
+    }, [isDateChanged]);
+
+    const labels = listOrder.map(item => {
         return item.name
     });
-    const dataFavoriteBrands = data.favoriteDataBrands.map(item => {
+    const dataFavoriteBrands = listOrder.map(item => {
         return item.total_success_products
     });
 
@@ -133,27 +187,8 @@ const ChartFavoriteBrands = ({ data }) => {
 
     return (
         <div className='relative px-5'>
-            <Select
-                className='absolute right-2 top-2'
-                value={data.daysFavoriteBrandsSelected || 7}
-                options={[
-                    {
-                        value: 7,
-                        label: 'Xem theo tuần'
-                    },
-                    {
-                        value: 30,
-                        label: 'Xem theo tháng'
-                    },
-                    {
-                        value: 365,
-                        label: 'Xem theo năm'
-                    },
-                ]}
-                onChange={(e) => {
-                    data.setDaysFavoriteBrandsSelected(e)
-                }}
-            ></Select>
+            <RangePicker presets={rangePresets} onChange={onRangeChange} className=' mr-6 mt-3 absolute top-0 right-0'
+                defaultValue={[dayjs().add(-7, 'd'), dayjs()]} />
             <Bar
                 className='w-full h-[500px]'
                 data={dataTotal}

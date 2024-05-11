@@ -105,51 +105,46 @@ async function newProduct(req, res) {
 
 
 const getOrderSuccessByDate = (req, res) => {
-  let days = parseInt(req.params.days);
-  console.log(days);
-  ORDERS.findOrderSuccessByDays(days, (err, data) => {
+  // let days = (req.body);
+  console.log(req.body.days);
+  ORDERS.findOrderSuccessByDays(req.body.days, (err, data) => {
     if (err) {
-      console.log('Line 109 - controllerAdmin: ', err);
-      res.json({ success: false, err: err })
+      return res.json({ success: false, err: err })
     } else {
-      res.json({ success: true, listOrders: data })
+      res.json({ success: true, data: data })
 
     }
+
+
   })
 }
 
 const getNewOrderByDate = (req, res) => {
-  let days = parseInt(req.params.days);
-  console.log(days);
-  ORDERS.findNewOrderByDays(days, (err, data) => {
+  ORDERS.findNewOrderByDays(req.body.days, (err, data) => {
     if (err) {
       console.log('Line 109 - controllerAdmin: ', err);
       res.json({ success: false, err: err })
     } else {
-      res.json({ success: true, listOrders: data })
+      res.json({ success: true, data: data })
 
     }
   })
 }
 
 const getNewUserByDate = (req, res) => {
-  let days = parseInt(req.params.days);
-  console.log(days);
-  USERS.findNewUserByDays(days, (err, data) => {
+  USERS.findNewUserByDays(req.body.days, (err, data) => {
     if (err) {
       console.log('Line 109 - controllerAdmin: ', err);
       res.json({ success: false, err: err })
     } else {
-      res.json({ success: true, listUsers: data })
+      res.json({ success: true, data: data })
 
     }
   })
 }
 
 const getFavoriteBrands = (req, res) => {
-  let days = parseInt(req.params.days);
-  console.log(days);
-  ORDERS.findTotalBrandSuccessfulByDays(days, (err, data) => {
+  ORDERS.findTotalBrandSuccessfulByDays(req.body.days, (err, data) => {
     if (err) {
       console.log('Line 153 - controllerAdmin: ', err);
       res.json({ success: false, err: err })
@@ -161,9 +156,7 @@ const getFavoriteBrands = (req, res) => {
 }
 
 const getFavoriteLaptops = (req, res) => {
-  let days = parseInt(req.params.days);
-  console.log(days);
-  ORDERS.findTotalLaptopsSuccessfulByDays(days, (err, data) => {
+  ORDERS.findTotalLaptopsSuccessfulByDays(req.body.days, (err, data) => {
     if (err) {
       console.log('Line 167 - controllerAdmin: ', err);
       res.json({ success: false, err: err })

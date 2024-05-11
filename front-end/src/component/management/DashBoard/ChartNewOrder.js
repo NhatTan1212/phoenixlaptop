@@ -1,89 +1,195 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { subDays, format, set, subMonths } from 'date-fns';
-import { Select } from 'antd';
+import { subDays, format, set, subMonths, addDays } from 'date-fns';
+import { DatePicker } from 'antd';
 
 import {
     Chart as ChartJS, CategoryScale, LinearScale, Tooltip, Legend, TimeScale, LineElement, PointElement, defaults, Title, SubTitle
 } from 'chart.js';
+import dayjs from 'dayjs';
+
+import { GetNewOrderByDays, GetNewUserByDays, GetOrderSuccessByDays } from '../../../callAPI/management/apiDashBoard';
 
 ChartJS.register(
     CategoryScale, LinearScale, TimeScale, Tooltip, Legend, LineElement, PointElement, Title, SubTitle,
 )
 
+const { RangePicker } = DatePicker;
+
 defaults.responsive = true
 defaults.maintainAspectRatio = false
 
 const ChartNewOrders = ({ data }) => {
+    const [isDateChanged, setIsDateChanged] = useState(false)
 
+    const [startDate, setStartDate] = useState(dayjs().add(-7, 'd').toISOString().slice(0, 10))
+    const [endDate, setEndDate] = useState(dayjs().toISOString().slice(0, 10))
+    const [listOrder, setListOrder] = useState([])
+    const [listNewOrder, setListNewOrder] = useState([])
+    const [listNewUser, setListNewUser] = useState([])
 
+    const [rangeDate, setRangeDate] = useState(0)
 
-    const dataDaysMapping = {
-        7: {
-            orderSuccess: data.orderSuccess7Days,
-            newUser: data.newUser7Days,
-            newOrder: data.newOrder7Days,
-        },
-        30: {
-            orderSuccess: data.orderSuccess30Days,
-            newUser: data.newUser30Days,
-            newOrder: data.newOrder30Days
-        },
-        365: {
-            orderSuccess: data.orderSuccess365Days,
-            newUser: data.newUser365Days,
-            newOrder: data.newOrder365Days
+    const onRangeChange = (dates, dateStrings) => {
+        if (dates) {
+            console.log('From: ', dates[0], ', to: ', dates[1]);
+            console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+
+            setStartDate(dateStrings[0])
+            setEndDate(dateStrings[1])
+
+            setIsDateChanged(!isDateChanged)
+        } else {
+            console.log('Clear');
         }
     };
+    const rangePresets = [
+        {
+            label: 'Last 7 Days',
+            value: [dayjs().add(-7, 'd'), dayjs()],
+        },
+        {
+            label: 'Last 14 Days',
+            value: [dayjs().add(-14, 'd'), dayjs()],
+        },
+        {
+            label: 'Last 30 Days',
+            value: [dayjs().add(-30, 'd'), dayjs()],
+        },
+        {
+            label: 'Last 90 Days',
+            value: [dayjs().add(-90, 'd'), dayjs()],
+        },
+    ];
+
+    const getOrderSuccessByDays = () => {
+        let rangeDate = [startDate, endDate]
+        GetOrderSuccessByDays(rangeDate).then((dataResult) => {
+            console.log(dataResult);
+            setListOrder(dataResult.data.daysCurrent)
+            const startDateDate = new Date(startDate);
+            const endDateDate = new Date(endDate);
+
+            // Độ chính xác đến ngày bằng cách bỏ đi phần thời gian
+            const start = new Date(startDateDate.getFullYear(), startDateDate.getMonth(), startDateDate.getDate());
+            const end = new Date(endDateDate.getFullYear(), endDateDate.getMonth(), endDateDate.getDate());
+
+            // Tính số miligiây giữa hai mốc thời gian
+            const millisecondsPerDay = 1000 * 60 * 60 * 24;
+            const differenceMilliseconds = end - start;
+
+            // Chuyển đổi từ miligiây thành số ngày
+            const differenceDays = Math.floor(differenceMilliseconds / millisecondsPerDay);
+            setRangeDate(differenceDays)
+            console.log('differenceDays: ', differenceDays);
+            // if (data.success) {
+            //     setOrderData(days, data)
+            // }
+        })
+
+    }
+    const getNewOrderByDays = () => {
+        let rangeDate = [startDate, endDate]
+        GetNewOrderByDays(rangeDate).then((dataResult) => {
+            console.log(dataResult);
+            setListNewOrder(dataResult.data.daysCurrent)
+        })
+    }
+
+    const getNewUserByDays = () => {
+        let rangeDate = [startDate, endDate]
+        GetNewUserByDays(rangeDate).then((dataResult) => {
+            console.log(dataResult);
+            setListNewUser(dataResult.data.daysCurrent)
+        })
+    }
+    useEffect(() => {
+        getNewOrderByDays()
+        getNewUserByDays()
+        getOrderSuccessByDays()
+    }, [isDateChanged])
     let labels = [];
     let newDataTotal = [];
     let newDataOrder = [];
     let newDataUser = [];
 
-    if (data.modeViewChartNewOrder === 7 || data.modeViewChartNewOrder === 30) {
-        // Xem theo tuần hoặc tháng
-        labels = Array.from({ length: data.modeViewChartNewOrder }, (_, i) => {
-            const date = subDays(new Date(), data.modeViewChartNewOrder - 1 - i);
-            return format(date, 'yyyy-MM-dd');
-        });
 
-        newDataTotal = Array.from({ length: data.modeViewChartNewOrder }, (_, i) => {
-            const date = subDays(new Date(), data.modeViewChartNewOrder - 1 - i).toISOString().split('T')[0];
-            const order = dataDaysMapping[data.modeViewChartNewOrder].orderSuccess.find(item => item.created_at.split('T')[0] === date);
-            return order ? order.total : 0;
-        });
+    labels = Array.from({ length: rangeDate + 1 }, (_, i) => {
+        const date = subDays(new Date(), rangeDate - i);
+        return format(date, 'yyyy-MM-dd');
+    });
 
-        newDataOrder = Array.from({ length: data.modeViewChartNewOrder }, (_, i) => {
-            const date = subDays(new Date(), data.modeViewChartNewOrder - 1 - i).toISOString().split('T')[0];
-            const orders = dataDaysMapping[data.modeViewChartNewOrder].newOrder.filter(item => item.created_at.split('T')[0] === date);
-            return orders.length;
-        });
+    const currentDate = new Date();
+    const previousDate = subDays(currentDate, rangeDate);
 
-        newDataUser = Array.from({ length: data.modeViewChartNewOrder }, (_, i) => {
-            const date = subDays(new Date(), data.modeViewChartNewOrder - 1 - i).toISOString().split('T')[0];
-            const users = dataDaysMapping[data.modeViewChartNewOrder].newUser.filter(item => item.created_at.split('T')[0] === date);
-            return users.length;
-        });
-    } else if (data.modeViewChartNewOrder === 365) {
-        // Xem theo năm
-        const currentDate = new Date();
-        for (let i = 11; i >= 0; i--) {
-            const date = subMonths(currentDate, i);
-            labels.push(format(date, 'yyyy-MM'));
-            const total = dataDaysMapping[data.modeViewChartNewOrder].orderSuccess
-                .filter(item => format(new Date(item.created_at), 'yyyy-MM') === format(date, 'yyyy-MM'))
-                .reduce((acc, curr) => acc + curr.total, 0);
-            newDataTotal.push(total);
-            const totalOrder = dataDaysMapping[data.modeViewChartNewOrder].newOrder
-                .filter(item => format(new Date(item.created_at), 'yyyy-MM') === format(date, 'yyyy-MM'))
-                .length;
-            newDataOrder.push(totalOrder);
-            const totalUser = dataDaysMapping[data.modeViewChartNewOrder].newUser
-                .filter(item => format(new Date(item.created_at), 'yyyy-MM') === format(date, 'yyyy-MM'))
-                .length;
-            newDataUser.push(totalUser);
-        }
-    }
+    // Lấy ngày trước hiện tại 1 ngày
+
+
+    // Format ngày dưới dạng yyyy-MM-dd
+
+    newDataTotal = Array.from({ length: rangeDate + 1 }, (_, i) => {
+        // Lấy ngày cần tính tổng doanh thu
+        const currentDate = subDays(new Date(endDate), rangeDate - 1 - i);
+        const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd');
+
+        // Tính tổng doanh thu của ngày hiện tại
+        const totalReturn = listOrder.reduce((accumulator, order) => {
+            // Lấy ngày thành công của đơn hàng và chuyển đổi thành định dạng yyyy-MM-dd
+            const orderSuccessfulDate = format(new Date(order.successful_at), 'yyyy-MM-dd');
+
+            // Nếu ngày thành công của đơn hàng trùng với ngày hiện tại đang xét
+            if (orderSuccessfulDate === formattedCurrentDate) {
+                return accumulator + order.total; // Cộng tổng doanh thu của đơn hàng vào tổng kết quả
+            } else {
+                return accumulator; // Không thay đổi tổng kết quả
+            }
+        }, 0);
+
+        return totalReturn;
+    });
+
+    newDataOrder = Array.from({ length: rangeDate + 1 }, (_, i) => {
+        // Lấy ngày cần tính tổng doanh thu
+        const currentDate = subDays(new Date(endDate), rangeDate - 1 - i);
+        const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd');
+
+        // Tính tổng doanh thu của ngày hiện tại
+        const totalReturn = listNewOrder.reduce((accumulator, order) => {
+            // Lấy ngày thành công của đơn hàng và chuyển đổi thành định dạng yyyy-MM-dd
+            const orderSuccessfulDate = format(new Date(order.created_at), 'yyyy-MM-dd');
+
+            // Nếu ngày thành công của đơn hàng trùng với ngày hiện tại đang xét
+            if (orderSuccessfulDate === formattedCurrentDate) {
+                return accumulator + 1; // Cộng tổng doanh thu của đơn hàng vào tổng kết quả
+            } else {
+                return accumulator; // Không thay đổi tổng kết quả
+            }
+        }, 0);
+
+        return totalReturn;
+    });
+
+    newDataUser = Array.from({ length: rangeDate + 1 }, (_, i) => {
+        // Lấy ngày cần tính tổng doanh thu
+        const currentDate = subDays(new Date(endDate), rangeDate - 1 - i);
+        const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd');
+
+        // Tính tổng doanh thu của ngày hiện tại
+        const totalReturn = listNewUser.reduce((accumulator, user) => {
+            // Lấy ngày thành công của đơn hàng và chuyển đổi thành định dạng yyyy-MM-dd
+            const userSuccessfulDate = format(new Date(user.created_at), 'yyyy-MM-dd');
+
+            // Nếu ngày thành công của đơn hàng trùng với ngày hiện tại đang xét
+            if (userSuccessfulDate === formattedCurrentDate) {
+                return accumulator + 1; // Cộng tổng doanh thu của đơn hàng vào tổng kết quả
+            } else {
+                return accumulator; // Không thay đổi tổng kết quả
+            }
+        }, 0);
+
+        return totalReturn;
+    });
+
 
     const dataNewOrder = {
         labels: labels,
@@ -145,28 +251,9 @@ const ChartNewOrders = ({ data }) => {
     };
 
     return (
-        <div className='relative '>
-            <Select
-                className='absolute right-2 top-2'
-                value={data.modeViewChartNewOrder || 7}
-                options={[
-                    {
-                        value: 7,
-                        label: 'Xem theo tuần'
-                    },
-                    {
-                        value: 30,
-                        label: 'Xem theo tháng'
-                    },
-                    {
-                        value: 365,
-                        label: 'Xem theo năm'
-                    },
-                ]}
-                onChange={(e) => {
-                    data.setModeViewChartNewOrder(e)
-                }}
-            ></Select>
+        <div className='relative    text-end'>
+            <RangePicker presets={rangePresets} onChange={onRangeChange} className=' mr-6 mt-3 '
+                defaultValue={[dayjs().add(-7, 'd'), dayjs()]} />
             <Line
                 // height={500}
                 className='w-full h-full max-h-[500px] min-h-[300px]'
