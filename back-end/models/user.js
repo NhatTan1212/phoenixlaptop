@@ -90,44 +90,67 @@ USERS.findNewUserByDays = async (days, result) => {
     const pool = await connect;
     const resData = {};
 
+    // Định dạng ngày tháng để sử dụng trong câu truy vấn SQL (vd: YYYY-MM-DD HH:mm:ss)
+    const formattedStartDate = days[0]; // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    const formattedEndDate = days[1];   // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    console.log(formattedStartDate);
+    console.log(formattedEndDate);
+    // Sử dụng các biến formattedStartDate và formattedEndDate trong câu truy vấn SQL
     const sqlString1 = `
         SELECT *
         FROM USERS
-        WHERE confirmation_status = 1 
-        And created_at >= DATEADD(day, -@days+1, GETDATE())
-        AND created_at <= GETDATE();
+        WHERE confirmation_status = 1
+        AND created_at >= '${formattedStartDate}'
+        AND created_at <= '${formattedEndDate} 23:59:59';
     `;
+    console.log(sqlString1);
 
-    const getUserCurrent = new Promise((resolve, reject) => {
+    const startDate = new Date(formattedStartDate);
+    const endDate = new Date(formattedEndDate);
+
+    // Độ chính xác đến ngày bằng cách bỏ đi phần thời gian
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+    // Tính số miligiây giữa hai mốc thời gian
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const differenceMilliseconds = end - start;
+
+    // Chuyển đổi từ miligiây thành số ngày
+    const differenceDays = Math.floor(differenceMilliseconds / millisecondsPerDay);
+
+    console.log('differenceDays: ', differenceDays);
+
+    const sqlString2 = `
+    SELECT *
+    FROM USERS
+    WHERE confirmation_status = 1
+    AND created_at >= DATEADD(DAY, ${differenceDays.toString()}, '${formattedStartDate}')
+    AND created_at <= '${formattedStartDate} 23:59:59';
+`;
+
+    const getOrderSuccessfull = new Promise((resolve, reject) => {
         pool.request()
-            .input('days', sql.Int, days)
             .query(sqlString1, (err, data) => {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
+                    console.log('data: ', data);
                     resData["daysCurrent"] = data.recordset;
                     resolve();
                 }
             });
     });
 
-    const sqlString2 = `
-        SELECT *
-        FROM USERS
-        WHERE confirmation_status = 1 
-        And created_at >= DATEADD(day, -@days*2+1, GETDATE())
-        AND created_at <= DATEADD(day, -@days+1, GETDATE());
-    `;
-
-    const getUserBefore = new Promise((resolve, reject) => {
+    const getOrderSuccessfullBefore = new Promise((resolve, reject) => {
         pool.request()
-            .input('days', sql.Int, days)
             .query(sqlString2, (err, data) => {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
+                    console.log('data: ', data);
                     resData["daysBefore"] = data.recordset;
                     resolve();
                 }
@@ -135,7 +158,7 @@ USERS.findNewUserByDays = async (days, result) => {
     });
 
     try {
-        await Promise.all([getUserCurrent, getUserBefore]);
+        await Promise.all([getOrderSuccessfull, getOrderSuccessfullBefore]);
         result(null, resData);
     } catch (error) {
         result(error, null);

@@ -52,15 +52,15 @@ routerAdmin.get('/management', authMiddleware.isAuthAdmin, controllerAdmin.contr
 
 routerAdmin.post('/newproduct', uploadMuti, authMiddleware.isAuthAdmin, controllerAdmin.newProduct
 )
-routerAdmin.get('/order-success-by-date/:days', controllerAdmin.getOrderSuccessByDate)
+routerAdmin.post('/order-success-by-date/', controllerAdmin.getOrderSuccessByDate)
 
-routerAdmin.get('/new-order-by-date/:days', controllerAdmin.getNewOrderByDate)
+routerAdmin.post('/new-order-by-date/', controllerAdmin.getNewOrderByDate)
 
-routerAdmin.get('/new-user-by-date/:days', controllerAdmin.getNewUserByDate)
+routerAdmin.post('/new-user-by-date/', controllerAdmin.getNewUserByDate)
 
-routerAdmin.get('/favorite-brands/:days', controllerAdmin.getFavoriteBrands)
+routerAdmin.post('/favorite-brands/', controllerAdmin.getFavoriteBrands)
 
-routerAdmin.get('/favorite-laptops/:days', controllerAdmin.getFavoriteLaptops)
+routerAdmin.post('/favorite-laptops/', controllerAdmin.getFavoriteLaptops)
 
 
 
