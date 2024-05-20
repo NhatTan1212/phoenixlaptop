@@ -488,7 +488,8 @@ function Cart() {
                 return;
             }
 
-            if (valueRadioReceive === "Giao hàng tận nơi") {
+            if (token && valueRadioReceive === "Giao hàng tận nơi") {
+
                 if (radioAddressSelected === null) {
                     context.Message("error", "Quý khách vui lòng nhập địa chỉ giao hàng.");
                     return
@@ -503,16 +504,21 @@ function Cart() {
             setListProduct(newList)
 
 
-            const address = addressSaved.find((address) => {
+            const address = token ? addressSaved.find((address) => {
                 return address.id === radioAddressSelected
-            })
+            }) : {
+                detail_address: addNewDetailAddress,
+                ward: addNewWardSelected,
+                district: addNewDistrictSelected,
+                province: addNewProvinceSelected
+            }
 
             // setDetailAddress(address.detail_address)
             // setProvinceSelected(address.province)
             // setDistrictSelected(address.district)
             // setWardSelected(address.ward)
 
-            // console.log(listProduct)
+            console.log('address ', address)
             const dataOder = {
                 [authKey]: authValue,
                 total: sum,
@@ -690,7 +696,8 @@ function Cart() {
     }, []);
 
     useEffect(() => {
-        getUserDefaultAddress();
+        if (token)
+            getUserDefaultAddress();
     }, [addressSaved]);
 
     useEffect(() => {
@@ -700,7 +707,8 @@ function Cart() {
     }, [isAddressDeliveryChange, userId]);
 
     useEffect(() => {
-        setIsAddressDeliveryChange(false);
+        if (token)
+            setIsAddressDeliveryChange(false);
     }, []);
 
     return (
@@ -742,11 +750,10 @@ function Cart() {
                                 className='text-[#4ea722] text-[60px]'
                                 icon={faCircleCheck}></FontAwesomeIcon>
                             <p className='text-[#4ea722] text-[20px] my-6'>Đặt hàng thành công!</p>
-                            {
-                                valueRadioPay === 'BANK' ? 
-                            <p className='text-[#000000] text-[17px] my-6'>Vui lòng nhấn xem chi tiết đơn hàng để tiến hành thanh toán.</p> : 
-                            <p className='text-[#000000] text-[17px] my-6'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>
-                            }
+
+                            {valueRadioPay == 'BANK' && <p className='text-[#000000] text-[17px]'>Quý khách vui lòng hoàn tất thanh toán theo hướng dẫn.</p>}
+                            <p className='text-[#000000] text-[17px] mb-6'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>
+
                             <div className=''>
                                 <Button
                                     className='w-[180px] mr-6'
@@ -908,9 +915,11 @@ function Cart() {
                                         <p className='text-[15px]'>Phoenix Technology - 362 Hoàng Diệu, Quận Hải Châu, Tp Đà Nẵng </p>
                                     </div>
                                     :
-                                    addressSaved ?
-                                        <div>
+
+                                    <div>
+                                        {addressSaved &&
                                             <div className='w-full mb-5 bg-[#f8f8f8] p-5 border-[1px] border-[#d4d4d4]'>
+
                                                 <Select
                                                     value={radioAddressSelected || "Chọn địa chỉ giao hàng"}
                                                     style={{ width: "100%" }}
@@ -925,7 +934,7 @@ function Cart() {
                                                     }}
                                                 >
                                                     {
-                                                        addressSaved.map((address, index) => (
+                                                        addressSaved && addressSaved.map((address, index) => (
                                                             <Option key={address.id} value={address.id}>
                                                                 <Tag
                                                                     closable
@@ -953,66 +962,69 @@ function Cart() {
                                                     </Checkbox>
                                                 </Row>
                                             </div>
-                                            <div className='bg-[#f8f8f8] p-5 border-[1px] border-[#d4d4d4]'>
-                                                <Input
-                                                    className='text-[15px]'
-                                                    value={addNewDetailAddress}
-                                                    onChange={(e) => {
-                                                        setAddNewDetailAddress(e.target.value)
-                                                    }}
-                                                    placeholder='Chi tiết tên đường, số nhà'></Input>
-                                                <div className={`items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''} `}>
-                                                    <Select
-                                                        className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
-                                                        showSearch
-                                                        value={addNewProvinceSelected || "Chọn Tỉnh/Thành phố"}
-                                                        options={optionsSelectProvince}
-                                                        onChange={(e) => handleChangeAddNewProvince(e)}
-                                                        filterOption={(input, option) =>
-                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                        }>
+                                        }
+                                        <div className='bg-[#f8f8f8] p-5 border-[1px] border-[#d4d4d4]'>
+                                            <Input
+                                                className='text-[15px]'
+                                                value={addNewDetailAddress}
+                                                onChange={(e) => {
+                                                    setAddNewDetailAddress(e.target.value)
+                                                }}
+                                                placeholder='Chi tiết tên đường, số nhà'></Input>
+                                            <div className={`items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''} `}>
+                                                <Select
+                                                    className={` my-3 flex-1 mr-2 items-center  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'ml-0'}`}
+                                                    showSearch
+                                                    value={addNewProvinceSelected || "Chọn Tỉnh/Thành phố"}
+                                                    options={optionsSelectProvince}
+                                                    onChange={(e) => handleChangeAddNewProvince(e)}
+                                                    filterOption={(input, option) =>
+                                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                    }>
 
-                                                    </Select>
-                                                    <Select
-                                                        className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
-                                                        showSearch
-                                                        value={addNewDistrictSelected || "Chọn Quận/Huyện"}
-                                                        options={optionsSelectDistricts}
-                                                        filterOption={(input, option) =>
-                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                        }
-                                                        onChange={(e) => handleChangeAddNewDistrict(e)}>
+                                                </Select>
+                                                <Select
+                                                    className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mx-2'}`}
+                                                    showSearch
+                                                    value={addNewDistrictSelected || "Chọn Quận/Huyện"}
+                                                    options={optionsSelectDistricts}
+                                                    filterOption={(input, option) =>
+                                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                    }
+                                                    onChange={(e) => handleChangeAddNewDistrict(e)}>
 
-                                                    </Select>
-                                                    <Select
-                                                        className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
-                                                        showSearch
-                                                        value={addNewWardSelected || "Chọn Phường/Xã"}
-                                                        options={optionsSelectWards}
-                                                        filterOption={(input, option) =>
-                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                                        }
-                                                        onChange={(e) => handleChangeAddNewWard(e)}>
+                                                </Select>
+                                                <Select
+                                                    className={` my-3 flex-1  ${!isHiddenAutoCpl ? 'w-full mx-0' : 'mr-0'}`}
+                                                    showSearch
+                                                    value={addNewWardSelected || "Chọn Phường/Xã"}
+                                                    options={optionsSelectWards}
+                                                    filterOption={(input, option) =>
+                                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                    }
+                                                    onChange={(e) => handleChangeAddNewWard(e)}>
 
-                                                    </Select>
-                                                </div>
-                                                {
-                                                    (addNewDetailAddress && addNewProvinceSelected && addNewDistrictSelected && addNewWardSelected) ?
-                                                        <Button className='mt-2' onClick={() => {
-                                                            handleAddNewAddress()
-                                                        }}>
-                                                            <FontAwesomeIcon icon={faPlus} />
-                                                            <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
-                                                        </Button>
-                                                        :
-                                                        <Button Button disabled className='btn-antd-disabled mt-2'>
-                                                            <FontAwesomeIcon icon={faPlus} />
-                                                            <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
-                                                        </Button>
-                                                }
+                                                </Select>
                                             </div>
+                                            {
+                                                addressSaved &&
+                                                    (addNewDetailAddress && addNewProvinceSelected && addNewDistrictSelected && addNewWardSelected) ?
+                                                    <Button className='mt-2' onClick={() => {
+                                                        handleAddNewAddress()
+                                                    }}>
+                                                        <FontAwesomeIcon icon={faPlus} />
+                                                        <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
+                                                    </Button>
+                                                    :
+                                                    addressSaved && <Button Button disabled className='btn-antd-disabled mt-2'>
+                                                        <FontAwesomeIcon icon={faPlus} />
+                                                        <span className='pl-1 font-bold hover:underline hover:cursor-pointer'>Thêm địa chỉ giao hàng</span>
+                                                    </Button>
+
+                                            }
                                         </div>
-                                        : <p>Chưa có địa chỉ nào được lưu</p>
+                                    </div>
+
 
                             }
                         </div>
@@ -1073,11 +1085,20 @@ function Cart() {
                                             </Radio.Group>
                                         </div>
                                         :
-                                        <p className='flex flex-col px-5 py-7 bg-[#f8f8f8] text-[15px]
+                                        token ? <p className='flex flex-col px-5 py-7 bg-[#f8f8f8] text-[15px]
                                 border-[1px] border-[#d4d4d4]'>
-                                            <span>Quý khách vui lòng bấm nút "Đặt hàng" để thực hiện Thanh toán qua chuyển khoản qua tài ngân hàng.</span>
+
+                                            <span>Quý khách vui lòng bấm nút "Đặt hàng" để thực hiện Thanh toán chuyển khoản qua tài ngân hàng.</span>
                                             <span>Hoặc liên hệ Hotline: 0359.973.209 để được tư vấn.</span>
-                                        </p>
+                                        </p> :
+                                            <p className='flex flex-col px-5 py-7 bg-[#f8f8f8] text-[15px]
+                                        border-[1px] border-[#d4d4d4]'>
+                                                <span>Quý khách vui lòng bấm nút "Đặt hàng".</span>
+                                                <span>Sau đó vui lòng vào email để lấy Mã đơn hàng. Chuyển khoản đến số tài khoản bên dưới với nội dung DH + mã đơn hàng. Ví dụ: DH17849</span>
+                                                <span>TONG BA QUAN - Ngân Hàng Ngoại Thương Việt Nam (Vietcombank) - STK: 9917027048</span>
+                                                <span>Hoặc liên hệ Hotline: 0359.973.209 để được tư vấn.</span>
+                                            </p>
+
                             }
                         </div>
                         <div className={` items-center justify-between ${isHiddenAutoCpl ? 'flex' : ''}`}>

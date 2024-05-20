@@ -1029,13 +1029,13 @@ function checkout(req, res) {
   // res.render('checkout')
 }
 
-const mailerOrderSuccessfully = (email, data, productList) => {
+const mailerOrderSuccessfully = (email, data, productList, orderId) => {
   mailer.sendMail(
     email,
     "[PhoenixLaptop] Thông tin đơn đặt hàng",
     `
         <div style="background-color: #f0f9eb; border: 1px solid #b7eb8f; color: #4caf50; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-        <h1 style="font-size: 24px;">Bạn đã đặt hàng thành công</h1>
+        <h1 style="font-size: 24px;">Bạn đã đặt hàng thành công - Mã đơn hàng #${orderId}</h1>
         <h2 style="font-size: 20px;">Thông tin giao hàng:</h2>
         <p><strong>Tên người nhận:</strong> ${data.name}</p>
         <p><strong>Số điện thoại:</strong> ${data.phone}</p>
@@ -1175,7 +1175,7 @@ async function dataOrder(req, res) {
             if (err) {
               return res.json({ success: false, error: err });
             }
-            console.log(order);
+            console.log('line 1178 - order: ', order);
 
             const completedRequests = req.body.listProduct.length;
             let requestsCompleted = 0;
@@ -1238,7 +1238,7 @@ async function dataOrder(req, res) {
                     completedRequests
                   );
                   if (requestsCompleted === completedRequests) {
-                    mailerOrderSuccessfully(email, req.body, productList);
+                    mailerOrderSuccessfully(email, req.body, productList, order.id);
 
                     res.json({
                       success: true,
@@ -1325,7 +1325,7 @@ async function dataOrder(req, res) {
               completedRequests
             );
             if (requestsCompleted === completedRequests) {
-              mailerOrderSuccessfully(email, req.body, productList);
+              mailerOrderSuccessfully(email, req.body, productList, order);
               global.io.emit("newOrder", req.body);
               res.json({
                 success: true,

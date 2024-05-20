@@ -24,7 +24,7 @@ function Order() {
 
         return matchedOrder ? (
             <div className='text-[#26aa5f] font-bold'>
-                {matchedOrder.is_cancel === 1 ? <span className='text-red-600'>Đơn hàng đã hủy</span> : matchedOrder.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                {matchedOrder.is_cancel === 1 ? <span className='text-red-600'>Đơn hàng đã hủy</span>
                     : matchedOrder.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                         : matchedOrder.is_transported ? 'Đơn hàng đã được giao đến nơi'
                             : matchedOrder.is_being_shipped ? 'Đơn hàng đang được giao đến bạn'
@@ -134,10 +134,10 @@ function Order() {
                     case 'is_pending_approval':
                         return matchedOrder.is_approved !== 1 && matchedOrder.is_being_shipped !== 1
                             && matchedOrder.is_transported !== 1 && matchedOrder.is_success !== 1
-                            && matchedOrder.user_address !== 'Nhận hàng tại cửa hàng';
+                            && matchedOrder.is_cancel !== 1;
                     case 'is_approved':
                         return matchedOrder.is_approved === 1 && matchedOrder.is_being_shipped !== 1
-                            && matchedOrder.user_address !== 'Nhận hàng tại cửa hàng';
+                            ;
                     case 'is_being_shipped':
                         return matchedOrder.is_being_shipped === 1 && matchedOrder.is_transported !== 1;
                     case 'is_transported':

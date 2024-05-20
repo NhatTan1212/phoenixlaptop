@@ -27,7 +27,7 @@ function sendResetLinkEmail(req, res) {
                     `)
                     // console.log(`http://localhost:8000/password/reset/${user[0].email}?token=${hashedEmail}`);
                 })
-                res.redirect('/password/reset?status=success')
+                res.json({ status: true })
             }
         })
     }
