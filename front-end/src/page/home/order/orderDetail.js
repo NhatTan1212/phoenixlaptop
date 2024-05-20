@@ -353,67 +353,7 @@ function OrderDetail() {
                     </div>
                 </div>
 
-                {
-                    order.is_cancel &&
-                    <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
-                border-[#8f7f00] mb-3'>
-                        <div className='flex p-4'>
-                            <div>
-                                <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
-                            </div>
-                            <div>
-                                <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
-                                <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
-
-
-                            </div>
-                        </div>
-                        {
-                            order && order.is_cancel &&
-                            <div className='bg-[#fff9c3] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
-                border-[#8f7f00] mb-3'>
-                                <div className='flex p-4'>
-                                    <div>
-                                        <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
-                                    </div>
-                                    <div>
-                                        <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
-                                        <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
-
-                                            <span className='pl-1 font-bold text-[#8f7f00]' >
-                                                {new Date(order.cancel_at).toLocaleDateString()}
-                                            </span>
-                                            <span className='pl-1 font-bold text-[#8f7f00]'>
-                                                {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
-                                            </span>
-                                        </Col>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        <div className='bg-[#fff]'>
-                            <DeliveryAddressOrderDetail order={order} />
-
-                        </div>
-
-                    </div>
-                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
-                        <TableOrderDetail
-                            columns={isHiddenAutoCpl ? columns : deviceColumns}
-                            dataSource={dataTable}
-                            order={order} />
-                    </div>
-                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
-                        <div className='flex justify-end mr-[30px]'>
-                            <Button
-                                onClick={handleDeleteButton}
-                                className={`bg-[#cb1c22]  ${isDisableDeleteOrder ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}>
-                                Hủy đơn hàng
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
+               
                 {
                     (order.paymentMethods === 'BANK' && (!order.is_payment && !order.is_cancel)) ?
                         <div className='w-[400px] h-[max-content] mt-9 bg-white p-6'>
