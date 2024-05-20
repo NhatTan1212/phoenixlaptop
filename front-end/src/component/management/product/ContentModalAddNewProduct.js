@@ -76,7 +76,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
             setProductPercent(discountPercentage.toFixed(0) + '');
         } else {
             // console.log("Invalid input");
-            setProductPercent('');
+            setProductPercent('0');
         }
     };
 
@@ -125,15 +125,15 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
     const onFinish = (e) => {
         e.preventDefault();
         console.log(avatar);
-        if (avatar === null||productName === ''||selectedItems === ''||categoryIDSelected === ''||
-            productDescription === ''||price === ''||cost === ''||quantity === ''||productPercent === ''||
-            pin === ''||operationSystem === ''||graphics === ''||onBoard === ''||
-            cpu === ''||hardDrive === ''||screen === ''||webcam === ''||connection === ''||prodWeight === '') {
-            context.Message('error','Vui lòng nhập đầy đủ thông tin.')
+        if (avatar === null || productName === '' || selectedItems === '' || categoryIDSelected === '' ||
+            productDescription === '' || price === '' || cost === '' || quantity === '' || productPercent === '' ||
+            pin === '' || operationSystem === '' || graphics === '' || onBoard === '' ||
+            cpu === '' || hardDrive === '' || screen === '' || webcam === '' || connection === '' || prodWeight === '') {
+            context.Message('error', 'Vui lòng nhập đầy đủ thông tin.')
             return
         }
-        if(fileList.length===0){
-            context.Message('error','Vui lòng thêm hình ảnh cho sản phẩm.')
+        if (fileList.length === 0) {
+            context.Message('error', 'Vui lòng thêm hình ảnh cho sản phẩm.')
             return
         }
 
@@ -207,19 +207,19 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                     onChange={(e) => {
 
                         if (e.target.files && e.target.files[0]) {
-                             // console.log(e.target.files[0])
-                        setAvatar(e.target.files[0])
-                        // Update the image preview here
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            // Set the preview image source
-                            document.querySelector('.avatar-modal-view').src = event.target.result;
-                            document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
-                            document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
-                        };
-                        reader.readAsDataURL(e.target.files[0]);
+                            // console.log(e.target.files[0])
+                            setAvatar(e.target.files[0])
+                            // Update the image preview here
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                // Set the preview image source
+                                document.querySelector('.avatar-modal-view').src = event.target.result;
+                                document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
+                                document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
+                            };
+                            reader.readAsDataURL(e.target.files[0]);
                         }
-                       
+
                     }} />
 
             </div>
@@ -852,6 +852,15 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     onChange={handleCostChange}></Input>
                             </div>
                             <div className='flex'>
+                                <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Phần trăm giảm giá:</h3>
+                                <Input
+                                    className='mb-2 mt-0'
+                                    name='prod_percent'
+                                    value={productPercent !== '' ? (productPercent + " %") || '' : ''}
+                                    readOnly
+                                ></Input>
+                            </div>
+                            <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Số lượng còn lại:</h3>
                                 <Input
                                     className='mb-2 mt-0'
@@ -860,15 +869,6 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     onChange={(e) => {
                                         setQuantity(e.target.value)
                                     }}></Input>
-                            </div>
-                            <div className='flex'>
-                                <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Phần trăm giảm giá:</h3>
-                                <Input
-                                    className='mb-2 mt-0'
-                                    name='prod_percent'
-                                    value={(productPercent + " %") || ''}
-                                    readOnly
-                                ></Input>
                             </div>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Màn hình:</h3>
@@ -1143,12 +1143,12 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                     </Row>
 
                     <div className='inline-block'>
-                        <Input 
-                        type='submit'
-                         defaultValue={"Thêm sản phẩm"}
+                        <Input
+                            type='submit'
+                            defaultValue={"Thêm sản phẩm"}
                             className='bg-[#c8191f] text-white'
-                            // onClick={(e)=>{onFinish(e)}}
-                            >
+                        // onClick={(e)=>{onFinish(e)}}
+                        >
                         </Input>
                     </div>
                 </form>
