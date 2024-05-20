@@ -9,7 +9,9 @@ import Instance from '../../../axiosInstance';
 import DeliveryAddressOrderDetail from '../../../component/management/DeliveryAddress';
 import TableOrderDetail from '../../../component/management/TableOrderDetail';
 import Context from '../../../store/Context';
-import { Button, Col, Modal, Row } from 'antd';
+import { Button, Col, Image, Modal, Row } from 'antd';
+import iconsOrder from '../../../global/imageOrder'
+
 
 function OrderDetail() {
     const context = useContext(Context)
@@ -187,6 +189,39 @@ function OrderDetail() {
                 : setConfirmDelete(true)
     }
 
+    const oderStatusCpn = (status, iconActive, iconDisable, title, positionLeft, positionTop, dateStatus) => {
+
+        return (
+            <div className='relative'>
+                <div>
+                    <div
+                        style={{ left: `-${positionLeft}px`, top: `${positionTop}px`, backgroundColor: status === 1 ? '#2dc258' : '#d8d8d8' }}
+                        className={`absolute w-[210px] h-[3px] z-[1]`}
+                    ></div>
+                </div>
+
+                <div className='flex flex-col w-[210px]'>
+                    <div className={`border-[4px] border-[${status === 1 ? '#2dc258' : '#d8d8d8'}] rounded-[100px] p-3
+                                max-w-[60px] mx-auto z-10 relative bg-white`}>
+                        <img src={status === 1 ? iconActive : iconDisable} alt='order-img' className='w-[35px] object-contain '></img>
+                    </div>
+                    <div className='mt-2 mx-auto text-center'>{title}</div>
+                    {status == 1 ?
+                        <div className='mx-auto text-center text-[#a4a4a4] text-sm '>
+                            <span>
+                                {dateStatus.slice(11, 16)}
+                            </span>
+                            <span className='ml-2'>
+                                {new Date(dateStatus).toLocaleDateString().replace(/\//g, '-')}
+                            </span>
+
+                        </div> : null
+                    }
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className='bg-[#f0f0f0] py-3'>
             <Modal
@@ -200,7 +235,118 @@ function OrderDetail() {
                 }
             </Modal>
 
-            <div className='w-10/12  mx-[auto] max-[1550px]:w-full '>
+            <div className='w-10/12 mx-[auto] max-[1550px]:w-full flex'>
+                <div className='flex-1 mr-5'>
+                    {
+                        order && order.is_cancel &&
+                        <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
+                border-[#8f7f00] mb-3'>
+                            <div className='flex p-4'>
+                                <div>
+                                    <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
+                                </div>
+                                <div>
+                                    <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
+                                    <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
+
+                                        <span className='pl-1 font-bold text-[#8f7f00]' >
+                                            {new Date(order.cancel_at).toLocaleDateString()}
+                                        </span>
+                                        <span className='pl-1 font-bold text-[#8f7f00]'>
+                                            {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
+                                        </span>
+                                    </Col>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div className='mb-3 max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
+                        <div className='flex items-center justify-between mb-3 max-[730px]:flex-col max-[730px]:items-start'>
+                            <Link to={'/order'} className='flex items-center '>
+                                <FontAwesomeIcon
+                                    className='text-[gray] pr-2'
+                                    icon={faAngleLeft}></FontAwesomeIcon>
+                                <h5 className=''>Quay lại các đơn đặt hàng của bạn</h5>
+                            </Link>
+                            <div className='max-[435px]:flex max-[435px]:flex-col'>
+                                <span>Mã đơn hàng: {order ? order.id : 'N/A'} |</span>
+                                <span className='text-[#ed1d24] uppercase font-bold ml-4 max-[435px]:ml-0'>
+                                    {order ? order.is_cancel === 1 ? 'Đơn hàng đã hủy'
+                                        : order.is_success === 1 ? 'Đơn hàng đã hoàn tất'
+                                            : order.is_transported === 1 ? 'Đơn hàng đã được giao đến nơi'
+                                                : order.is_being_shipped === 1 ? 'Đơn hàng đang được giao đến bạn'
+                                                    : order.is_approved === 1 ? 'Đơn hàng đã được xác nhận. (Đang chuẩn bị hàng)'
+                                                        : 'Đang chờ phê duyệt' : ''
+                                    }</span>
+
+                            </div>
+                        </div>
+                        <div className='flex justify-center py-4 bg-white mb-1 relative'>
+
+
+                            <div className='flex flex-col w-[210px]'>
+                                <div className={`border-[4px] border-[#2dc258] rounded-[100px] p-3 max-w-[60px] mx-auto z-10 relative bg-white`}>
+                                    <img src={iconsOrder.receiptActive} alt='order-img' className='w-[35px] object-contain '></img>
+                                </div>
+                                <div className='mt-2 mx-auto'>Đơn hàng đã đặt</div>
+
+                                {order && order.length != 0 &&
+                                    <>
+                                        <div className='mx-auto text-[#a4a4a4] text-sm '>
+                                            <span>
+                                                {order.created_at.slice(11, 16)}
+                                            </span>
+                                            <span className='ml-2'>
+                                                {new Date(order.created_at).toLocaleDateString().replace(/\//g, '-')}
+                                            </span>
+
+                                        </div>
+                                    </>
+
+                                }
+
+
+
+
+                            </div>
+
+                            {
+                                order && order.user_address !== 'Nhận hàng tại cửa hàng' && oderStatusCpn(order.is_payment, iconsOrder.paymentActive, iconsOrder.paymentDisable, 'Đơn hàng đã thanh toán', 120, 30, order.paid_at)
+                            }
+                            {
+                                order && order.user_address !== 'Nhận hàng tại cửa hàng' && oderStatusCpn(order.is_being_shipped, iconsOrder.deliveryActive, iconsOrder.deliveryDisable, 'Đơn hàng đang được giao đến bạn', 120, 30, order.being_shipped_at)
+                            }
+                            {
+                                order && order.user_address !== 'Nhận hàng tại cửa hàng' && oderStatusCpn(order.is_transported, iconsOrder.receiverActive, iconsOrder.receiptDisable, 'Đã nhận được hàng', 120, 30, order.transported_at)
+                            }
+                            {
+                                oderStatusCpn(order && order.is_success, iconsOrder.checkActive, iconsOrder.checkDisable, 'Đơn hàng đã hoàn thành', 120, 30, order && order.successful_at)
+                            }
+
+                        </div>
+                        <div className='bg-[#fff]'>
+                            <DeliveryAddressOrderDetail order={order} />
+
+                        </div>
+
+                    </div>
+                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
+                        <TableOrderDetail
+                            columns={isHiddenAutoCpl ? columns : deviceColumns}
+                            dataSource={dataTable}
+                            order={order} />
+                    </div>
+                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
+                        <div className='flex justify-end mr-[30px]'>
+                            <Button
+                                onClick={handleDeleteButton}
+                                className={`bg-[#cb1c22]  ${isDisableDeleteOrder ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}>
+                                Hủy đơn hàng
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
                 {
                     order.is_cancel &&
                     <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 

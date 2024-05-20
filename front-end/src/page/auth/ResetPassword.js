@@ -24,12 +24,13 @@ const ResetPassword = () => {
         } else {
             Instance.post(`/password/email`, { email: email })
                 .then((res) => {
-                    if (res.status) {
+                    if (res.data.status) {
                         setIsSendEmailFail(false)
                         alert("Gửi thư xác thực thành công!")
                     } else {
                         setIsSendEmailFail(true)
-                        setEmailErr(res.message)
+                        console.log(res);
+                        setEmailErr(res.data.message)
                     }
                 })
                 .catch((error) => {
@@ -38,6 +39,7 @@ const ResetPassword = () => {
 
         }
     };
+
 
     return (
         <div className={`container m-auto min-w-full h-auto`}  >
@@ -52,7 +54,7 @@ const ResetPassword = () => {
 
                     <button className='btnSendMail' onClick={() => { handleConfirm() }}>RESET PASSWORD</button>
                     <div className='wrap-err-mess'>
-                        {isSendMailFail ? <p className='err-mess'>*{emailErr}</p>
+                        {isSendMailFail === true ? <p className='err-mess'>*{emailErr}</p>
                             : null}
                     </div>
                     <div >

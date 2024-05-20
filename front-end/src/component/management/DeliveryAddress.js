@@ -21,7 +21,7 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                         <ul>
                             {order.is_cancel === 1 ? <li>
                                 <span>
-                                    {order.cancel_at.slice(11, 19)}
+                                    {order.cancel_at.slice(11, 16)}
                                 </span>
                                 <span className='ml-2'>
                                     {new Date(order.cancel_at).toLocaleDateString()}
@@ -31,21 +31,10 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                                 </span>
                             </li>
                                 : null}
-                            {order.user_address === 'Nhận hàng tại cửa hàng'
-                                ? <li>
-                                    <span>
-                                        {new Date(order.created_at).toISOString().slice(11, 19)}
-                                    </span>
-                                    <span className='ml-2'>
-                                        {new Date(order.created_at).toLocaleDateString()}
-                                    </span>
-                                    <span className='ml-3 active-status font-bold'>Đặt hàng thành công</span>
-                                </li>
-                                : null}
 
                             {order.is_success === 1 ? <li>
                                 <span>
-                                    {order.successful_at.slice(11, 19)}
+                                    {order.successful_at.slice(11, 16)}
                                 </span>
                                 <span className='ml-2'>
                                     {new Date(order.successful_at).toLocaleDateString()}
@@ -57,7 +46,7 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                                 : null}
                             {order.is_transported === 1 ? <li>
                                 <span>
-                                    {order.transported_at.slice(11, 19)}
+                                    {order.transported_at.slice(11, 16)}
                                 </span>
                                 <span className='ml-2'>
                                     {new Date(order.transported_at).toLocaleDateString()}
@@ -69,7 +58,7 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                                 : null}
                             {order.is_being_shipped === 1 ? <li>
                                 <span>
-                                    {order.being_shipped_at.slice(11, 19)}
+                                    {order.being_shipped_at.slice(11, 16)}
                                 </span>
                                 <span className='ml-2'>
                                     {new Date(order.being_shipped_at).toLocaleDateString()}
@@ -81,7 +70,7 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                                 : null}
                             {order.is_approved === 1 ? <li>
                                 <span>
-                                    {order.approved_at.slice(11, 19)}
+                                    {order.approved_at.slice(11, 16)}
                                 </span>
                                 <span className='ml-2'>
                                     {new Date(order.approved_at).toLocaleDateString()}
@@ -94,7 +83,7 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                             }
                             {order.is_payment === 1 ? <li>
                                 <span>
-                                    {order.paid_at.slice(11, 19)}
+                                    {order.paid_at.slice(11, 16)}
                                 </span>
                                 <span className='ml-2'>
                                     {new Date(order.paid_at).toLocaleDateString()}
@@ -103,11 +92,11 @@ const DeliveryAddressOrderDetail = ({ order }) => {
                             </li>
                                 : null
                             }
-                            {order ? order.created_at ? order.user_address === 'Nhận hàng tại cửa hàng'
-                                ? null :
+
+                            {order ? order.created_at ?
                                 <li>
                                     <span>
-                                        {order.created_at.slice(11, 19)}
+                                        {order.created_at.slice(11, 16)}
                                     </span>
                                     <span className='ml-2'>
                                         {new Date(order.created_at).toLocaleDateString()}

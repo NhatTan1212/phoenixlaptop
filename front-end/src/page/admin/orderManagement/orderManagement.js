@@ -43,6 +43,13 @@ const OrderManagement = () => {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [orderIdToDelete, setOrderIdToDelete] = useState(null);
 
+    const [spendingStatus, setSpendingStatus] = useState(false)
+    const [approvedStatus, setApprovedStatus] = useState(false)
+    const [beingShippedStatus, setBeingShippedStatus] = useState(false)
+    const [transportedStatus, setTransportedStatus] = useState(false)
+    const [successStatus, setSuccessStatus] = useState(false)
+    const [isPaidStatus, setIsPaidStatus] = useState(0)
+    const [isReceiveAtStore, setIsReceiveAtStore] = useState(false)
 
 
 
@@ -55,7 +62,7 @@ const OrderManagement = () => {
 
         return matchedOrder ? (
             <div className='text-[#26aa5f] font-bold'>
-                {matchedOrder.is_cancel === 1 ? <span className='text-red-600'>Đơn hàng đã hủy</span> : matchedOrder.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
+                {matchedOrder.is_cancel === 1 ? <span className='text-red-600'>Đơn hàng đã hủy</span>
                     : matchedOrder.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                         : matchedOrder.is_transported ? 'Đơn hàng đã được giao đến nơi'
                             : matchedOrder.is_being_shipped ? 'Đơn hàng đang được giao đến bạn'
@@ -164,10 +171,10 @@ const OrderManagement = () => {
                     case 'is_pending_approval':
                         return matchedOrder.is_approved !== 1 && matchedOrder.is_being_shipped !== 1
                             && matchedOrder.is_transported !== 1 && matchedOrder.is_success !== 1
-                            && matchedOrder.user_address !== 'Nhận hàng tại cửa hàng';
+                            && matchedOrder.is_cancel !== 1;
                     case 'is_approved':
                         return matchedOrder.is_approved === 1 && matchedOrder.is_being_shipped !== 1
-                            && matchedOrder.user_address !== 'Nhận hàng tại cửa hàng';
+                            ;
                     case 'is_being_shipped':
                         return matchedOrder.is_being_shipped === 1 && matchedOrder.is_transported !== 1;
                     case 'is_transported':
@@ -479,6 +486,40 @@ const OrderManagement = () => {
         filterOrders();
     }, [searchText, orders]);
 
+    useEffect(() => {
+
+        if (orderEditing) {
+            if (orderEditing.user_address == 'Nhận hàng tại cửa hàng') {
+                setIsReceiveAtStore(true)
+            }
+            setIsPaidStatus(orderEditing.is_payment)
+            if (orderEditing.is_cancel) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+                setBeingShippedStatus(true)
+                setTransportedStatus(true)
+                setSuccessStatus(true)
+                return
+            }
+            if (orderEditing.is_success) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+                setBeingShippedStatus(true)
+                setTransportedStatus(true)
+            } else if (orderEditing.is_transported) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+                setBeingShippedStatus(true)
+            } else if (orderEditing.is_being_shipped) {
+                setSpendingStatus(true)
+                setApprovedStatus(true)
+            } else if (orderEditing.is_approved) {
+                setSpendingStatus(true)
+            }
+
+        }
+    }, [isEditing])
+
     const getOrders = () => {
         const reqData = { token: token }
         GetOrder(reqData).then(response => {
@@ -535,13 +576,31 @@ const OrderManagement = () => {
         const statusOrderChanged = {
             token: token,
             is_payment: paymentStatus === 'Chưa thanh toán' ? 0 : paymentStatus === '0' ? 0 : 1,
-            is_success: status === 'is_success' ? 1 : orderEditing.is_success,
-            is_transported: status === 'is_transported' ? 1 : orderEditing.is_transported,
-            is_being_shipped: status === 'is_being_shipped' ? 1 : orderEditing.is_being_shipped,
             is_approved: status === 'is_approved' ? 1 : orderEditing.is_approved,
+            is_being_shipped: status === 'is_being_shipped' ? 1 : orderEditing.is_being_shipped,
+            is_transported: status === 'is_transported' ? 1 : orderEditing.is_transported,
+            is_success: status === 'is_success' ? 1 : orderEditing.is_success,
             is_cancel: status === 'is_cancel' ? 1 : orderEditing.is_cancel,
         }
-        console.log(statusOrderChanged);
+        if (status === 'is_success') {
+            Object.assign(statusOrderChanged, {
+                is_payment: 1,
+                is_approved: 1,
+                is_being_shipped: 1,
+                is_transported: 1
+            });
+        } else if (status === 'is_transported') {
+            Object.assign(statusOrderChanged, {
+                is_approved: 1,
+                is_being_shipped: 1,
+            });
+        } else if (status === 'is_being_shipped') {
+            Object.assign(statusOrderChanged, {
+                is_approved: 1
+            });
+        }
+
+        // console.log('>>>>>statusOrderChanged', statusOrderChanged);
         UpdateOrder(orderEditing.id, statusOrderChanged).then(response => {
             console.log(response);
             context.Message("success", "Cập nhật đơn hàng thành công.")
@@ -670,6 +729,15 @@ const OrderManagement = () => {
                     // setEditingProduct(null); // Clear the editingProduct when closing the modal
                 }}
                 onCancel={() => {
+                    setSpendingStatus(false)
+                    setApprovedStatus(false)
+                    setBeingShippedStatus(false)
+                    setTransportedStatus(false)
+                    setSuccessStatus(false)
+                    setIsReceiveAtStore(false)
+                    setIsPaidStatus(0)
+
+                    setOrderEditing(null);
                     setIsEditing(false);
                     // setEditingProduct(null); // Clear the editingProduct when closing the modal
                 }}
@@ -702,12 +770,12 @@ const OrderManagement = () => {
                             onChange={(e) => { console.log(e) }}
                             allowClear
                         >
-                            <Option value="is_pending_approval">Đang chờ phê duyệt</Option>
-                            <Option value="is_approved">Đã xác nhận</Option>
-                            <Option value="is_being_shipped">Đang giao hàng</Option>
-                            <Option value="is_transported">Đã giao hàng thành công</Option>
-                            <Option value="is_success">Đơn hàng đã hoàn tất</Option>
-                            <Option value="is_cancel">Hủy đơn hàng</Option>
+                            <Option disabled={spendingStatus} value="is_pending_approval">Đang chờ phê duyệt</Option>
+                            <Option disabled={approvedStatus} value="is_approved">Đã xác nhận</Option>
+                            <Option disabled={beingShippedStatus || isReceiveAtStore} value="is_being_shipped">Đang giao hàng</Option>
+                            <Option disabled={transportedStatus || isReceiveAtStore} value="is_transported">Đã giao hàng thành công</Option>
+                            <Option disabled={successStatus} value="is_success">Đơn hàng đã hoàn tất</Option>
+                            <Option disabled={isPaidStatus ? true : false} value="is_cancel">Hủy đơn hàng</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item className='text-end'>

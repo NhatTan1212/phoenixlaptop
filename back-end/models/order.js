@@ -156,6 +156,10 @@ ORDERS.findById = async (user_id, guest_id, result) => {
 
 ORDERS.findTotalBrandSuccessfulByDays = async (days, result) => {
     const pool = await connect;
+    const formattedStartDate = days[0]; // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    const formattedEndDate = days[1];   // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    console.log(formattedStartDate);
+    console.log(formattedEndDate);
     const sqlString = `
             SELECT 
                 P.brand_id,
@@ -167,14 +171,13 @@ ORDERS.findTotalBrandSuccessfulByDays = async (days, result) => {
                 JOIN PRODUCTS P ON OD.product_id = P.id 
                 JOIN BRANDS B ON P.brand_id = B.brand_id
             WHERE 
-                O.is_success = 1 and O.successful_at <= GETDATE() and successful_at >= DATEADD(day,-@days,GETDATE())
+                O.is_success = 1 and O.successful_at <= '${formattedEndDate} 23:59:59' and successful_at >= '${formattedStartDate}'
             GROUP BY 
                 P.brand_id,B.name
             ORDER BY 
                 total_success_products DESC;
     `;
     await pool.request()
-        .input('days', sql.Int, days)
         .query(sqlString, (err, data) => {
             if (err) {
                 console.log(err)
@@ -188,6 +191,10 @@ ORDERS.findTotalBrandSuccessfulByDays = async (days, result) => {
 
 ORDERS.findTotalLaptopsSuccessfulByDays = async (days, result) => {
     const pool = await connect;
+    const formattedStartDate = days[0]; // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    const formattedEndDate = days[1];   // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    console.log(formattedStartDate);
+    console.log(formattedEndDate);
     const sqlString = `
             SELECT
             P.avatar,
@@ -200,7 +207,7 @@ ORDERS.findTotalLaptopsSuccessfulByDays = async (days, result) => {
                 JOIN ORDER_DETAILS OD ON O.id = OD.order_id 
                 JOIN PRODUCTS P ON OD.product_id = P.id 
             WHERE 
-                O.is_success = 1 and O.successful_at <= GETDATE() and successful_at >= DATEADD(day,-@days,GETDATE())
+                O.is_success = 1 and O.successful_at <= '${formattedEndDate} 23:59:59' and successful_at >= '${formattedStartDate}'
             Group By 
             P.avatar,
             P.prod_name,
@@ -209,7 +216,6 @@ ORDERS.findTotalLaptopsSuccessfulByDays = async (days, result) => {
                 Order by quantity_sold desc
     `;
     await pool.request()
-        .input('days', sql.Int, days)
         .query(sqlString, (err, data) => {
             if (err) {
                 console.log(err)
@@ -225,44 +231,67 @@ ORDERS.findOrderSuccessByDays = async (days, result) => {
     const pool = await connect;
     const resData = {};
 
+    // Định dạng ngày tháng để sử dụng trong câu truy vấn SQL (vd: YYYY-MM-DD HH:mm:ss)
+    const formattedStartDate = days[0]; // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    const formattedEndDate = days[1];   // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    console.log(formattedStartDate);
+    console.log(formattedEndDate);
+    // Sử dụng các biến formattedStartDate và formattedEndDate trong câu truy vấn SQL
     const sqlString1 = `
         SELECT *
         FROM ORDERS
         WHERE is_success = 1
-        AND successful_at >= DATEADD(day, -@days+1, GETDATE())
-        AND successful_at <= GETDATE();
+        AND successful_at >= '${formattedStartDate}'
+        AND successful_at <= '${formattedEndDate} 23:59:59';
     `;
+    console.log(sqlString1);
 
-    const getOrderCurrent = new Promise((resolve, reject) => {
+    const startDate = new Date(formattedStartDate);
+    const endDate = new Date(formattedEndDate);
+
+    // Độ chính xác đến ngày bằng cách bỏ đi phần thời gian
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+    // Tính số miligiây giữa hai mốc thời gian
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const differenceMilliseconds = end - start;
+
+    // Chuyển đổi từ miligiây thành số ngày
+    const differenceDays = Math.floor(differenceMilliseconds / millisecondsPerDay);
+
+    console.log('differenceDays: ', differenceDays);
+
+    const sqlString2 = `
+    SELECT *
+    FROM ORDERS
+    WHERE is_success = 1
+    AND successful_at >= DATEADD(DAY, ${differenceDays.toString()}, '${formattedStartDate}')
+    AND successful_at <= '${formattedStartDate} 23:59:59';
+`;
+
+    const getOrderSuccessfull = new Promise((resolve, reject) => {
         pool.request()
-            .input('days', sql.Int, days)
             .query(sqlString1, (err, data) => {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
+                    console.log('data: ', data);
                     resData["daysCurrent"] = data.recordset;
                     resolve();
                 }
             });
     });
 
-    const sqlString2 = `
-        SELECT *
-        FROM ORDERS
-        WHERE is_success = 1
-        AND successful_at >= DATEADD(day, -@days*2+1, GETDATE())
-        AND successful_at <= DATEADD(day, -@days+1, GETDATE());
-    `;
-
-    const getOrderBefore = new Promise((resolve, reject) => {
+    const getOrderSuccessfullBefore = new Promise((resolve, reject) => {
         pool.request()
-            .input('days', sql.Int, days)
             .query(sqlString2, (err, data) => {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
+                    console.log('data: ', data);
                     resData["daysBefore"] = data.recordset;
                     resolve();
                 }
@@ -270,53 +299,77 @@ ORDERS.findOrderSuccessByDays = async (days, result) => {
     });
 
     try {
-        await Promise.all([getOrderCurrent, getOrderBefore]);
+        await Promise.all([getOrderSuccessfull, getOrderSuccessfullBefore]);
         result(null, resData);
     } catch (error) {
         result(error, null);
     }
 };
 
+
 ORDERS.findNewOrderByDays = async (days, result) => {
     const pool = await connect;
     const resData = {};
 
+    // Định dạng ngày tháng để sử dụng trong câu truy vấn SQL (vd: YYYY-MM-DD HH:mm:ss)
+    const formattedStartDate = days[0]; // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    const formattedEndDate = days[1];   // Chỉ lấy YYYY-MM-DD HH:mm:ss
+    console.log(formattedStartDate);
+    console.log(formattedEndDate);
+    // Sử dụng các biến formattedStartDate và formattedEndDate trong câu truy vấn SQL
     const sqlString1 = `
         SELECT *
         FROM ORDERS
-        WHERE created_at >= DATEADD(day, -@days+1, GETDATE())
-        AND created_at <= GETDATE();
+        Where created_at >= '${formattedStartDate}'
+        AND created_at <= '${formattedEndDate} 23:59:59';
     `;
+    console.log(sqlString1);
 
-    const getOrderCurrent = new Promise((resolve, reject) => {
+    const startDate = new Date(formattedStartDate);
+    const endDate = new Date(formattedEndDate);
+
+    // Độ chính xác đến ngày bằng cách bỏ đi phần thời gian
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+    // Tính số miligiây giữa hai mốc thời gian
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const differenceMilliseconds = end - start;
+
+    // Chuyển đổi từ miligiây thành số ngày
+    const differenceDays = Math.floor(differenceMilliseconds / millisecondsPerDay);
+
+    console.log('differenceDays: ', differenceDays);
+
+    const sqlString2 = `
+    SELECT *
+    FROM ORDERS
+    Where created_at >= DATEADD(DAY, ${differenceDays.toString()}, '${formattedStartDate}')
+    AND created_at <= '${formattedStartDate} 23:59:59';
+`;
+
+    const getOrderSuccessfull = new Promise((resolve, reject) => {
         pool.request()
-            .input('days', sql.Int, days)
             .query(sqlString1, (err, data) => {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
+                    console.log('data: ', data);
                     resData["daysCurrent"] = data.recordset;
                     resolve();
                 }
             });
     });
 
-    const sqlString2 = `
-        SELECT *
-        FROM ORDERS
-        WHERE created_at >= DATEADD(day, -@days*2+1, GETDATE())
-        AND created_at <= DATEADD(day, -@days+1, GETDATE());
-    `;
-
-    const getOrderBefore = new Promise((resolve, reject) => {
+    const getOrderSuccessfullBefore = new Promise((resolve, reject) => {
         pool.request()
-            .input('days', sql.Int, days)
             .query(sqlString2, (err, data) => {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
+                    console.log('data: ', data);
                     resData["daysBefore"] = data.recordset;
                     resolve();
                 }
@@ -324,7 +377,7 @@ ORDERS.findNewOrderByDays = async (days, result) => {
     });
 
     try {
-        await Promise.all([getOrderCurrent, getOrderBefore]);
+        await Promise.all([getOrderSuccessfull, getOrderSuccessfullBefore]);
         result(null, resData);
     } catch (error) {
         result(error, null);
