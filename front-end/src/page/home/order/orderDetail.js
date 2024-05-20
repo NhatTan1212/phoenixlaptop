@@ -27,7 +27,10 @@ function OrderDetail() {
     const [order, setOrder] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [orderDetailChange, setorderDetailChange] = useState(false);
-    const [isDisableDeleteOrder, setIsDisableDeleteOrder] = useState(false);
+    const isDisableDeleteOrder = (order.is_payment === 1 || order.is_cancel
+        || order.is_approved === 1 || order.is_being_shipped === 1
+        || order.is_transported === 1 || order.is_success === 1) ? true : false
+
     const columns = [
         {
             title: 'Hình sản phẩm',
@@ -40,10 +43,10 @@ function OrderDetail() {
                 return (
                     // console.log("record", record)
                     <div className='w-[108px] '>
-                        <img
+                        < img
                             src={product.avatar}
                             className='w-full h-auto border-[1px] border-[#e1dada]'
-                        ></img>
+                        ></img >
 
                     </div>
                 )
@@ -94,10 +97,10 @@ function OrderDetail() {
                     <div >
                         <div className='flex max-[650px]:flex-col'>
                             <div className='mr-4 w-[108px] min-w-[108px]'>
-                                <img
+                                < img
                                     src={product.avatar}
                                     className='w-full h-auto border-[1px] border-[#e1dada]'
-                                ></img>
+                                ></img >
                             </div>
                             <p className='font-bold text-[17px] text-[#333]   max-[470px]:max-w-[300px]'>{product.prod_description}</p>
 
@@ -118,6 +121,11 @@ function OrderDetail() {
         ...item,
         key: item.id
     }));
+
+    useEffect(() => {
+        getorderDetail();
+        getOrder()
+    }, [orderDetailChange]);
     const getorderDetail = () => {
 
         Instance.get(`/orderdetails/${id}`)
@@ -148,9 +156,6 @@ function OrderDetail() {
                 console.log(response.data);
                 const dataOrder = response.data.find((order) => (order.id + '' === id + ''))
                 setOrder(dataOrder)
-                dataOrder && setIsDisableDeleteOrder((dataOrder.is_payment === 1 || dataOrder.is_cancel
-                    || dataOrder.is_approved === 1 || dataOrder.is_being_shipped === 1
-                    || dataOrder.is_transported === 1 || dataOrder.is_success === 1) ? true : false)
 
             })
             .catch(error => {
@@ -177,13 +182,12 @@ function OrderDetail() {
 
     const handleDeleteButton = () => {
         if (order.is_cancel) return
-        (isDisableDeleteOrder && order.is_payment) ? context.Message("error", "Đơn hàng đã thanh toán không thể hủy.")
-            : (isDisableDeleteOrder && (order.is_approved || order.is_being_shipped
-                || order.is_transported || order.is_success))
+        isDisableDeleteOrder && order.is_payment ? context.Message("error", "Đơn hàng đã thanh toán không thể hủy.")
+            : (isDisableDeleteOrder && order.is_approved || isDisableDeleteOrder && order.is_being_shipped
+                || isDisableDeleteOrder && order.is_transported || isDisableDeleteOrder && order.is_success)
                 ? context.Message("error", "Đơn hàng đã được chấp nhận không thể hủy")
                 : setConfirmDelete(true)
     }
-
 
     const oderStatusCpn = (status, iconActive, iconDisable, title, positionLeft, positionTop, dateStatus) => {
 
@@ -218,27 +222,21 @@ function OrderDetail() {
         )
     }
 
-    useEffect(() => {
-        getorderDetail();
-        getOrder()
-    }, [orderDetailChange]);
-
-
     return (
-        <div className='bg-[#f0f0f0] py-3 flex'>
+        <div className='bg-[#f0f0f0] py-3'>
             <Modal
                 open={confirmDelete}
                 onCancel={() => setConfirmDelete(false)}
                 onOk={handleOkButtonDeleteOrder}
             >
                 {
+
                     'Bạn có chắc là muốn hủy đơn hàng này không.'
                 }
             </Modal>
 
             <div className='w-10/12 mx-[auto] max-[1550px]:w-full flex'>
                 <div className='flex-1 mr-5'>
-
                     {
                         order && order.is_cancel &&
                         <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
@@ -262,7 +260,6 @@ function OrderDetail() {
                             </div>
                         </div>
                     }
-
                     <div className='mb-3 max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
                         <div className='flex items-center justify-between mb-3 max-[730px]:flex-col max-[730px]:items-start'>
                             <Link to={'/order'} className='flex items-center '>
@@ -274,16 +271,13 @@ function OrderDetail() {
                             <div className='max-[435px]:flex max-[435px]:flex-col'>
                                 <span>Mã đơn hàng: {order ? order.id : 'N/A'} |</span>
                                 <span className='text-[#ed1d24] uppercase font-bold ml-4 max-[435px]:ml-0'>
-
-                                    {order ? order.is_cancel === 1 ? 'Đơn hàng đã hủy' : order.user_address === 'Nhận hàng tại cửa hàng' ? 'Đặt hàng thành công'
-
+                                    {order ? order.is_cancel === 1 ? 'Đơn hàng đã hủy'
                                         : order.is_success === 1 ? 'Đơn hàng đã hoàn tất'
                                             : order.is_transported === 1 ? 'Đơn hàng đã được giao đến nơi'
                                                 : order.is_being_shipped === 1 ? 'Đơn hàng đang được giao đến bạn'
                                                     : order.is_approved === 1 ? 'Đơn hàng đã được xác nhận. (Đang chuẩn bị hàng)'
                                                         : 'Đang chờ phê duyệt' : ''
                                     }</span>
-
 
                             </div>
                         </div>
@@ -354,67 +348,6 @@ function OrderDetail() {
                 </div>
 
                 {
-                    order.is_cancel &&
-                    <div className='bg-[#fffdea] mx-[263px] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
-                border-[#8f7f00] mb-3'>
-                        <div className='flex p-4'>
-                            <div>
-                                <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
-                            </div>
-                            <div>
-                                <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
-                                <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
-
-
-                            </div>
-                        </div>
-                        {
-                            order && order.is_cancel &&
-                            <div className='bg-[#fff9c3] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] border-[2px] 
-                border-[#8f7f00] mb-3'>
-                                <div className='flex p-4'>
-                                    <div>
-                                        <FontAwesomeIcon icon={faTriangleExclamation} className='text-[#8f7f00]' />
-                                    </div>
-                                    <div>
-                                        <Col className='p-3 py-0 font-bold text-[#8f7f00]'>Đơn hàng đã hủy</Col>
-                                        <Col className='p-3 py-0'>Đơn hàng được hủy vào lúc
-
-                                            <span className='pl-1 font-bold text-[#8f7f00]' >
-                                                {new Date(order.cancel_at).toLocaleDateString()}
-                                            </span>
-                                            <span className='pl-1 font-bold text-[#8f7f00]'>
-                                                {`${new Date(order.cancel_at).toISOString().slice(11, 19)}`}
-                                            </span>
-                                        </Col>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        <div className='bg-[#fff]'>
-                            <DeliveryAddressOrderDetail order={order} />
-
-                        </div>
-
-                    </div>
-                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px]'>
-                        <TableOrderDetail
-                            columns={isHiddenAutoCpl ? columns : deviceColumns}
-                            dataSource={dataTable}
-                            order={order} />
-                    </div>
-                    <div className='bg-[#ffffff] flex flex-col max-[1550px]:mx-[293px] max-[1360px]:mx-[30px] py-5'>
-                        <div className='flex justify-end mr-[30px]'>
-                            <Button
-                                onClick={handleDeleteButton}
-                                className={`bg-[#cb1c22]  ${isDisableDeleteOrder ? 'bg-gray-300 cursor-not-allowed opacity-50 text-black' : 'text-white'}`}>
-                                Hủy đơn hàng
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                {
                     (order.paymentMethods === 'BANK' && (!order.is_payment && !order.is_cancel)) ?
                         <div className='w-[400px] h-[max-content] mt-9 bg-white p-6'>
                             <div className='italic'>* Quét mã QR Code để thanh toán.</div>
@@ -432,7 +365,7 @@ function OrderDetail() {
                         </div> : null
                 }
             </div>
-        </div>
+        </div >
 
     );
 }

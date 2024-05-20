@@ -1331,6 +1331,7 @@ async function dataOrder(req, res) {
                 success: true,
                 redirectUrl: "../order",
                 order_id: order,
+                order: req.body
               });
             }
           }

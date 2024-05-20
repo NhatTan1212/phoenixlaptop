@@ -70,6 +70,7 @@ function Cart() {
     const [isFinish, setIsFinish] = useState(false)
     const [isAddressDeliveryChange, setIsAddressDeliveryChange] = useState(false)
     const [idNavigateOrderDetail, setIdNavigateOrderDetail] = useState('')
+    const [orderNavigateOrderDetail, setOrderNavigateOrderDetail] = useState('')
     const [checked, setChecked] = useState(false);
     const [radioAddressSelected, setRadioAddressSelected] = useState(null)
     const [userId, setUserId] = useState('');
@@ -496,6 +497,14 @@ function Cart() {
                 }
             }
 
+            if (!token && valueRadioReceive === "Giao hàng tận nơi") {
+
+                if (addNewDetailAddress === '' || !addNewWardSelected || !addNewDistrictSelected || !addNewProvinceSelected) {
+                    context.Message("error", "Quý khách vui lòng nhập địa chỉ giao hàng.");
+                    return
+                }
+            }
+
             let newList = []
             cart.forEach(item => {
                 console.log(item)
@@ -568,6 +577,7 @@ function Cart() {
                         console.log(response);
                         if (response.data.order_id) {
                             setIdNavigateOrderDetail(response.data.order_id)
+                            setOrderNavigateOrderDetail(response.data.order)
                         }
                         setIsCartChange(true)
                     })
@@ -751,12 +761,38 @@ function Cart() {
                                 icon={faCircleCheck}></FontAwesomeIcon>
                             <p className='text-[#4ea722] text-[20px] my-6'>Đặt hàng thành công!</p>
 
-                            {valueRadioPay == 'BANK' && <p className='text-[#000000] text-[17px]'>Quý khách vui lòng hoàn tất thanh toán theo hướng dẫn.</p>}
-                            <p className='text-[#000000] text-[17px] mb-6'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>
+                            {valueRadioPay === 'BANK' &&
+                                (
+                                    <>
+                                        <p className='text-[#000000] text-[17px]'>Quý khách vui lòng quét mã QR bên dưới để thanh toán (Nếu chưa thanh toán).</p>
+                                        <p className='text-[#000000] text-[17px]'>Đơn hàng sẽ bị hủy sau 7 ngày nếu chưa được thanh toán.</p>
+                                        <div className='flex flex-row justify-center items-center mt-6'>
+                                            <img className='w-80' src={`https://img.vietqr.io/image/mb-0354086520-compact.png?amount=${orderNavigateOrderDetail.total}&addInfo=DH${idNavigateOrderDetail}&accountName=HO%20THANH%20HIEN`} alt='qr'></img>
+
+                                            <div className='flex flex-col items-start mt-6 text-[#214e89] text-lg'>
+                                                <div>Số tiền: {orderNavigateOrderDetail ? orderNavigateOrderDetail.total ? orderNavigateOrderDetail.total.toLocaleString('vi-VN') + ' VND' : '' : ''}</div>
+                                                <div>Nội dung CK: DH{orderNavigateOrderDetail ? idNavigateOrderDetail : 'N/A'}</div>
+                                                <div>Tên chủ tài khoản: HO THANH HIEN</div>
+                                                <div>Số TK: <span className='font-bold'> 0354086520</span></div>
+                                                <div>Ngân hàng TMCP Quân Đội</div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                            }
+
+                            {valueRadioPay !== 'BANK' && <p className='text-[#000000] text-[17px] mb-6'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>}
+
+                            {valueRadioPay === 'BANK' && (
+                                <>
+                                    <p className='text-[#000000] text-[17px] mt-6'>Bạn có thể xem chi tiết đơn hàng qua email.</p>
+                                    <p className='text-[#000000] text-[17px]'>Nhân viên sẽ sớm liên hệ với bạn qua số điện thoại hoặc email.</p>
+                                </>
+                            )}
 
                             <div className=''>
                                 <Button
-                                    className='w-[180px] mr-6'
+                                    className='w-[180px] mr-6 mt-10'
                                     onClick={() => {
                                         setVnpayStatus(null)
                                         setIsFinishAddNewOrderVNPAY(false)
@@ -1095,7 +1131,7 @@ function Cart() {
                                         border-[1px] border-[#d4d4d4]'>
                                                 <span>Quý khách vui lòng bấm nút "Đặt hàng".</span>
                                                 <span>Sau đó vui lòng vào email để lấy Mã đơn hàng. Chuyển khoản đến số tài khoản bên dưới với nội dung DH + mã đơn hàng. Ví dụ: DH17849</span>
-                                                <span>TONG BA QUAN - Ngân Hàng Ngoại Thương Việt Nam (Vietcombank) - STK: 9917027048</span>
+                                                <span>HO THANH HIEN - Ngân hàng TMCP Quân Đội (MB Bank) - STK: 0354086520</span>
                                                 <span>Hoặc liên hệ Hotline: 0359.973.209 để được tư vấn.</span>
                                             </p>
 
@@ -1130,7 +1166,7 @@ function Cart() {
 
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
