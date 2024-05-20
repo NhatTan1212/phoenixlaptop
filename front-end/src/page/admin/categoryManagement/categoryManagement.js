@@ -48,7 +48,7 @@ const CategoryManagement = () => {
             responsive: ["lg"]
         },
         {
-            title: 'Action',
+            title: 'Hành động',
             dataIndex: 'action',
             width: `${isHiddenAutoCpl ? '150px' : '10%'}`,
             render: (text, record) => {

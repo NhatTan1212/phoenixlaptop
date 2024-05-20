@@ -309,7 +309,7 @@ const ProductDetail = () => {
                                                     <InputNumber
                                                         min={1}
                                                         max={productDetail.data.quantity}
-                                                        value={buyQuantity}
+                                                        value={buyQuantity || 1}
                                                         onChange={setBuyQuantity} />
                                                 )
 

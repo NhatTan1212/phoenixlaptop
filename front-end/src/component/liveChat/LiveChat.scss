@@ -1,0 +1,77 @@
+@keyframes zoomIn {
+   0% {
+      transform: scale(0);
+      opacity: 0;
+      transform-origin: bottom right;
+   }
+   100% {
+      transform: scale(1);
+      opacity: 1;
+      transform-origin: bottom right;
+   }
+}
+
+@keyframes zoomOut {
+   0% {
+      transform: scale(1);
+      opacity: 1;
+      transform-origin: bottom right;
+   }
+   100% {
+      transform: scale(0);
+      opacity: 0;
+      transform-origin: bottom right;
+   }
+}
+
+.animate-zoomIn {
+   animation: zoomIn 0.3s ease-in-out forwards;
+}
+
+.animate-zoomOut {
+   animation: zoomOut 0.3s ease-in-out forwards;
+}
+
+@keyframes slideIn {
+   0% {
+      transform: translateY(20px);
+      opacity: 0;
+   }
+   100% {
+      transform: translateY(0);
+      opacity: 1;
+   }
+}
+
+@keyframes slideOut {
+   0% {
+      transform: translateY(0);
+      opacity: 1;
+   }
+   100% {
+      transform: translateY(20px);
+      opacity: 0;
+   }
+}
+
+.option {
+   animation-duration: 0.2s;
+   animation-fill-mode: both;
+}
+
+.option:nth-child(2) {
+   animation-delay: 0.05s;
+}
+
+.option:nth-child(1) {
+   animation-delay: 0.1s;
+}
+
+.showOptions .option {
+   animation-name: slideIn;
+}
+
+.hideOptions .option {
+   animation-name: slideOut;
+   pointer-events: none;
+}

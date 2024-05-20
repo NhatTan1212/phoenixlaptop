@@ -42,14 +42,18 @@ const OrderManagement = () => {
     const [id, setId] = useState([]);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [orderIdToDelete, setOrderIdToDelete] = useState(null);
+    const [orderStatusDelete, setOrderStatusDelete] = useState(null);
+    const [orderStatus, setOrderStatus] = useState('')
 
     const [spendingStatus, setSpendingStatus] = useState(false)
     const [approvedStatus, setApprovedStatus] = useState(false)
     const [beingShippedStatus, setBeingShippedStatus] = useState(false)
     const [transportedStatus, setTransportedStatus] = useState(false)
     const [successStatus, setSuccessStatus] = useState(false)
+
     const [isPaidStatus, setIsPaidStatus] = useState(0)
     const [isReceiveAtStore, setIsReceiveAtStore] = useState(false)
+
 
 
 
@@ -262,6 +266,8 @@ const OrderManagement = () => {
                     p-1 px-2 mt-2 w-[97px] max-[1281px]:w-[auto]'
                         onClick={(e) => {
                             setOrderIdToDelete(record.id)
+                            setOrderStatusDelete(record.is_payment)
+                            // console.log(record);
                             setShowDeleteConfirmation(true)
                         }}>
                         {!isScreenSmaller1280 ? 'Xóa' : <FontAwesomeIcon icon={faTrash} />}
@@ -550,8 +556,15 @@ const OrderManagement = () => {
 
     const filterOrders = () => {
         const filteredOrders = orders.filter((order) => {
+            // console.log(order.created_at);
             const orderId = order.id + '';
-            return orderId.includes(searchText);
+            const orderAdd = order.user_address.toString().toLowerCase();
+            // const orderDate = order.created_at.toString();
+            console.log(searchText);
+            const date = new Date(order.created_at).toLocaleDateString();
+            const created_at = date;
+            // console.log(created_at);
+            return orderId.includes(searchText) || orderAdd.includes(searchText) || created_at.includes(searchText);
         });
         // console.log(orders, filteredOrders)
         setFilteredOrders(filteredOrders);
@@ -561,18 +574,10 @@ const OrderManagement = () => {
         if (orderEditing.is_cancel) {
             return
         }
-        if (orderEditing.is_payment === 1) {
-            context.Message('error', 'Đơn hàng đã thanh toán không được hủy')
-            return
-        }
-        if (orderEditing.is_approved === 1 || orderEditing.is_being_shipped === 1
-            || orderEditing.is_transported === 1 || orderEditing.is_success === 1) {
-            context.Message('error', 'Đơn hàng đã xác nhận không được hủy')
-            return
-        }
-        console.log(values);
+
         const paymentStatus = values.paymentStatus
         const status = values.status
+
         const statusOrderChanged = {
             token: token,
             is_payment: paymentStatus === 'Chưa thanh toán' ? 0 : paymentStatus === '0' ? 0 : 1,
@@ -582,6 +587,7 @@ const OrderManagement = () => {
             is_success: status === 'is_success' ? 1 : orderEditing.is_success,
             is_cancel: status === 'is_cancel' ? 1 : orderEditing.is_cancel,
         }
+
         if (status === 'is_success') {
             Object.assign(statusOrderChanged, {
                 is_payment: 1,
@@ -602,7 +608,7 @@ const OrderManagement = () => {
 
         // console.log('>>>>>statusOrderChanged', statusOrderChanged);
         UpdateOrder(orderEditing.id, statusOrderChanged).then(response => {
-            console.log(response);
+            // console.log('>>>>>>response', response);
             context.Message("success", "Cập nhật đơn hàng thành công.")
             setIsEditing(false);
             setOrderEditing(null);
@@ -627,19 +633,33 @@ const OrderManagement = () => {
         }
     }
 
-    const handleDeleteOrder = (order_id) => {
+    const handleDeleteOrder = (order_id, order_status) => {
+        if (order_status !== 1) {
+            console.log(order);
+            const requestData = {
+                token: token,
+                order_id: order_id,
+            };
 
-        const requestData = {
-            token: token,
-            order_id: order_id,
-        };
-
-        DeleteOrder(requestData).then(response => {
-            if (response.success) {
-                context.Message("success", "Xóa order thành công.")
-
-            }
-        })
+            DeleteOrder(requestData).then(response => {
+                if (response.success) {
+                    context.Message("success", "Xóa đơn hàng thành công.");
+                    // Cập nhật danh sách đơn hàng sau khi xóa thành công (nếu cần)
+                    // Ví dụ: fetchData();
+                } else {
+                    // Xử lý trường hợp không thành công
+                    context.Message("error", "Không thể xóa order. Vui lòng thử lại sau.");
+                }
+            }).catch(error => {
+                // Xử lý lỗi từ yêu cầu xóa đơn hàng
+                console.error("Lỗi khi xóa đơn hàng:", error);
+                context.Message("error", "Đã xảy ra lỗi khi xóa đơn hàng. Vui lòng thử lại sau.");
+            });
+        } else {
+            // Nếu trạng thái không phù hợp, hiển thị thông báo cho người dùng
+            context.Message("error", "Không thể xóa đơn hàng với trạng thái này.");
+            console.log(order_status);
+        }
     }
 
 
@@ -710,13 +730,13 @@ const OrderManagement = () => {
                 title="Xác nhận xóa sản phẩm"
                 open={showDeleteConfirmation}
                 onOk={() => {
-                    handleDeleteOrder(orderIdToDelete); // Gọi hàm xóa sau khi xác nhận
+                    handleDeleteOrder(orderIdToDelete, orderStatusDelete); // Gọi hàm xóa sau khi xác nhận
                     setShowDeleteConfirmation(false); // Đóng modal
                 }}
                 onCancel={() => setShowDeleteConfirmation(false)} // Đóng modal khi bấm hủy
                 className='model-cart'
             >
-                <p>Bạn có chắc chắn muốn xóa sản phẩm khỏi cửa hàng?</p>
+                <p>Bạn có chắc chắn muốn xóa đơn hàng khỏi cửa hàng?</p>
             </Modal>
             <Modal
                 className='edit-modal-orderManagement'
@@ -758,7 +778,7 @@ const OrderManagement = () => {
                             onChange={(e) => { console.log(e); setPaymentStatus(e) }}
                             allowClear
                         >
-                            <Option value="0">Chưa thanh toán</Option>
+                            <Option disabled={isPaidStatus ? true : false} value="0">Chưa thanh toán</Option>
                             <Option value="1">Đã thanh toán</Option>
                         </Select>
                     </Form.Item>
@@ -767,13 +787,15 @@ const OrderManagement = () => {
                         label="Trạng thái đơn hàng"
                     >
                         <Select
-                            onChange={(e) => { console.log(e) }}
+                            onChange={(e) => { console.log(e); setOrderStatus(e) }}
                             allowClear
                         >
                             <Option disabled={spendingStatus} value="is_pending_approval">Đang chờ phê duyệt</Option>
                             <Option disabled={approvedStatus} value="is_approved">Đã xác nhận</Option>
+
                             <Option disabled={beingShippedStatus || isReceiveAtStore} value="is_being_shipped">Đang giao hàng</Option>
                             <Option disabled={transportedStatus || isReceiveAtStore} value="is_transported">Đã giao hàng thành công</Option>
+
                             <Option disabled={successStatus} value="is_success">Đơn hàng đã hoàn tất</Option>
                             <Option disabled={isPaidStatus ? true : false} value="is_cancel">Hủy đơn hàng</Option>
                         </Select>

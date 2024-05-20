@@ -40,7 +40,7 @@ const AdminHome = () => {
         // console.log(token)
         if (token) {
             const decodedToken = jwtDecode(token);
-            if (decodedToken.role == 'admin') {
+            if (decodedToken.role === 'admin') {
                 setIsAdmin(true)
                 // console.log('hi');
             } else {
@@ -65,10 +65,6 @@ const AdminHome = () => {
         // Ngắt kết nối khi component unmount
         return () => socket.disconnect();
     }, []);
-
-    function AccessDeniedMessage() {
-        return <div className='mt-4 font-bold'>Bạn không đủ quyền truy cập vào đường dẫn này!</div>;
-    }
 
     const handleMenu = (e) => {
         console.log(e)
@@ -136,7 +132,7 @@ const AdminHome = () => {
             {currentPageAdminHome === 'pm' && <ProductManagement />}
             {currentPageAdminHome === 'om' && <OrderManagement />}
         </div>
-            : <AccessDeniedMessage />
+            : null
         }
         </>
     );

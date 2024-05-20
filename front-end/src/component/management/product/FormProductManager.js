@@ -20,8 +20,8 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
     const isScreenSmaller430 = context.isScreenSmaller430
 
     const [productName, setProductName] = useState('')
-    const [price, setPrice] = useState('')
-    const [cost, setCost] = useState('')
+    const [price, setPrice] = useState(actioningProduct.price)
+    const [cost, setCost] = useState(actioningProduct.cost)
     const [productDescription, setProductDescription] = useState('')
     const [quantity, setQuantity] = useState('')
     const [productPercent, setProductPercent] = useState('')
@@ -69,8 +69,6 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
     const editor = useRef(null);
 
     const calculateDiscountPercentage = (price, cost) => {
-        // console.log("Price:", price);
-        // console.log("Cost:", cost);
         const priceFloat = parseFloat(price);
         const costFloat = parseFloat(cost);
         if (priceFloat && costFloat && priceFloat < costFloat) {
@@ -78,7 +76,6 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
             // console.log("Discount Percentage:", discountPercentage);
             setProductPercent(discountPercentage.toFixed(0) + '');
         } else {
-            // console.log("Invalid input");
             setProductPercent('');
         }
     };
@@ -94,6 +91,10 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
         setCost(e.target.value);
         calculateDiscountPercentage(price, e.target.value);
     };
+
+    useEffect(() => {
+        calculateDiscountPercentage(actioningProduct.price, actioningProduct.cost)
+    }, [])
 
     const uploadButton = (
         <div>
@@ -133,8 +134,10 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
         // console.log("flp", fileListPost)
         // console.log(newFileList)
         const limitedFileList = newFileList.slice(-6);
-        setFileList(newFileList)
+        setFileList(limitedFileList)
     };
+
+
 
     const onFinish = (values) => {
         // if (avatar === '') 
@@ -846,16 +849,11 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         name='brand_id'
                                         value={brandSelected || brandDefault}
                                         onChange={(e) => {
-                                            const getBrand = brands.find((brand) => {
-                                                // console.log(brand.brand_id)
-                                                // console.log(actioningProduct)
-                                                return brand.brand_id === e + 1
-
-                                            });
+                                            const getBrand = brands[e]
                                             // console.log(getBrand);
                                             setBrandSelected(getBrand.name)
                                             // value ở đây là một mảng các giá trị đã được chọn
-                                            setSelectedItems(e + 1);
+                                            setSelectedItems(getBrand.brand_id);
                                             // console.log(e + 1)
                                         }}
                                         style={{
@@ -878,16 +876,22 @@ const FormProductManager = ({ isActioning, setIsActioning, setActioningProduct, 
                                         name='category_id'
                                         value={categorySelected || categoryDefault}
                                         onChange={(e) => {
-                                            const getCategory = categories.find((category) => {
-                                                // console.log(category.brand_id)
-                                                // console.log(actioningProduct)
-                                                return category.category_id === e + 1
 
-                                            });
+                                            // console.log(categories);
+                                            const getCategory = categories[e]
+                                            // console.log(getCategory);
                                             // console.log(getBrand);
+                                            // console.log(categories.brand_id);
+
+
+                                            console.log('>> Check category: ', categories);
+                                            // const getCategory = categories[e]
+
+
                                             setCategorySelected(getCategory.name)
+                                            // console.log(getCategory);
                                             // value ở đây là một mảng các giá trị đã được chọn
-                                            setCategoryIDSelected(e + 1);
+                                            setCategoryIDSelected(getCategory.category_id);
                                             // console.log(e + 1)
                                         }}
                                         style={{

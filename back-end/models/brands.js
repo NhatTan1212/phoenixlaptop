@@ -64,6 +64,24 @@ BRANDS.findByProductId = async (brand_id, result) => {
         })
 }
 
+BRANDS.findBySlug = async (slug) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+                SELECT * FROM BRANDS WHERE slug = @slug
+            `;
+            const result = await pool.request()
+                .input('slug', sql.NVARCHAR(255), slug)
+                .query(sqlStringAddProduct);
+
+            resolve(result.recordset[0]);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 BRANDS.addNewBrand = async (newBrand, result) => {
     const pool = await connect;
     const sqlStringAddBrand = `
@@ -165,8 +183,7 @@ BRANDS.editBrandById = async (brand, file, result) => {
         name = @name, 
         description = @description,
         updated_at = CURRENT_TIMESTAMP,
-        image = @image,
-        slug = @slug
+        image = @image
         WHERE brand_id = @brand_id
     `;
 
@@ -175,7 +192,6 @@ BRANDS.editBrandById = async (brand, file, result) => {
         .input('name', sql.NVARCHAR(100), brand.name)
         .input('description', sql.NVARCHAR(255), brand.description)
         .input('image', sql.NVARCHAR(255), file)
-        .input('slug', sql.NVARCHAR(255), brand.slug)
         .query(sqlStringAddProduct, (err, data) => {
             if (err) {
                 console.log(err)

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../store/Context';
 import '../header/header.scss';
-import { Link, NavLink, useLocation, useParams, useHistory, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useParams, useNavigate } from 'react-router-dom';
 import logo from '../../images/logo1000.png'
 import { AutoComplete, Input, Row, Col, Drawer, Space, Menu } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCartFlatbed, faUser, faBars, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faCartFlatbed, faUser, faBars, faAngleRight, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'js-cookie'; // Import thư viện js-cookie
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,9 +16,10 @@ import {
     DashboardOutlined, BoldOutlined
 } from '@ant-design/icons';
 
+
 const { Search } = Input;
 function Header() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { param } = useParams(); // Lấy tham số từ URL
     const token = Cookies.get('token');
     const context = useContext(Context)
@@ -39,8 +40,7 @@ function Header() {
     const [userId, setUserId] = useState('')
     const location = useLocation();
     const isHomePage = location.pathname === '/';
-    const isAdminHomePage = location.pathname === '/management'
-        || location.pathname.startsWith('/management/');
+    const isAdminHomePage = location.pathname === '/management' || location.pathname.startsWith('/management/');
     const [searchValue, setSearchValue] = useState('');
     //Bar responsive
     const [isBarOpen, setIsBarOpen] = useState(false);
@@ -64,6 +64,24 @@ function Header() {
     const setIsScreenSmaller1280 = context.setIsScreenSmaller1280
     const isScreenSmaller430 = context.isScreenSmaller430
     const setIsScreenSmaller430 = context.setIsScreenSmaller430
+
+
+    useEffect(() => {
+        let isAdminPage = window.location.href.includes('management')
+
+        if (isAdminPage && !token) {
+            navigate('/')
+        }
+
+        if (token) {
+            const decodedToken = jwtDecode(token);
+            if (decodedToken.role === 'admin' && !isAdminPage) {
+                navigate('/management')
+            } else if (decodedToken.role === 'user' && isAdminPage) {
+                navigate('/')
+            }
+        }
+    }, [location])
 
     useEffect(() => {
         const handleResize = () => {
@@ -247,7 +265,7 @@ function Header() {
 
     // console.log(token)
     const filterOptions = (inputValue, option) => {
-        const lowerCaseInput = inputValue.toLowerCase();
+        const lowerCaseInput = inputValue.toLowerCase().trim();
         return (
             (option.prod_name && option.prod_name.toLowerCase().includes(lowerCaseInput)) ||
             (option.cpu && option.cpu.toLowerCase().includes(lowerCaseInput)) ||
@@ -258,33 +276,49 @@ function Header() {
         );
     };
 
+    const handleEnterSearch = (e) => {
+        if (e.trim() !== '') {
+            navigate(`/search?q=${encodeURIComponent(e.trim())}&page=1`);
+        } else {
+            context.Message('warning', 'Vui lòng nhập từ khóa vào ô tìm kiếm')
+        }
+    }
+
 
 
     const AutoCompleteCpn = ({ isHidden }) => {
-        return (<AutoComplete
-            className={`${isHidden ? 'hidden ' : ''}my-auto header-autocpl ${!isHiddenAutoCpl ? 'pb-2' : ''} ${isAdminHomePage ? 'hidden' : ''}
-            `}
-            popupClassName="certain-category-search-dropdown"
-            popupMatchSelectWidth={300}
-            style={{
-                width: '100%'
-            }}
-            options={products.map((product) => ({
-                ...product,
-                label: renderOption(product),
-                value: product.prod_name
-            }))}
-            filterOption={filterOptions}
-            size="large"
-            onSelect={(value, option) => { }}
-
-        >
-            <Input.Search
-                className='text-white header-input-search'
-                size="large"
-                placeholder='Nhập tên sản phẩm, từ khóa cần tìm kiếm,...'
-            />
-        </AutoComplete>)
+        return (
+            <AutoComplete
+                className={`${isHidden ? 'hidden ' : ''}my-auto header-autocpl ${!isHiddenAutoCpl ? 'pb-2' : ''} ${isAdminHomePage ? 'hidden' : ''}`}
+                popupClassName="certain-category-search-dropdown"
+                popupMatchSelectWidth={300}
+                style={{
+                    width: '100%'
+                }}
+                options={products.map((product) => ({
+                    ...product,
+                    label: renderOption(product),
+                    value: product.id
+                }))}
+                filterOption={filterOptions}
+                onSelect={(value, option) => { }}
+            >
+                <Input.Search
+                    className='text-white header-input-search'
+                    size="large"
+                    placeholder='Nhập tên sản phẩm, từ khóa cần tìm kiếm,...'
+                    onSearch={(e) => {
+                        if (e.trim() !== '') {
+                            navigate(`/search?q=${encodeURIComponent(e.trim())}&page=1`);
+                        } else {
+                            context.Message('warning', 'Vui lòng nhập từ khóa vào ô tìm kiếm')
+                        }
+                    }}
+                    onPressEnter={(e) => {
+                        handleEnterSearch(e.target.value)
+                    }}
+                />
+            </AutoComplete>)
     }
 
     const ListCategoriesCpn = () => {
@@ -298,7 +332,7 @@ function Header() {
                     <li className=' pt-[8px] group/category
                 pl-[12px] hover:bg-[#c8191f] '>
                         <Link
-                            onClick={() => setIsBarOpen(false)} to={'/'}
+                            onClick={() => setIsBarOpen(false)} to={!isAdmin ? '/' : '/management'}
                             className='text-black group-hover/category:text-white'
                         >Trang chủ</Link>
                     </li>
@@ -306,7 +340,7 @@ function Header() {
                 {categories.map((category) => (
                     <li key={category.category_id} className=' pt-[8px] group/category
             pl-[12px] hover:bg-[#c8191f] '>
-                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/category=${category.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/page=1&category=${category.slug}`} className='text-black group-hover/category:text-white'>
                             {category.name}
                         </Link>
                     </li>
@@ -314,7 +348,7 @@ function Header() {
                 {brands.map((brand) => (
                     <li key={brand.brand_id} className=' pt-[10px] group/category
             pl-[12px] hover:text-white hover:bg-[#c8191f]  last:pb-[10px]'>
-                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/brand=${brand.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/page=1&brand=${brand.slug}`} className='text-black group-hover/category:text-white'>
                             Laptop {brand.name}
 
                         </Link>
@@ -407,7 +441,7 @@ function Header() {
                         <div className=''>
                             <NavLink
                                 // className={'inline-block'}
-                                to='/'
+                                to={!isAdmin ? '/' : '/management'}
                             ><img
                                 className={` max-w-[197px] mx-[30px] mt-[33px] mb-[25px] ${!isHiddenAutoCpl ? 'ml-0' : ''} max-[430px]:w-[180px]`}
                                 src={logo}></img>
@@ -474,7 +508,7 @@ function Header() {
                                                                 ${isShowFloatLayer ? ' absolute right-6 top-[50px] z-10 bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.5)] min-w-[260px] rounded-[10px]' : 'hidden'}
                                                                 `}>
                                                         <ul className=''>
-                                                            {isAdmin &&
+                                                            {/* {isAdmin &&
                                                                 <li className='flex  '>
                                                                     <Link
                                                                         onClick={() => {
@@ -486,18 +520,20 @@ function Header() {
                                                                         <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
                                                                     </Link>
                                                                 </li>
+                                                            } */}
+                                                            {isAdmin ? null :
+                                                                <li className='flex  '>
+                                                                    <Link
+                                                                        to={`profile/${userId}`}
+                                                                        onClick={() => {
+                                                                            handleProfile();
+                                                                        }}
+                                                                        className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>
+                                                                        Quản lý thông tin cá nhân
+                                                                        <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
+                                                                    </Link>
+                                                                </li>
                                                             }
-                                                            <li className='flex  '>
-                                                                <Link
-                                                                    to={`profile/${userId}`}
-                                                                    onClick={() => {
-                                                                        handleProfile();
-                                                                    }}
-                                                                    className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>
-                                                                    Quản lý thông tin cá nhân
-                                                                    <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
-                                                                </Link>
-                                                            </li>
                                                             <li className='flex '>
                                                                 <Link
                                                                     onClick={() => {
@@ -553,7 +589,7 @@ function Header() {
                                             <div
                                                 className={isShowFloatLayer ? ' absolute right-4 top-[85px] z-10 bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.5)] min-w-[260px] rounded-[10px]' : 'hidden'}>
                                                 <ul className=''>
-                                                    {isAdmin &&
+                                                    {/* {isAdmin &&
                                                         <li className='flex  '>
                                                             <Link
                                                                 onClick={() => {
@@ -565,33 +601,39 @@ function Header() {
                                                                 <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
                                                             </Link>
                                                         </li>
+                                                    } */}
+                                                    {!isAdmin &&
+                                                        <>
+                                                            <li className='flex  '>
+                                                                <Link
+                                                                    to={`profile/${userId}`}
+                                                                    onClick={() => {
+                                                                        handleProfile();
+                                                                    }}
+                                                                    className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>
+                                                                    Quản lý thông tin cá nhân
+                                                                    <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
+                                                                </Link>
+                                                            </li>
+
+                                                            <li className='flex '>
+                                                                <Link
+                                                                    onClick={() => {
+                                                                        setIsShowFloatLayer(false);
+                                                                    }}
+                                                                    to={'/order'}
+                                                                    className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>
+                                                                    Quản lý đơn hàng
+                                                                    <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
+                                                                </Link>
+                                                            </li>
+                                                        </>
                                                     }
-                                                    <li className='flex  '>
-                                                        <Link
-                                                            to={`profile/${userId}`}
-                                                            onClick={() => {
-                                                                handleProfile();
-                                                            }}
-                                                            className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>
-                                                            Quản lý thông tin cá nhân
-                                                            <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
-                                                        </Link>
-                                                    </li>
-                                                    <li className='flex '>
-                                                        <Link
-                                                            onClick={() => {
-                                                                setIsShowFloatLayer(false);
-                                                            }}
-                                                            to={'/order'}
-                                                            className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>
-                                                            Quản lý đơn hàng
-                                                            <FontAwesomeIcon icon={faAngleRight} className='pl-5' />
-                                                        </Link>
-                                                    </li>
                                                     <li className='flex '>
                                                         <Link to='/auth'
                                                             onClick={(e) => { handleLogout(e) }}
-                                                            className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>Đăng xuất</Link>
+                                                            className='text-black hover:bg-gray-200 hover:rounded-[10px] py-[15px] w-full px-4'>Đăng xuất
+                                                            <FontAwesomeIcon icon={faRightFromBracket} className='icon pl-5'></FontAwesomeIcon></Link>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -645,7 +687,7 @@ function Header() {
                                 {categories.map((category) => (
                                     <li key={category.category_id} className=' pt-[8px] group/category
                                 pl-[12px] hover:bg-[#c8191f] '>
-                                        <Link to={`laptop/category=${category.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                                        <Link to={`laptop/page=1&category=${category.slug}`} className='text-black group-hover/category:text-white'>
                                             {category.name}
                                         </Link>
                                     </li>
@@ -653,7 +695,7 @@ function Header() {
                                 {brands.map((brand) => (
                                     <li key={brand.brand_id} className=' pt-[10px] group/category
                                 pl-[12px] hover:text-white hover:bg-[#c8191f]  last:pb-[10px]'>
-                                        <Link to={`laptop/brand=${brand.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                                        <Link to={`laptop/page=1&brand=${brand.slug}`} className='text-black group-hover/category:text-white'>
                                             Laptop {brand.name}
 
                                         </Link>
@@ -666,7 +708,7 @@ function Header() {
                             {isScreenSmaller1280 ?
                                 brands.slice(0, 9).map((brand) => (
                                     <li key={brand.brand_id} className='brands pl-5'>
-                                        <Link to={`laptop/brand=${brand.slug}&page=1`} className=''>
+                                        <Link to={`laptop/page=1&brand=${brand.slug}`} className=''>
                                             <img src={brand.image}></img>
 
                                         </Link>
@@ -675,7 +717,7 @@ function Header() {
                                 :
                                 brands.map((brand) => (
                                     <li key={brand.brand_id} className='brands pl-5'>
-                                        <Link to={`laptop/brand=${brand.slug}&page=1`} className=''>
+                                        <Link to={`laptop/page=1&brand=${brand.slug}`} className=''>
                                             <img src={brand.image}></img>
 
                                         </Link>
@@ -687,7 +729,7 @@ function Header() {
                     {!isHiddenAutoCpl && <AutoCompleteCpn isHidden={false} />}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
 

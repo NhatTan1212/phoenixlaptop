@@ -76,7 +76,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
             setProductPercent(discountPercentage.toFixed(0) + '');
         } else {
             // console.log("Invalid input");
-            setProductPercent('');
+            setProductPercent('0');
         }
     };
 
@@ -122,13 +122,25 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
         setFileList(limitedFileList)
     };
 
-    const onFinish = (values) => {
-        // if (avatar === '') 
-        values.preventDefault();
+    const onFinish = (e) => {
+        e.preventDefault();
+        console.log(avatar);
+        if (avatar === null || productName === '' || selectedItems === '' || categoryIDSelected === '' ||
+            productDescription === '' || price === '' || cost === '' || quantity === '' || productPercent === '' ||
+            pin === '' || operationSystem === '' || graphics === '' || onBoard === '' ||
+            cpu === '' || hardDrive === '' || screen === '' || webcam === '' || connection === '' || prodWeight === '') {
+            context.Message('error', 'Vui lòng nhập đầy đủ thông tin.')
+            return
+        }
+        if (fileList.length === 0) {
+            context.Message('error', 'Vui lòng thêm hình ảnh cho sản phẩm.')
+            return
+        }
+
         const formData = new FormData();
         formData.append('token', token);
-        formData.append('brand_id', selectedItems + 1);
-        formData.append('category_id', categoryIDSelected + 1);
+        formData.append('brand_id', selectedItems);
+        formData.append('category_id', categoryIDSelected);
         formData.append('prod_name', productName);
         formData.append('prod_description', productDescription);
         formData.append('price', price);
@@ -193,18 +205,23 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                 <Input
                     className='fpm-input-file mb-2 mt-0' type="file" name="avatar" hidden
                     onChange={(e) => {
-                        // console.log(e.target.files[0])
-                        setAvatar(e.target.files[0])
-                        // Update the image preview here
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            // Set the preview image source
-                            document.querySelector('.avatar-modal-view').src = event.target.result;
-                            document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
-                            document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
-                        };
-                        reader.readAsDataURL(e.target.files[0]);
+
+                        if (e.target.files && e.target.files[0]) {
+                            // console.log(e.target.files[0])
+                            setAvatar(e.target.files[0])
+                            // Update the image preview here
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                // Set the preview image source
+                                document.querySelector('.avatar-modal-view').src = event.target.result;
+                                document.querySelector('.avatar-modal-view').style.setProperty('display', 'block', 'important');
+                                document.querySelector('.text-add-img').style.setProperty('display', 'none', 'important')
+                            };
+                            reader.readAsDataURL(e.target.files[0]);
+                        }
+
                     }} />
+
             </div>
 
             <div>
@@ -770,16 +787,11 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     name='brand_id'
                                     value={brandSelected}
                                     onChange={(e) => {
-                                        const getBrand = brands.find((brand) => {
-                                            // console.log(brand.brand_id)
-                                            // console.log(actioningProduct)
-                                            return brand.brand_id === e + 1
-
-                                        });
+                                        const getBrand = brands[e]
                                         // console.log(getBrand);
                                         setBrandSelected(getBrand.name)
                                         // value ở đây là một mảng các giá trị đã được chọn
-                                        setSelectedItems(e);
+                                        setSelectedItems(getBrand.brand_id);
                                         // console.log(e + 1)
                                     }}
                                     style={{
@@ -802,16 +814,13 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     name='category_id'
                                     value={categorySelected}
                                     onChange={(e) => {
-                                        const getCategory = categories.find((category) => {
-                                            // console.log(category.brand_id)
-                                            // console.log(actioningProduct)
-                                            return category.category_id === e + 1
+                                        const getCategory = categories[e]
 
-                                        });
-                                        // console.log(getBrand);
+
+
                                         setCategorySelected(getCategory.name)
                                         // value ở đây là một mảng các giá trị đã được chọn
-                                        setCategoryIDSelected(e);
+                                        setCategoryIDSelected(getCategory.category_id);
                                         // console.log(e + 1)
                                     }}
                                     style={{
@@ -843,6 +852,15 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     onChange={handleCostChange}></Input>
                             </div>
                             <div className='flex'>
+                                <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Phần trăm giảm giá:</h3>
+                                <Input
+                                    className='mb-2 mt-0'
+                                    name='prod_percent'
+                                    value={productPercent !== '' ? (productPercent + " %") || '' : ''}
+                                    readOnly
+                                ></Input>
+                            </div>
+                            <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Số lượng còn lại:</h3>
                                 <Input
                                     className='mb-2 mt-0'
@@ -851,15 +869,6 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                     onChange={(e) => {
                                         setQuantity(e.target.value)
                                     }}></Input>
-                            </div>
-                            <div className='flex'>
-                                <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Phần trăm giảm giá:</h3>
-                                <Input
-                                    className='mb-2 mt-0'
-                                    name='prod_percent'
-                                    value={(productPercent + " %") || ''}
-                                    readOnly
-                                ></Input>
                             </div>
                             <div className='flex'>
                                 <h3 className='w-1/3 my-auto'><span className='text-red-500'>* </span>Màn hình:</h3>
@@ -1134,8 +1143,12 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                     </Row>
 
                     <div className='inline-block'>
-                        <Input type='submit' defaultValue={"Thêm sản phẩm"}
-                            className='bg-[#c8191f] text-white'>
+                        <Input
+                            type='submit'
+                            defaultValue={"Thêm sản phẩm"}
+                            className='bg-[#c8191f] text-white'
+                        // onClick={(e)=>{onFinish(e)}}
+                        >
                         </Input>
                     </div>
                 </form>

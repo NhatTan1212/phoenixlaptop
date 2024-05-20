@@ -490,6 +490,7 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
         let sort = reqData.sort;
         let brand = reqData.brand;
         let category = reqData.category;
+        let range = reqData.range;
 
         if (brand.includes(',')) {
             brand = brand.split(',').join(',').replace(/,/g, "','")
@@ -524,6 +525,23 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
             totalProductFilter = await pool.request().query(query);
         }
 
+        if (range === 'duoi-10-trieu') {
+            query += ` AND price < 10000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tu-10-den-20-trieu') {
+            query += ` AND price >= 10000000 AND price < 20000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tu-20-den-30-trieu') {
+            query += ` AND price >= 20000000 AND price < 30000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tu-30-den-40-trieu') {
+            query += ` AND price >= 30000000 AND price < 40000000`;
+            totalProductFilter = await pool.request().query(query);
+        } else if (range === 'tren-40-trieu') {
+            query += ` AND price >= 40000000`;
+            totalProductFilter = await pool.request().query(query);
+        }
+
         if (sort === 'gia-thap-den-cao' || sort === 'gia-cao-den-thap') {
             const tableSortConvert = {
                 "gia-thap-den-cao": "asc",
@@ -534,21 +552,20 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
 
             query += ` ORDER BY price ${sort.toUpperCase()}`;
         } else {
-            query += ` ORDER BY id`;
+            query += ` ORDER BY id DESC`;
         }
 
         query += ` OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
 
         const result = await pool.request().query(query);
-        console.log(totalProductFilter);
         const data = {
             products: result.recordset,
             currentPage: parseInt(page),
             totalPages:
-                (brand || category)
+                (brand || category || range)
                     ? Math.ceil(totalProductFilter.recordset.length / parseInt(limit))
                     : totalPages,
-            totalProducts: (brand || category) ? totalProductFilter.recordset.length : totalCount,
+            totalProducts: (brand || category || range) ? totalProductFilter.recordset.length : totalCount,
             limit: parseInt(limit),
         };
 
@@ -562,6 +579,85 @@ Products.getAllWithPaginationAndFilter = async (reqData, resultCallback) => {
         } catch (err) {
             console.error('Error closing connection:', err.message);
         }
+    }
+};
+
+Products.searchProductsWithPagination = async (reqData, resultCallback) => {
+    try {
+        let { searchKeyword, pageNumber, limit, sort } = reqData;
+
+        const pool = await connect;
+
+        let sqlQuery = `
+            SELECT COUNT(*) as totalRecords
+            FROM PRODUCTS
+            WHERE [prod_name] LIKE '%'+ @searchKeyword + '%'
+            OR [prod_description] LIKE '%'+ @searchKeyword + '%'
+            OR [manufacturer] LIKE '%'+ @searchKeyword + '%'
+            OR [cpu] LIKE '%'+ @searchKeyword + '%'
+            OR [hard_drive] LIKE '%'+ @searchKeyword + '%'
+            OR [mux_switch] LIKE '%'+ @searchKeyword + '%'
+            OR [screen] LIKE '%'+ @searchKeyword + '%'
+            OR [webcam] LIKE '%'+ @searchKeyword + '%'
+            OR [connection] LIKE '%'+ @searchKeyword + '%'
+            OR [ram] LIKE '%'+ @searchKeyword + '%'
+            OR [graphics] LIKE '%'+ @searchKeyword + '%'
+            OR [on_board] LIKE '%'+ @searchKeyword + '%'
+            OR [detailed_evaluation] LIKE '%'+ @searchKeyword + '%'
+        `;
+
+        const resultCount = await pool.request()
+            .input('SearchKeyword', sql.NVARCHAR(255), searchKeyword)
+            .query(sqlQuery);
+        const totalRecords = resultCount.recordset[0].totalRecords;
+
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        sqlQuery = `
+            SELECT *
+            FROM PRODUCTS
+            WHERE [prod_name] LIKE '%' + @searchKeyword + '%'
+                OR [prod_description] LIKE '%' + @searchKeyword + '%'
+                OR [manufacturer] LIKE '%' + @searchKeyword + '%'
+                OR [cpu] LIKE '%' + @searchKeyword + '%'
+                OR [hard_drive] LIKE '%' + @searchKeyword + '%'
+                OR [mux_switch] LIKE '%' + @searchKeyword + '%'
+                OR [screen] LIKE '%' + @searchKeyword + '%'
+                OR [webcam] LIKE '%' + @searchKeyword + '%'
+                OR [connection] LIKE '%' + @searchKeyword + '%'
+                OR [ram] LIKE '%' + @searchKeyword + '%'
+                OR [graphics] LIKE '%' + @searchKeyword + '%'
+                OR [on_board] LIKE '%' + @searchKeyword + '%'
+                OR [detailed_evaluation] LIKE '%' + @searchKeyword + '%'
+            ORDER BY
+                CASE
+                    WHEN @sort = '' THEN [id] * -1 -- Sắp xếp theo id giảm dần
+                    WHEN @sort = 'asc' THEN [price] -- Sắp xếp theo giá tăng dần
+                    WHEN @sort = 'desc' THEN [price] * -1 -- Sắp xếp theo giá giảm dần
+                END
+            OFFSET (@pageNumber - 1) * @limit ROWS
+            FETCH NEXT @limit ROWS ONLY;
+        `;
+
+        const result = await pool.request()
+            .input('SearchKeyword', sql.NVARCHAR(255), searchKeyword)
+            .input('PageNumber', sql.INT, pageNumber)
+            .input('Limit', sql.INT, limit)
+            .input('Sort', sql.NVARCHAR(10), sort)
+            .query(sqlQuery);
+
+        const response = {
+            totalRecords,
+            totalPages,
+            currentPage: pageNumber,
+            limit: limit,
+            data: result.recordset,
+        };
+
+        resultCallback(null, response);
+    } catch (error) {
+        console.error('SQL error:', error.message);
+        resultCallback(error.message, null);
     }
 };
 

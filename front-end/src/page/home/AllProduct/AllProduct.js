@@ -1,7 +1,7 @@
 import { HomeOutlined, LaptopOutlined } from '@ant-design/icons';
-import { Breadcrumb, Card, Checkbox, Col, List, Pagination, Row } from 'antd';
+import { Breadcrumb, Card, Checkbox, Col, List, Pagination, Radio, Row } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { GetBrands, GetCategories, GetProductsByQuery } from '../../../callAPI/api';
 import CheckBoxGroup from '../../../component/CheckBoxGroup';
 import renderListProduct from '../../../component/ListProducts';
@@ -15,8 +15,10 @@ function AllProduct() {
     const isScreenSmaller1280 = context.isScreenSmaller1280
     const isScreenSmaller430 = context.isScreenSmaller430
 
+    const navigate = useNavigate();
     const location = useLocation();
-    let navigate = useNavigate();
+    const urlParams = new URLSearchParams(location.search);
+
     const [products, setProducts] = useState([]);
     const [brands, setBrands] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -36,9 +38,20 @@ function AllProduct() {
         totalProducts: 1,
         limit: 1
     })
+
+    const priceRange = [
+        { lable: 'Tất cả', value: 'tat-ca' },
+        { lable: 'Dưới 10 triệu', value: 'duoi-10-trieu' },
+        { lable: 'Từ 10 - 20 triệu', value: 'tu-10-den-20-trieu' },
+        { lable: 'Từ 20 - 30 triệu', value: 'tu-20-den-30-trieu' },
+        { lable: 'Từ 30 - 40 triệu', value: 'tu-30-den-40-trieu' },
+        { lable: 'Trên 40 triệu', value: 'tren-40-trieu' }
+    ]
+    const [checkedPriceRange, setCheckedPriceRange] = useState(priceRange[0].value);
+
     useEffect(() => {
 
-        setCurrentPage(pagination.currentPage)//a hiển thử đi
+        setCurrentPage(pagination.currentPage)
 
     }, [query])
 
@@ -49,6 +62,7 @@ function AllProduct() {
         getSortSelected();
         setCheckBoxSelected();
     }, [query]);
+
     const setCheckBoxSelected = () => {
         if (query === 'page=1') {
             setIsCheckedAllBrands(true)
@@ -141,148 +155,88 @@ function AllProduct() {
                 totalProducts: response.totalProducts,
                 limit: response.limit,
             })
-            console.log('>>> Check call api:', response);
         })
     }
 
     const handleCheckboxChangeBrands = (e) => {
         setCheckedListBrands(e)
-        let brandQuery = e.join(',')
-        let categoryQuery = checkedListCategories.join(',')
-        let sortQuery = query.split('sort=')[1]
-        let newQuery = `/laptop/`
-        if (e.length !== 0) {
-            newQuery = `/laptop/brand=${brandQuery}`
-        }
-        if (categoryQuery !== '' && categoryQuery !== undefined) {
-            newQuery += `&category=${categoryQuery}`
-        }
-        if (sortQuery !== '' && sortQuery !== undefined) {
-            newQuery += `&sort=${sortQuery}`
-        }
-        navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
+        let newQuery = query
 
+        if (e.length === 0 || e.length === brands.length) {
+            setCheckedListBrands([])
+            navigate(`/laptop/${newQuery.replace(/([?&])brand=[^&]+&?/, '$1').replace(/&$/, '')}`);
+            return
+        }
+
+        newQuery = newQuery.replace(/([?&])brand=[^&]*/, '') + (newQuery.includes('?') ? '&' : '&') + 'brand=' + e.join(',');
+        navigate(`/laptop/${newQuery.replace(/page=[^&]+(&|$)/i, 'page=1$1')}`);
     };
 
     const handleSelectAllChangeBrands = (e) => {
-        if (e.target.checked) {
-            let newQuery = '/laptop/'
-            let categoryQuery = checkedListCategories.join(',')
-            let sortQuery = query.split('sort=')[1]
-            if (categoryQuery || sortQuery) {
-                if (categoryQuery) {
-                    newQuery += `category=${categoryQuery.includes(`page`)
-                        ? (categoryQuery.split(`&page=${currentPage}`).join('')) : categoryQuery}`
-                }
-                if (sortQuery) {
-                    newQuery += `&sort=${sortQuery.includes(`page`)
-                        ? (sortQuery.split(`&page=${currentPage}`).join('')) : sortQuery}`
-                }
-            }
-            setCheckedListBrands([])
-            navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
-        } else {
-
-        }
+        let newQuery = query.replace(/([?&])brand=[^&]+&?/, '$1').replace(/&$/, '');
+        navigate(`/laptop/${newQuery.replace(/page=[^&]+(&|$)/i, 'page=1$1')}`);
+        setCheckedListBrands([])
     };
 
     const handleCheckboxChangeCategories = (e) => {
-
         setCheckedListCategories(e)
-        let categoryQuery = e.join(',')
-        let brandQuery = checkedListBrands.join(',')
-        let sortQuery = query.split('sort=')[1]
-        let newQuery = `/laptop/`
-        if (e.length !== 0) {
-            newQuery = `/laptop/category=${categoryQuery}`
+        let newQuery = query
+
+        if (e.length === 0 || e.length === categories.length) {
+            setCheckedListCategories([])
+            navigate(`/laptop/${newQuery.replace(/([?&])category=[^&]+&?/, '$1').replace(/&$/, '')}`);
+            return
         }
-        if (brandQuery !== '' && brandQuery !== undefined) {
-            newQuery += `&brand=${brandQuery}`
-        }
-        if (sortQuery !== '' && sortQuery !== undefined) {
-            newQuery += `&sort=${sortQuery}`
-        }
-        navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
+
+        newQuery = newQuery.replace(/([?&])category=[^&]*/, '') + (newQuery.includes('?') ? '&' : '&') + 'category=' + e.join(',');
+        navigate(`/laptop/${newQuery.replace(/page=[^&]+(&|$)/i, 'page=1$1')}`);
     };
 
     const handleSelectAllChangeCategories = (e) => {
-        if (e.target.checked) {
-            let newQuery = '/laptop/'
-            let brandQuery = checkedListBrands.join(',')
-            let sortQuery = query.split('sort=')[1]
-            if (brandQuery || sortQuery) {
-                if (brandQuery) {
-                    newQuery += `&brand=${brandQuery.includes(`page`)
-                        ? (brandQuery.split(`&page=${currentPage}`).join('')) : brandQuery}`
-                }
-                if (sortQuery) {
-                    newQuery += `&sort=${sortQuery.includes(`page`)
-                        ? (sortQuery.split(`&page=${currentPage}`).join('')) : sortQuery}`
-                }
-            }
-            setCheckedListCategories([])
-            navigate(newQuery.includes(`page`) ? (newQuery) : (newQuery + `&page=1`))
-        } else {
+        let newQuery = query.replace(/([?&])category=[^&]+&?/, '$1').replace(/&$/, '');
+        navigate(`/laptop/${newQuery.replace(/page=[^&]+(&|$)/i, 'page=1$1')}`);
+        setCheckedListCategories([])
+    };
 
+    const handleCheckboxChangePriceRange = (priceRange) => {
+        setCheckedPriceRange(priceRange);
+
+        const priceRangeMap = {
+            'duoi-10-trieu': 'duoi-10-trieu',
+            'tu-10-den-20-trieu': 'tu-10-den-20-trieu',
+            'tu-20-den-30-trieu': 'tu-20-den-30-trieu',
+            'tu-30-den-40-trieu': 'tu-30-den-40-trieu',
+            'tren-40-trieu': 'tren-40-trieu',
+            'tat-ca': null
+        };
+
+        const newPriceRangeParam = priceRangeMap[priceRange] || 'tat-ca';
+
+        let newQuery = query.replace(/([?&])range=[^&]*/, '') + (query.includes('?') ? '&' : '&') + 'range=' + newPriceRangeParam
+
+        if (priceRange === 'tat-ca' || (priceRange === checkedPriceRange)) {
+            setCheckedPriceRange('tat-ca');
+            newQuery = newQuery.replace(/([?&])range=[^&]+&?/, '$1').replace(/&$/, '');
         }
+
+        navigate(`/laptop/${newQuery.replace(/page=[^&]+(&|$)/i, 'page=1$1')}`);
     };
 
     const handleChangeSort = (sort) => {
-        let queryNotSort = query.includes('&sort=') ? query.split('&sort=')[0] : query.split('sort=')[0];
-        if (sort === 'asc') {
-            if (query === queryNotSort) {
-                let locationPath = location.pathname.split(`&page=${currentPage}`).join('')
-                const newUrl = `${locationPath}&page=1`;
-                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
-                    navigate(`${newUrl}&sort=gia-thap-den-cao`)
+        const sortMap = {
+            'asc': 'gia-thap-den-cao',
+            'desc': 'gia-cao-den-thap'
+        };
 
-                } else {
-                    navigate(`/laptop/sort=gia-thap-den-cao&page=1`)
+        const newSort = sortMap[sort] || null;
 
-                }
+        let newQuery = query.replace(/([?&])sort=[^&]*/, '') + (query.includes('page') ? '&' : '?') + 'sort=' + newSort;
 
-            } else {
-                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
-                    let newQ = `/laptop/${queryNotSort}&sort=gia-thap-den-cao`.split(`&page=${currentPage}`).join('')
-
-                    navigate(`${newQ}&page=1`)
-                } else {
-                    navigate(`/laptop/sort=gia-thap-den-cao&page=1`)
-
-                }
-            }
-        } else if (sort === 'desc') {
-            if (query === queryNotSort) {
-                let locationPath = location.pathname.split(`&page=${currentPage}`).join('')
-                const newUrl = `${locationPath}&page=1`;
-                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
-                    navigate(`${newUrl}&sort=gia-cao-den-thap`)
-
-                } else {
-                    navigate(`/laptop/sort=gia-cao-den-thap&page=1`)
-
-                }
-
-            } else {
-                if (checkedListBrands.length > 0 || checkedListCategories > 0) {
-                    let newQ = `/laptop/${queryNotSort}&sort=gia-cao-den-thap`.split(`&page=${currentPage}`).join('')
-
-                    navigate(`${newQ}&page=1`)
-                } else {
-                    navigate(`/laptop/sort=gia-cao-den-thap&page=1`)
-
-                }
-            }
-
-        } else {
-            console.log(query);
-            console.log(queryNotSort);
-            if (query.includes('sort')) {
-                let newQ = `/laptop/${queryNotSort}`.split(`&page=${currentPage}`).join('')
-                navigate(`${newQ}&page=1`)
-            }
+        if (!newSort) {
+            newQuery = newQuery.replace(/([?&])sort=[^&]+&?/, '$1').replace(/&$/, '');
         }
 
+        navigate(`/laptop/${newQuery.replace(/page=[^&]+(&|$)/i, 'page=1$1')}`);
     };
 
     useEffect(() => {
@@ -343,6 +297,24 @@ function AllProduct() {
                             type={categories}
                             isCheckedAll={isCheckedAllCategories}
                         />
+
+                        <h3 className='font-bold my-4'>Mức giá</h3>
+                        <Row>
+                            {priceRange.map((item) => {
+                                return (
+                                    <Col span={24} className='my-1'>
+                                        <Checkbox
+                                            key={item.label}
+                                            onChange={(e) => handleCheckboxChangePriceRange(e.target.value)}
+                                            checked={item.value === checkedPriceRange}
+                                            value={item.value}
+                                        >
+                                            {item.lable}
+                                        </Checkbox>
+                                    </Col>
+                                )
+                            })}
+                        </Row>
                     </Col>
 
                     {/* Col for product list */}
@@ -354,18 +326,18 @@ function AllProduct() {
                                 <span
                                     className={
                                         sortStatus === null
-                                            ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white rounded-l-md')
-                                            : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] text-black rounded-l-md')
+                                            ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white rounded-l-md cursor-pointer')
+                                            : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] text-black rounded-l-md cursor-pointer')
                                     }
                                     onClick={() => { handleChangeSort() }}
                                 >
-                                    Mới nhập
+                                    Sản phẩm mới
                                 </span>
                                 <span
                                     className={
                                         sortStatus === 'desc'
-                                            ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0')
-                                            : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0')
+                                            ? ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0 cursor-pointer')
+                                            : ('my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0 cursor-pointer')
                                     }
                                     onClick={() => { handleChangeSort('desc') }}
                                 >
@@ -375,8 +347,8 @@ function AllProduct() {
                                     className=
                                     {
                                         sortStatus === 'asc'
-                                            ? 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0 rounded-r-md'
-                                            : 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0 rounded-r-md'
+                                            ? 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] bg-[#cb1c22] text-white border-l-0 rounded-r-md cursor-pointer'
+                                            : 'my-4 mx-0 px-3 py-1 border-[1px] border-[#bababa] border-l-0 rounded-r-md cursor-pointer'
                                     }
                                     onClick={() => { handleChangeSort('asc') }}
                                 >
@@ -391,7 +363,6 @@ function AllProduct() {
                                     <List.Item className='h-full'>
                                         <Card className=' w-[100%] h-[100%] overflow-hidden'>
                                             {renderListProduct(item, brands)}
-
                                         </Card>
                                     </List.Item>
                                 )}

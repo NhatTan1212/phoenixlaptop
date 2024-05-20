@@ -1,0 +1,29 @@
+.bc-allproduct li {
+   margin: auto 0;
+}
+.checkbox-allproduct .ant-checkbox-checked .ant-checkbox-inner {
+   background-color: #cb1c22;
+   border: solid 1px #cb1c22;
+}
+.checkbox-allproduct
+   .ant-checkbox-wrapper:hover
+   .ant-checkbox-checked:hover
+   .ant-checkbox-inner {
+   background-color: #cb1c22;
+   border: solid 1px #cb1c22;
+}
+.checkbox-allproduct
+   .ant-checkbox-wrapper:hover
+   .ant-checkbox:hover
+   .ant-checkbox-inner {
+   border: solid 1px #cb1c22;
+}
+.checkbox-allproduct .ant-checkbox:hover .ant-checkbox-inner {
+   border: solid 1px #cb1c22;
+}
+
+@media (min-width: 1650px) {
+   .allproduct-wrap-content {
+      width: 1650px;
+   }
+}

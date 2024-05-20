@@ -601,6 +601,30 @@ ORDERS.UpdateCancelById = async (id, is_cancel) => {
     });
 }
 
+ORDERS.RefundProductQuantity = async (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pool = await connect;
+            const sqlStringAddProduct = `
+            UPDATE PRODUCTS
+            SET quantity = PRODUCTS.quantity + od.quantity
+            FROM PRODUCTS
+            INNER JOIN ORDER_DETAILS od ON PRODUCTS.id = od.product_id
+            WHERE od.order_id = @order_id
+            `;
+
+            const data = await pool.request()
+                .input('order_id', sql.Int, id)
+                .query(sqlStringAddProduct);
+
+            resolve(data.recordset);
+        } catch (err) {
+            console.log(err);
+            reject(err);
+        }
+    });
+}
+
 ORDERS.UpdateRejectById = async (id, result) => {
     const pool = await connect;
     const sqlStringAddProduct = `

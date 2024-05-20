@@ -71,20 +71,28 @@ function brandsList(req, res) {
 }
 
 function brandAddNew(req, res) {
-  const newBrand = new BRANDS({
-    name: req.body.name,
-    description: req.body.description,
-    slug: req.body.slug,
-    image: 'http://localhost:8000/upload/brands/' + req.files.avatar[0].filename,
-  });
 
-  BRANDS.addNewBrand(newBrand, (err, data) => {
-    if (err) {
-      res.json({ success: false, message: err });
+  BRANDS.findBySlug(req.body.slug).then((data) => {
+    if (data) {
+      res.json({ success: false, message: "Mã slug đã tồn tại trong hệ thống" })
+      return;
     }
-    else {
-      res.json({ success: true, message: 'Thêm thương hiệu thành công.' });
-    }
+
+    const newBrand = new BRANDS({
+      name: req.body.name,
+      description: req.body.description,
+      slug: req.body.slug,
+      image: 'http://localhost:8000/upload/brands/' + req.files.avatar[0].filename,
+    });
+
+    BRANDS.addNewBrand(newBrand, (err, data) => {
+      if (err) {
+        res.json({ success: false, message: err });
+      }
+      else {
+        res.json({ success: true, message: 'Thêm thương hiệu thành công.' });
+      }
+    })
   })
 }
 
@@ -109,18 +117,18 @@ function brandEdit(req, res) {
 }
 
 function brandDelete(req, res) {
-    BRANDS.deleteById(req.body.brand_id, (err, brands) => {
-        if (err) {
-            res.json({ success: false, message: err });
-        }
-        else {
-            if (brands) {
-                res.json({ success: brands, message: 'Xóa thương hiệu thành công.' });
-            } else {
-                res.json({ success: brands, message: 'Không thể xóa thương hiệu này.' });
-            }
-        }
-    })
+  BRANDS.deleteById(req.body.brand_id, (err, brands) => {
+    if (err) {
+      res.json({ success: false, message: err });
+    }
+    else {
+      if (brands) {
+        res.json({ success: brands, message: 'Xóa thương hiệu thành công.' });
+      } else {
+        res.json({ success: brands, message: 'Không thể xóa thương hiệu này.' });
+      }
+    }
+  })
 }
 
 
