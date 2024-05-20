@@ -340,7 +340,7 @@ function Header() {
                 {categories.map((category) => (
                     <li key={category.category_id} className=' pt-[8px] group/category
             pl-[12px] hover:bg-[#c8191f] '>
-                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/category=${category.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/page=1&category=${category.slug}`} className='text-black group-hover/category:text-white'>
                             {category.name}
                         </Link>
                     </li>
@@ -348,7 +348,7 @@ function Header() {
                 {brands.map((brand) => (
                     <li key={brand.brand_id} className=' pt-[10px] group/category
             pl-[12px] hover:text-white hover:bg-[#c8191f]  last:pb-[10px]'>
-                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/brand=${brand.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                        <Link onClick={() => setIsBarOpen(false)} to={`laptop/page=1&brand=${brand.slug}`} className='text-black group-hover/category:text-white'>
                             Laptop {brand.name}
 
                         </Link>
@@ -687,7 +687,7 @@ function Header() {
                                 {categories.map((category) => (
                                     <li key={category.category_id} className=' pt-[8px] group/category
                                 pl-[12px] hover:bg-[#c8191f] '>
-                                        <Link to={`laptop/category=${category.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                                        <Link to={`laptop/page=1&category=${category.slug}`} className='text-black group-hover/category:text-white'>
                                             {category.name}
                                         </Link>
                                     </li>
@@ -695,7 +695,7 @@ function Header() {
                                 {brands.map((brand) => (
                                     <li key={brand.brand_id} className=' pt-[10px] group/category
                                 pl-[12px] hover:text-white hover:bg-[#c8191f]  last:pb-[10px]'>
-                                        <Link to={`laptop/brand=${brand.slug}&page=1`} className='text-black group-hover/category:text-white'>
+                                        <Link to={`laptop/page=1&brand=${brand.slug}`} className='text-black group-hover/category:text-white'>
                                             Laptop {brand.name}
 
                                         </Link>
@@ -708,7 +708,7 @@ function Header() {
                             {isScreenSmaller1280 ?
                                 brands.slice(0, 9).map((brand) => (
                                     <li key={brand.brand_id} className='brands pl-5'>
-                                        <Link to={`laptop/brand=${brand.slug}&page=1`} className=''>
+                                        <Link to={`laptop/page=1&brand=${brand.slug}`} className=''>
                                             <img src={brand.image}></img>
 
                                         </Link>
@@ -717,7 +717,7 @@ function Header() {
                                 :
                                 brands.map((brand) => (
                                     <li key={brand.brand_id} className='brands pl-5'>
-                                        <Link to={`laptop/brand=${brand.slug}&page=1`} className=''>
+                                        <Link to={`laptop/page=1&brand=${brand.slug}`} className=''>
                                             <img src={brand.image}></img>
 
                                         </Link>
