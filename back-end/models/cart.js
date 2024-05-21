@@ -144,6 +144,10 @@ CART.updateById = async (user_id, product_id, count, is_possible_to_order, resul
                 console.log(err)
             } else {
                 console.log('update cart by user_id success')
+                if (data.rowsAffected[0] == 0) {
+                    result(null, { "message": "fail", "data": 0 });
+                    return
+                }
             }
             result(null, { "message": "success", "data": data });
             sql.close();
@@ -171,7 +175,13 @@ CART.updateByGID = async (guest_id, product_id, count, is_possible_to_order, res
                 console.log(err)
             } else {
                 console.log('update cart by guest_id success')
+                // console.log(data.rowsAffected[0]);
+                if (data.rowsAffected[0] == 0) {
+                    result(null, { "message": "fail", "data": 0 });
+                    return
+                }
             }
+
             result(null, { "message": "success", "data": data });
             sql.close();
         })

@@ -127,6 +127,10 @@ const ProductDetail = () => {
             })
                 .then(response => {
                     console.log(response);
+                    if (response.data.success == false) {
+                        error(response.data.message);
+                        return
+                    }
                     success('Thêm sản phẩm vào giỏ hàng thành công.')
                     setIsCartChange(true)
                 })
@@ -142,6 +146,10 @@ const ProductDetail = () => {
             })
                 .then(response => {
                     console.log(response);
+                    if (response.data.success == false) {
+                        error(response.data.message);
+                        return
+                    }
                     success('Thêm sản phẩm vào giỏ hàng thành công.')
                     setIsCartChange(true)
                 })
