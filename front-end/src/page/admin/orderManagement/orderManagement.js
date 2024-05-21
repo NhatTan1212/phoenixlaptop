@@ -18,6 +18,7 @@ import { DeleteOrder, GetOrder, UpdateOrder } from '../../../callAPI/api';
 import Instance from '../../../axiosInstance';
 import DeliveryAddressOrderDetail from '../../../component/management/DeliveryAddress';
 import TableOrderDetail from '../../../component/management/TableOrderDetail';
+import iconsOrder from '../../../global/imageOrder'
 
 const { Option } = Select;
 
@@ -662,6 +663,38 @@ const OrderManagement = () => {
         }
     }
 
+    const oderStatusCpn = (status, iconActive, iconDisable, title, positionLeft, positionTop, dateStatus) => {
+
+        return (
+            <div className='relative'>
+                <div>
+                    <div
+                        style={{ left: `-${positionLeft}px`, top: `${positionTop}px`, backgroundColor: status === 1 ? '#2dc258' : '#d8d8d8' }}
+                        className={`absolute w-[210px] h-[3px] z-[1]`}
+                    ></div>
+                </div>
+
+                <div className='flex flex-col w-[210px]'>
+                    <div className={`border-[4px] border-[${status === 1 ? '#2dc258' : '#d8d8d8'}] rounded-[100px] p-3
+                                max-w-[60px] mx-auto z-10 relative bg-white`}>
+                        <img src={status === 1 ? iconActive : iconDisable} alt='order-img' className='w-[35px] object-contain '></img>
+                    </div>
+                    <div className='mt-2 mx-auto text-center'>{title}</div>
+                    {status == 1 ?
+                        <div className='mx-auto text-center text-[#a4a4a4] text-sm '>
+                            <span>
+                                {dateStatus.slice(11, 16)}
+                            </span>
+                            <span className='ml-2'>
+                                {new Date(dateStatus).toLocaleDateString().replace(/\//g, '-')}
+                            </span>
+
+                        </div> : null
+                    }
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className='flex-1'>
@@ -716,6 +749,49 @@ const OrderManagement = () => {
                         </div>
                     </div>
                 }
+                <div className='flex justify-center py-4 bg-white mb-1 relative'>
+
+
+                    <div className='flex flex-col w-[210px]'>
+                        <div className={`border-[4px] border-[#2dc258] rounded-[100px] p-3 max-w-[60px] mx-auto z-10 relative bg-white`}>
+                            <img src={iconsOrder.receiptActive} alt='order-img' className='w-[35px] object-contain '></img>
+                        </div>
+                        <div className='mt-2 mx-auto'>Đơn hàng đã đặt</div>
+
+                        {order && order.length != 0 &&
+                            <>
+                                <div className='mx-auto text-[#a4a4a4] text-sm '>
+                                    <span>
+                                        {order.created_at.slice(11, 16)}
+                                    </span>
+                                    <span className='ml-2'>
+                                        {new Date(order.created_at).toLocaleDateString().replace(/\//g, '-')}
+                                    </span>
+
+                                </div>
+                            </>
+
+                        }
+
+
+
+
+                    </div>
+
+                    {
+                        order && order.user_address !== 'Nhận hàng tại cửa hàng' && oderStatusCpn(order.is_payment, iconsOrder.paymentActive, iconsOrder.paymentDisable, 'Đơn hàng đã thanh toán', 120, 30, order.paid_at)
+                    }
+                    {
+                        order && order.user_address !== 'Nhận hàng tại cửa hàng' && oderStatusCpn(order.is_being_shipped, iconsOrder.deliveryActive, iconsOrder.deliveryDisable, 'Đơn hàng đang được giao đến bạn', 120, 30, order.being_shipped_at)
+                    }
+                    {
+                        order && order.user_address !== 'Nhận hàng tại cửa hàng' && oderStatusCpn(order.is_transported, iconsOrder.receiverActive, iconsOrder.receiptDisable, 'Đã nhận được hàng', 120, 30, order.transported_at)
+                    }
+                    {
+                        oderStatusCpn(order && order.is_success, iconsOrder.checkActive, iconsOrder.checkDisable, 'Đơn hàng đã hoàn thành', 120, 30, order && order.successful_at)
+                    }
+
+                </div>
                 <div className='bg-[#fff]'>
                     <DeliveryAddressOrderDetail order={order} />
                     <div className='bg-[#ffffff] flex flex-col'>
