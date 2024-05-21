@@ -296,7 +296,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                             <ul>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Hãng CPU:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Hãng CPU:</h3>
                                         <Input
                                             className=' mb-2 mt-0'
                                             name='cpuBrand'
@@ -328,7 +328,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Công nghệ CPU:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Công nghệ CPU:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuTech'
@@ -359,7 +359,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Loại CPU:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Loại CPU:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuType'
@@ -390,7 +390,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Tốc độ CPU:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Tốc độ CPU:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuSpeed'
@@ -421,7 +421,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Tốc độ tối đa:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Tốc độ tối đa:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuMaxSpeed'
@@ -452,7 +452,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Số nhân:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Số nhân:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuCoreNumber'
@@ -483,7 +483,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Số luồng:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Số luồng:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuThreadNumber'
@@ -514,7 +514,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Bộ nhớ đệm:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Bộ nhớ đệm:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='cpuCache'
@@ -575,7 +575,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                             <ul>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Dung lượng RAM:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Dung lượng RAM:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='ramCapacity'
@@ -604,7 +604,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Loại RAM:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Loại RAM:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='ramType'
@@ -633,7 +633,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Tốc độ RAM:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Tốc độ RAM:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='ramSpeed'
@@ -662,7 +662,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Số khe cắm rời:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Số khe cắm rời:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='numRamRemovableSlots'
@@ -691,7 +691,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Số khe RAM còn lại:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Số khe RAM còn lại:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='numRamRemainingSlots'
@@ -720,7 +720,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Số RAM onboard:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Số RAM onboard:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='numRamOnBoard'
@@ -749,7 +749,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Hỗ trợ RAM tối đa:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Hỗ trợ RAM tối đa:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='maximumRAMSupport'
@@ -959,7 +959,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                             <ul>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Kiểu ổ cứng:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Kiểu ổ cứng:</h3>
                                         <Input
                                             className=' mb-2 mt-0'
                                             name='hardDriveType'
@@ -984,7 +984,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Loại ổ cứng:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Loại ổ cứng:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='SSDOrHDD'
@@ -1009,7 +1009,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Dung lượng:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Dung lượng:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='hardDriveCapacity'
@@ -1034,7 +1034,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Tổng số khe cắm SSD/HDD:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Tổng số khe cắm SSD/HDD:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='totalSSDAndHDD'
@@ -1059,7 +1059,7 @@ const ContentModalAddNewProduct = ({ isActioning, setIsActioning, setActioningPr
                                 </li>
                                 <li className='pl-6'>
                                     <div className='flex'>
-                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'>* </span>Số khe SSD/HDD còn lại:</h3>
+                                        <h3 className='w-2/3 my-auto'><span className='text-red-500'></span>Số khe SSD/HDD còn lại:</h3>
                                         <Input
                                             className='mb-2 mt-0'
                                             name='SSDAndHDDRemaining'
