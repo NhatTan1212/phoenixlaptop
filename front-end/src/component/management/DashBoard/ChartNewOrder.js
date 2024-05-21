@@ -129,7 +129,7 @@ const ChartNewOrders = ({ data }) => {
 
     newDataTotal = Array.from({ length: rangeDate + 1 }, (_, i) => {
         // Lấy ngày cần tính tổng doanh thu
-        const currentDate = subDays(new Date(endDate), rangeDate - 1 - i);
+        const currentDate = subDays(new Date(endDate), rangeDate - i);
         const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd');
 
         // Tính tổng doanh thu của ngày hiện tại
@@ -150,7 +150,7 @@ const ChartNewOrders = ({ data }) => {
 
     newDataOrder = Array.from({ length: rangeDate + 1 }, (_, i) => {
         // Lấy ngày cần tính tổng doanh thu
-        const currentDate = subDays(new Date(endDate), rangeDate - 1 - i);
+        const currentDate = subDays(new Date(endDate), rangeDate - i);
         const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd');
 
         // Tính tổng doanh thu của ngày hiện tại
@@ -171,7 +171,7 @@ const ChartNewOrders = ({ data }) => {
 
     newDataUser = Array.from({ length: rangeDate + 1 }, (_, i) => {
         // Lấy ngày cần tính tổng doanh thu
-        const currentDate = subDays(new Date(endDate), rangeDate - 1 - i);
+        const currentDate = subDays(new Date(endDate), rangeDate - i);
         const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd');
 
         // Tính tổng doanh thu của ngày hiện tại

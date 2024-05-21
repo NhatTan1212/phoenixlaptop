@@ -810,8 +810,12 @@ function addCart(req, res) {
               req.body.product_id,
               req.body.count,
               req.body.quantity,
-              (err, cart) => {
+              (err, data) => {
                 if (!err) {
+                  if (data.data == 0) {
+                    res.json({ success: false, message: 'Số lượng sản phẩm vượt quá giới hạn.' });
+                    return
+                  }
                   res.json({ success: true, redirectUrl: "../cart" });
                 }
               }
@@ -863,8 +867,12 @@ function addCart(req, res) {
               req.body.product_id,
               req.body.count,
               req.body.quantity,
-              (err, cart) => {
+              (err, data) => {
                 if (!err) {
+                  if (data.data == 0) {
+                    res.json({ success: false, message: 'Số lượng sản phẩm vượt quá giới hạn.' });
+                    return
+                  }
                   res.json({ success: true, redirectUrl: "../cart" });
                 }
               }
