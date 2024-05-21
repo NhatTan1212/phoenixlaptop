@@ -43,10 +43,10 @@ function OrderDetail() {
                 return (
                     // console.log("record", record)
                     <div className='w-[108px] '>
-                        < img
+                        <img
                             src={product.avatar}
                             className='w-full h-auto border-[1px] border-[#e1dada]'
-                        ></img >
+                        ></img>
 
                     </div>
                 )
@@ -97,10 +97,10 @@ function OrderDetail() {
                     <div >
                         <div className='flex max-[650px]:flex-col'>
                             <div className='mr-4 w-[108px] min-w-[108px]'>
-                                < img
+                                <img
                                     src={product.avatar}
                                     className='w-full h-auto border-[1px] border-[#e1dada]'
-                                ></img >
+                                ></img>
                             </div>
                             <p className='font-bold text-[17px] text-[#333]   max-[470px]:max-w-[300px]'>{product.prod_description}</p>
 
@@ -365,7 +365,7 @@ function OrderDetail() {
                         </div> : null
                 }
             </div>
-        </div >
+        </div>
 
     );
 }
