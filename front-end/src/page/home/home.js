@@ -255,7 +255,7 @@ function Home() {
               Laptop Cao Cấp - Sang Trọng
             </h2>
             <Link
-              to={"/laptop/category=laptop-caocap-sangtrong&page=1"}
+              to={"/laptop/page=1&category=laptop-caocap-sangtrong"}
               className="font-bold text-[#c8191f]"
             >
               {"xem tất cả >>"}
@@ -283,7 +283,7 @@ function Home() {
               Laptop Gaming
             </h2>
             <Link
-              to={"/laptop/category=laptop-gaming&page=1"}
+              to={"/laptop/page=1&category=laptop-gaming"}
               className="font-bold text-[#c8191f]"
             >
               {"xem tất cả >>"}
@@ -311,7 +311,7 @@ function Home() {
               Laptop Văn Phòng
             </h2>
             <Link
-              to={"/laptop/category=laptop-vanphong&page=1"}
+              to={"/laptop/page=1&category=laptop-vanphong"}
               className="font-bold text-[#c8191f]"
             >
               {"xem tất cả >>"}
